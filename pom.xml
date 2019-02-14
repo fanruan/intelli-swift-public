@@ -12,7 +12,7 @@
     <artifactId>swift-public</artifactId>
     <packaging>pom</packaging>
     <properties>
-        <jackson.version>2.9.7</jackson.version>
+        <jackson.version>2.9.8</jackson.version>
     </properties>
 
     <modules>
