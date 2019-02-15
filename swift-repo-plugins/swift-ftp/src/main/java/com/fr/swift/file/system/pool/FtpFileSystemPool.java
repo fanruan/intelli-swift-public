@@ -33,7 +33,7 @@ public class FtpFileSystemPool extends BaseRemoteFileSystemPool<FtpFileSystemImp
 
         @Override
         public FtpFileSystemImpl create(String uri) {
-            return new FtpFileSystemImpl(config, uri, clientPool, RemoteFileSystemFactoryCreator.creator().getFactory(SwiftRemoteFileSystemType.FTP));
+            return new FtpFileSystemImpl(config, uri, clientPool, RemoteFileSystemFactoryCreator.creator().getFactory(SwiftRemoteFileSystemType.FTP.name()));
         }
     }
 }
