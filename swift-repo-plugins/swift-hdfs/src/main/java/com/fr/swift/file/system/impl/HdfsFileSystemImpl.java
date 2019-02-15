@@ -36,7 +36,7 @@ public class HdfsFileSystemImpl extends AbstractFileSystem<HdfsRepositoryConfig>
     public HdfsFileSystemImpl(final HdfsRepositoryConfig config, String uri, KeyedObjectPool keyedObjectPool) {
         super(config, uri);
         this.keyedObjectPool = keyedObjectPool;
-        this.systemPool = RemoteFileSystemFactoryCreator.creator().getFactory(HdfsSystemType.HDFS);
+        this.systemPool = RemoteFileSystemFactoryCreator.creator().getFactory(HdfsSystemType.HDFS.name());
     }
 
     @Override
