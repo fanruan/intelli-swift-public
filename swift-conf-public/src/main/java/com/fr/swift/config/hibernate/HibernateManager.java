@@ -7,6 +7,8 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.service.ServiceRegistry;
 
+import java.io.File;
+
 /**
  * @author yee
  * @date 2018/6/29
@@ -18,7 +20,12 @@ public enum HibernateManager {
 
     private Configuration getConfiguration() {
         Configuration configuration = new Configuration();
-        configuration.configure("hibernate.cfg.xml");
+        File confFile = new File("hibernate.cfg.xml");
+        if (confFile.exists()) {
+            configuration.configure(confFile);
+        } else {
+            configuration.configure("hibernate.cfg.xml");
+        }
         for (Class<?> entity : SwiftConfigConstants.ENTITIES) {
             Assert.notNull(entity);
             configuration.addAnnotatedClass(entity);
