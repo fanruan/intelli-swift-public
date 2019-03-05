@@ -24,7 +24,7 @@ public class OssFileSystemPool extends BaseRemoteFileSystemPool<OssFileSystemImp
 
         @Override
         public OssFileSystemImpl create(String s) throws Exception {
-            return new OssFileSystemImpl(config, s, clientPool, RemoteFileSystemFactoryCreator.creator().getFactory(config.getType()));
+            return new OssFileSystemImpl(config, s, clientPool, RemoteFileSystemFactoryCreator.creator().getFactory(config.getType().name()));
         }
     }
 }

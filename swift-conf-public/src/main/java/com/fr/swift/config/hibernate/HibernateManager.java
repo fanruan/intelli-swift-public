@@ -1,7 +1,6 @@
 package com.fr.swift.config.hibernate;
 
 import com.fr.swift.config.SwiftConfigConstants;
-import com.fr.swift.executor.task.AbstractExecutorTask;
 import com.fr.swift.util.Assert;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
@@ -19,7 +18,12 @@ public enum HibernateManager {
 
     private Configuration getConfiguration() {
         Configuration configuration = new Configuration();
-        configuration.configure("hibernate.cfg.xml");
+        File confFile = new File("hibernate.cfg.xml");
+        if (confFile.exists()) {
+            configuration.configure(confFile);
+        } else {
+            configuration.configure("hibernate.cfg.xml");
+        }
         SwiftConfigConstants.registerEntity(AbstractExecutorTask.TYPE);
         for (Class<?> entity : SwiftConfigConstants.getEntities()) {
             Assert.notNull(entity);
