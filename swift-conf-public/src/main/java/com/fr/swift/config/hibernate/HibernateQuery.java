@@ -53,6 +53,9 @@ public class HibernateQuery<T> implements ConfigQuery<T> {
                 case EQ:
                     list.add(builder.equal(path, where.getValue()));
                     break;
+                case GT:
+                    list.add(builder.gt(path, (Number) where.getValue()));
+                    break;
                 default:
             }
         }
