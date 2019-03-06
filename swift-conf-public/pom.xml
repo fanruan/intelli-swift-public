@@ -62,6 +62,11 @@
             <version>1.4.197</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.fr.intelligence</groupId>
+            <artifactId>swift-executor</artifactId>
+            <version>${swift.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

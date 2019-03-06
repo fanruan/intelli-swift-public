@@ -30,9 +30,9 @@ public class ZkProperty {
         InputStream swiftIn = SwiftProperty.class.getClassLoader().getResourceAsStream("swift.properties");
         try {
             properties.load(swiftIn);
-            this.zookeeperAddress = properties.getProperty("swift.zookeeper_address");
-            this.sessionTimeout = Integer.valueOf(properties.getProperty("swift.zookeeper_session_timeout"));
-            this.connectionTimeout = Integer.valueOf(properties.getProperty("swift.zookeeper_connection_timeout"));
+            this.zookeeperAddress = properties.getProperty("swift.zookeeperAddress");
+            this.sessionTimeout = Integer.valueOf(properties.getProperty("swift.zookeeperSessionTimeout"));
+            this.connectionTimeout = Integer.valueOf(properties.getProperty("swift.zookeeperConnectionTimeout"));
         } catch (IOException e) {
             Crasher.crash(e);
         }
