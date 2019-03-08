@@ -1,15 +1,14 @@
 package com.fr.swift.config.entity;
 
-import com.fr.swift.SwiftContext;
 import com.fr.swift.converter.ObjectConverter;
-import com.fr.swift.executor.task.AbstractExecutorTask;
 import com.fr.swift.executor.task.ExecutorTask;
+import com.fr.swift.executor.task.ExecutorTypeContainer;
 import com.fr.swift.executor.type.DBStatusType;
 import com.fr.swift.executor.type.ExecutorTaskType;
 import com.fr.swift.executor.type.LockType;
+import com.fr.swift.log.SwiftLoggers;
 import com.fr.swift.property.SwiftProperty;
 import com.fr.swift.source.SourceKey;
-import com.fr.swift.executor.task.job.Job;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -18,6 +17,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.io.Serializable;
+import java.lang.reflect.Constructor;
 
 /**
  * This class created on 2019/2/26
@@ -76,11 +76,7 @@ public class SwiftExecutorTaskEntity implements Serializable, ObjectConverter<Ex
         this.lockKey = task.getLockKey();
         this.dbStatusType = task.getDbStatusType();
         this.id = clusterId + ID_SEPARATOR + taskId;
-        // TODO: 2019/2/26
-        this.taskContent = "test123";
-    }
-
-    public SwiftExecutorTaskEntity() {
+        this.taskContent = task.getTaskContent();
     }
 
     public String getId() {
@@ -135,6 +131,10 @@ public class SwiftExecutorTaskEntity implements Serializable, ObjectConverter<Ex
         this.dbStatusType = dbStatusType;
     }
 
+    public DBStatusType getDbStatusType() {
+        return dbStatusType;
+    }
+
     public String getLockKey() {
         return lockKey;
     }
@@ -161,23 +161,17 @@ public class SwiftExecutorTaskEntity implements Serializable, ObjectConverter<Ex
 
     @Override
     public ExecutorTask convert() {
-        switch (executorTaskType) {
-            case REALTIME:
-                //JSON
-                ExecutorTask executorTask = SwiftContext.get().getBean("realtimeInsertExecutorTask", ExecutorTask.class, getTaskContent());
-                return executorTask;
-        }
-        return new AbstractExecutorTask(new SourceKey(this.sourceKey), true, this.executorTaskType, this.lockType, this.lockKey, this.dbStatusType, taskId, createTime, new Job() {
-            @Override
-            public com.fr.swift.executor.task.job.Job.JobListener getJobListener() {
-                return null;
-            }
+        try {
+            Class<? extends ExecutorTask> clazz = ExecutorTypeContainer.getInstance().getClassByType(this.executorTaskType);
 
-            @Override
-            public Object call() throws Exception {
-                return null;
-            }
-        }) {
-        };
+            Constructor constructor = clazz.getDeclaredConstructor(SourceKey.class, boolean.class, ExecutorTaskType.class, LockType.class,
+                    String.class, DBStatusType.class, String.class, long.class, String.class);
+
+            return (ExecutorTask) constructor.newInstance(new SourceKey(this.sourceKey), true, this.executorTaskType, this.lockType,
+                    this.lockKey, this.dbStatusType, this.taskId, this.createTime, this.taskContent);
+        } catch (Exception e) {
+            SwiftLoggers.getLogger().error(e);
+            return null;
+        }
     }
 }
