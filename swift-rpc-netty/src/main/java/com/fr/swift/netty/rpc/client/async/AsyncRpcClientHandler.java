@@ -5,7 +5,7 @@ import com.fr.swift.log.SwiftLogger;
 import com.fr.swift.log.SwiftLoggers;
 import com.fr.swift.netty.rpc.client.AbstractRpcClientHandler;
 import com.fr.swift.netty.rpc.pool.AsyncRpcPool;
-import com.fr.swift.rpc.bean.RpcRequest;
+import com.fr.swift.rpc.bean.IRpcRequest;
 import com.fr.swift.rpc.bean.RpcResponse;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
@@ -50,7 +50,7 @@ public class AsyncRpcClientHandler extends AbstractRpcClientHandler<RpcFuture> {
         channel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
     }
 
-    public RpcFuture send(final RpcRequest request) throws Exception {
+    public RpcFuture send(final IRpcRequest request) throws Exception {
         RpcFuture rpcFuture = new SwiftFuture(request);
         pendingRPC.put(request.getRequestId(), rpcFuture);
         final CountDownLatch latch = new CountDownLatch(1);

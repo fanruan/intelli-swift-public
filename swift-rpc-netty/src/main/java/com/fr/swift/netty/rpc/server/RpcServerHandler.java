@@ -6,7 +6,7 @@ import com.fr.swift.log.SwiftLogger;
 import com.fr.swift.log.SwiftLoggers;
 import com.fr.swift.netty.bean.InternalRpcRequest;
 import com.fr.swift.netty.rpc.exception.ServiceInvalidException;
-import com.fr.swift.rpc.bean.RpcRequest;
+import com.fr.swift.rpc.bean.IRpcRequest;
 import com.fr.swift.rpc.bean.RpcResponse;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -23,7 +23,7 @@ import java.util.Map;
  * @description
  * @since Advanced FineBI 5.0
  */
-public class RpcServerHandler extends SimpleChannelInboundHandler<RpcRequest> {
+public class RpcServerHandler extends SimpleChannelInboundHandler<IRpcRequest> {
 
     private static final SwiftLogger LOGGER = SwiftLoggers.getLogger(RpcServerHandler.class);
 
@@ -31,7 +31,7 @@ public class RpcServerHandler extends SimpleChannelInboundHandler<RpcRequest> {
     }
 
     @Override
-    public void channelRead0(final ChannelHandlerContext ctx, final RpcRequest request) {
+    public void channelRead0(final ChannelHandlerContext ctx, final IRpcRequest request) {
         LOGGER.debug("Receive request " + request.getRequestId());
         RpcResponse response = new RpcResponse();
         response.setRequestId(request.getRequestId());
@@ -50,7 +50,7 @@ public class RpcServerHandler extends SimpleChannelInboundHandler<RpcRequest> {
         });
     }
 
-    private Object handle(RpcRequest request) throws Exception {
+    private Object handle(IRpcRequest request) throws Exception {
         String serviceName = request.getInterfaceName();
         switch (request.requestType()) {
             case INTERNAL:
@@ -65,7 +65,7 @@ public class RpcServerHandler extends SimpleChannelInboundHandler<RpcRequest> {
         }
     }
 
-    private Object handle(RpcRequest request, Object serviceBean, boolean checkApiEnable) throws Exception {
+    private Object handle(IRpcRequest request, Object serviceBean, boolean checkApiEnable) throws Exception {
         if (serviceBean == null) {
             throw new ServiceInvalidException(request.getInterfaceName() + " is invalid on remote machine!");
         }

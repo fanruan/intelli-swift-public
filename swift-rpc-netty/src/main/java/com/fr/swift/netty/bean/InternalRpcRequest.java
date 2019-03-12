@@ -1,7 +1,7 @@
 package com.fr.swift.netty.bean;
 
-import com.fr.swift.rpc.bean.impl.RpcRequest;
 
+import com.fr.swift.rpc.bean.impl.RpcRequest;
 
 /**
  * This class created on 2018/6/6

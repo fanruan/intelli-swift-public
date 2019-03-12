@@ -3,7 +3,7 @@ package com.fr.swift.netty.rpc.client.async;
 import com.fr.swift.basics.AsyncRpcCallback;
 import com.fr.swift.basics.RpcFuture;
 import com.fr.swift.basics.base.AbstractRpcFuture;
-import com.fr.swift.rpc.bean.RpcRequest;
+import com.fr.swift.rpc.bean.IRpcRequest;
 import com.fr.swift.rpc.bean.RpcResponse;
 
 import java.util.concurrent.TimeUnit;
@@ -17,10 +17,10 @@ import java.util.concurrent.TimeUnit;
  */
 public class SwiftFuture extends AbstractRpcFuture<RpcResponse> {
 
-    private RpcRequest request;
+    private IRpcRequest request;
     private RpcResponse response;
 
-    protected SwiftFuture(RpcRequest request) {
+    protected SwiftFuture(IRpcRequest request) {
         super();
         this.request = request;
         this.startTime = System.currentTimeMillis();

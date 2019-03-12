@@ -2,7 +2,7 @@ package com.fr.swift.netty.rpc.client;
 
 import com.fr.swift.log.SwiftLogger;
 import com.fr.swift.log.SwiftLoggers;
-import com.fr.swift.rpc.bean.RpcRequest;
+import com.fr.swift.rpc.bean.IRpcRequest;
 import com.fr.swift.rpc.bean.RpcResponse;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -84,7 +84,7 @@ public abstract class AbstractRpcClientHandler<T> extends SimpleChannelInboundHa
         group.shutdownGracefully();
     }
 
-    public abstract T send(final RpcRequest request) throws Exception;
+    public abstract T send(final IRpcRequest request) throws Exception;
 
     public String getHost() {
         return host;
