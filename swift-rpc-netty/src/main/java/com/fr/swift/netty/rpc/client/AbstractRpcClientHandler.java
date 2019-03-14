@@ -1,9 +1,10 @@
 package com.fr.swift.netty.rpc.client;
 
+import com.fr.swift.basic.Response;
 import com.fr.swift.log.SwiftLogger;
 import com.fr.swift.log.SwiftLoggers;
-import com.fr.swift.rpc.bean.RpcRequest;
-import com.fr.swift.rpc.bean.RpcResponse;
+import com.fr.swift.basic.Request;
+import com.fr.swift.basic.SwiftResponse;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.EventLoopGroup;
@@ -19,7 +20,7 @@ import java.net.SocketAddress;
  * @description
  * @since Advanced FineBI 5.0
  */
-public abstract class AbstractRpcClientHandler<T> extends SimpleChannelInboundHandler<RpcResponse> {
+public abstract class AbstractRpcClientHandler<T> extends SimpleChannelInboundHandler<Response> {
 
     private static final SwiftLogger LOGGER = SwiftLoggers.getLogger(AbstractRpcClientHandler.class);
     protected String address;
@@ -84,7 +85,7 @@ public abstract class AbstractRpcClientHandler<T> extends SimpleChannelInboundHa
         group.shutdownGracefully();
     }
 
-    public abstract T send(final RpcRequest request) throws Exception;
+    public abstract T send(final Request request) throws Exception;
 
     public String getHost() {
         return host;
