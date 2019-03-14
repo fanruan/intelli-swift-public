@@ -1,12 +1,12 @@
 package com.fr.swift.netty.rpc.client.async;
 
+import com.fr.swift.basic.Request;
+import com.fr.swift.basic.Response;
 import com.fr.swift.basics.RpcFuture;
 import com.fr.swift.log.SwiftLogger;
 import com.fr.swift.log.SwiftLoggers;
 import com.fr.swift.netty.rpc.client.AbstractRpcClientHandler;
 import com.fr.swift.netty.rpc.pool.AsyncRpcPool;
-import com.fr.swift.rpc.bean.RpcRequest;
-import com.fr.swift.rpc.bean.RpcResponse;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -35,7 +35,7 @@ public class AsyncRpcClientHandler extends AbstractRpcClientHandler<RpcFuture> {
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext channelHandlerContext, RpcResponse response) {
+    protected void channelRead0(ChannelHandlerContext channelHandlerContext, Response response) {
         String requestId = response.getRequestId();
         LOGGER.info("Receive response : " + requestId);
         RpcFuture rpcFuture = pendingRPC.get(requestId);
@@ -50,7 +50,7 @@ public class AsyncRpcClientHandler extends AbstractRpcClientHandler<RpcFuture> {
         channel.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
     }
 
-    public RpcFuture send(final RpcRequest request) throws Exception {
+    public RpcFuture send(final Request request) throws Exception {
         RpcFuture rpcFuture = new SwiftFuture(request);
         pendingRPC.put(request.getRequestId(), rpcFuture);
         final CountDownLatch latch = new CountDownLatch(1);
