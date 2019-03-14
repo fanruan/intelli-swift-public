@@ -1,10 +1,10 @@
 package com.fr.swift.netty.rpc.client.sync;
 
+import com.fr.swift.basic.Request;
+import com.fr.swift.basic.Response;
 import com.fr.swift.log.SwiftLogger;
 import com.fr.swift.log.SwiftLoggers;
 import com.fr.swift.netty.rpc.client.AbstractRpcClientHandler;
-import com.fr.swift.basic.Request;
-import com.fr.swift.basic.SwiftResponse;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
@@ -20,11 +20,11 @@ import java.util.concurrent.CountDownLatch;
  * @since Advanced FineBI 5.0
  */
 @ChannelHandler.Sharable
-public class SyncRpcClientHandler extends AbstractRpcClientHandler<SwiftResponse> {
+public class SyncRpcClientHandler extends AbstractRpcClientHandler<Response> {
 
     public static final String POOL_KEY = "SyncRpcClientHandler";
     private static final SwiftLogger LOGGER = SwiftLoggers.getLogger(SyncRpcClientHandler.class);
-    private SwiftResponse response;
+    private Response response;
     private CountDownLatch countDownLatch;
 
     public SyncRpcClientHandler(String address) {
@@ -32,13 +32,13 @@ public class SyncRpcClientHandler extends AbstractRpcClientHandler<SwiftResponse
     }
 
     @Override
-    public void channelRead0(ChannelHandlerContext ctx, SwiftResponse response) {
+    public void channelRead0(ChannelHandlerContext ctx, Response response) {
         this.response = response;
         countDownLatch.countDown();
         LOGGER.debug("Receive response : " + response.getRequestId());
     }
 
-    public SwiftResponse send(final Request request) throws Exception {
+    public Response send(final Request request) throws Exception {
         countDownLatch = new CountDownLatch(1);
         channel.writeAndFlush(request).sync().addListener(new ChannelFutureListener() {
             @Override
