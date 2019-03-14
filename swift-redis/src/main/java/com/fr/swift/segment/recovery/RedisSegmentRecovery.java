@@ -27,11 +27,11 @@ public class RedisSegmentRecovery extends AbstractSegmentRecovery {
 
     private void recover(SegmentKey segKey) {
         Segment realtimeSeg = null;
-        RedisBackupResultSet resultSet = null;
-        Inserter inserter = null;
+        RedisBackupResultSet resultSet;
+        Inserter inserter;
         try {
             realtimeSeg = newRealtimeSegment(localSegmentProvider.getSegment(segKey));
-            inserter = new SwiftInserter(realtimeSeg);
+            inserter = SwiftInserter.ofOverwriteMode(realtimeSeg);
             resultSet = new RedisBackupResultSet(getBackupSegment(segKey, realtimeSeg.getMetaData()));
             inserter.insertData(resultSet);
             realtimeSeg.putAllShowIndex(resultSet.getAllShowIndex());
