@@ -1,10 +1,10 @@
 package com.fr.swift.netty.rpc.client.async;
 
+import com.fr.swift.basic.Request;
+import com.fr.swift.basic.Response;
 import com.fr.swift.basics.AsyncRpcCallback;
 import com.fr.swift.basics.RpcFuture;
 import com.fr.swift.basics.base.AbstractRpcFuture;
-import com.fr.swift.rpc.bean.RpcRequest;
-import com.fr.swift.rpc.bean.RpcResponse;
 
 import java.util.concurrent.TimeUnit;
 
@@ -15,12 +15,12 @@ import java.util.concurrent.TimeUnit;
  * @description
  * @since Advanced FineBI 5.0
  */
-public class SwiftFuture extends AbstractRpcFuture<RpcResponse> {
+public class SwiftFuture extends AbstractRpcFuture<Response> {
 
-    private RpcRequest request;
-    private RpcResponse response;
+    private Request request;
+    private Response response;
 
-    protected SwiftFuture(RpcRequest request) {
+    protected SwiftFuture(Request request) {
         super();
         this.request = request;
         this.startTime = System.currentTimeMillis();
@@ -52,7 +52,7 @@ public class SwiftFuture extends AbstractRpcFuture<RpcResponse> {
     }
 
     @Override
-    public void done(RpcResponse reponse) {
+    public void done(Response reponse) {
         this.response = reponse;
         sync.release(1);
         invokeCallbacks();
@@ -87,7 +87,7 @@ public class SwiftFuture extends AbstractRpcFuture<RpcResponse> {
     }
 
     private void runCallback(final AsyncRpcCallback callback) {
-        final RpcResponse res = this.response;
+        final Response res = this.response;
         submit(new Runnable() {
             @Override
             public void run() {

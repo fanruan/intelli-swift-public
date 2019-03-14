@@ -3,7 +3,7 @@ package com.fr.swift.netty.rpc.pool;
 import com.fr.swift.log.SwiftLogger;
 import com.fr.swift.log.SwiftLoggers;
 import com.fr.swift.netty.bean.InternalRpcRequest;
-import com.fr.swift.rpc.bean.RpcResponse;
+import com.fr.swift.basic.SwiftResponse;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -23,7 +23,7 @@ public class TestHandler extends SimpleChannelInboundHandler<InternalRpcRequest>
     @Override
     public void channelRead0(final ChannelHandlerContext ctx, final InternalRpcRequest request) {
         LOGGER.debug("Receive request " + request.getRequestId());
-        RpcResponse response = new RpcResponse();
+        SwiftResponse response = new SwiftResponse();
         response.setRequestId(request.getRequestId());
         try {
             response.setResult(1000000);
