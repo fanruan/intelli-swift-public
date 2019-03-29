@@ -3,4 +3,7 @@
 .DS_Store
 .classpath
 target/generated-sources
-
+node_modules/
+npm-debug.log
+.editorconfig
+dist/
