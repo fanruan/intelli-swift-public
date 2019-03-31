@@ -8,9 +8,11 @@
 </template>
 
 <script>
+import CommonTable from './components/CommonTable.vue'
 export default {
 	name: 'app',
 	components: {
+		CommonTable
 	}
 }
 
