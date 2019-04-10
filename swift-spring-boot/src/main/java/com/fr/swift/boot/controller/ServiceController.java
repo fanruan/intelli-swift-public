@@ -2,6 +2,8 @@ package com.fr.swift.boot.controller;
 
 import com.fr.swift.SwiftContext;
 import com.fr.swift.boot.controller.result.ResultMap;
+import com.fr.swift.boot.controller.result.ResultMapConstant;
+import com.fr.swift.boot.util.RequestUtils;
 import com.fr.swift.config.bean.SwiftServiceInfoBean;
 import com.fr.swift.config.service.SwiftServiceInfoService;
 import com.fr.swift.property.SwiftProperty;
@@ -41,19 +43,20 @@ public class ServiceController extends BaseController {
 
 
     @ResponseBody
-    @RequestMapping(value = "/query", method = RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.GET)
     public ResultMap swiftAllServices(HttpServletResponse response, HttpServletRequest request) {
         ResultMap resultMap = new ResultMap();
         List<SwiftServiceInfoBean> serviceInfoBeanList = new ArrayList<SwiftServiceInfoBean>();
-        if (swiftProperty.isCluster()) {
-            serviceInfoBeanList.addAll(serviceInfoService.getAllServiceInfo());
-        } else {
-            String localId = swiftProperty.getClusterId();
-            for (String allSwiftServiceName : ServiceBeanFactory.getAllSwiftServiceNames()) {
-                serviceInfoBeanList.add(new SwiftServiceInfoBean(allSwiftServiceName, localId, localId, false));
-            }
-        }
-        resultMap.setData(serviceInfoBeanList);
+//        if (swiftProperty.isCluster()) {
+        serviceInfoBeanList.addAll(serviceInfoService.getAllServiceInfo());
+//        } else {
+//            String localId = swiftProperty.getClusterId();
+//            for (String allSwiftServiceName : ServiceBeanFactory.getAllSwiftServiceNames()) {
+//                serviceInfoBeanList.add(new SwiftServiceInfoBean(allSwiftServiceName, localId, localId, false));
+//            }
+//        }
+        resultMap.setHeader(ResultMapConstant.TOTAL_SIZE, serviceInfoBeanList.size());
+        resultMap.setData(RequestUtils.getDataByRange(serviceInfoBeanList, request));
         return resultMap;
     }
 
