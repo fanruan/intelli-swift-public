@@ -2,8 +2,8 @@ package com.fr.swift.boot.controller;
 
 import com.fr.swift.SwiftContext;
 import com.fr.swift.boot.controller.result.ResultMap;
-import com.fr.swift.config.bean.SegLocationBean;
-import com.fr.swift.config.service.SwiftSegmentLocationService;
+import com.fr.swift.boot.controller.result.ResultMapConstant;
+import com.fr.swift.boot.util.RequestUtils;
 import com.fr.swift.config.service.SwiftSegmentService;
 import com.fr.swift.segment.SegmentKey;
 import com.fr.swift.source.SourceKey;
@@ -30,30 +30,30 @@ public class SegmentController {
 
     private SwiftSegmentService swiftSegmentService = SwiftContext.get().getBean("segmentServiceProvider", SwiftSegmentService.class);
 
-    private SwiftSegmentLocationService segmentLocationService = SwiftContext.get().getBean(SwiftSegmentLocationService.class);
-
     @ResponseBody
-    @RequestMapping(value = "/query", method = RequestMethod.GET)
-    public ResultMap queryAllSegments(HttpServletResponse response, HttpServletRequest request) throws Exception {
+    @RequestMapping(method = RequestMethod.GET)
+    public ResultMap querySegment(HttpServletResponse response, HttpServletRequest request) throws Exception {
         ResultMap resultMap = new ResultMap();
         Map<SourceKey, List<SegmentKey>> allSegments = swiftSegmentService.getAllSegments();
         List<SegmentKey> segmentKeyList = new ArrayList<SegmentKey>();
-        for (List<SegmentKey> value : allSegments.values()) {
-            segmentKeyList.addAll(value);
-        }
-        resultMap.setData(segmentKeyList);
-        return resultMap;
-    }
 
-    @ResponseBody
-    @RequestMapping(value = "/location/query", method = RequestMethod.GET)
-    public ResultMap queryAllSegmentLocations(HttpServletResponse response, HttpServletRequest request) throws Exception {
-        ResultMap resultMap = new ResultMap();
-        List<SegLocationBean> segLocationBeanList = new ArrayList<SegLocationBean>();
-        for (List<SegLocationBean> value : segmentLocationService.findAll().values()) {
-            segLocationBeanList.addAll(value);
+        String fuzzyName = RequestUtils.getFuzzyKey(request);
+        // TODO: 2019/4/4 by lucifer 模糊查询改后端查
+        if (fuzzyName == null) {
+            for (List<SegmentKey> value : allSegments.values()) {
+                segmentKeyList.addAll(value);
+            }
+        } else {
+            for (List<SegmentKey> value : allSegments.values()) {
+                for (SegmentKey segmentKey : value) {
+                    if (segmentKey.getId().contains(fuzzyName)) {
+                        segmentKeyList.add(segmentKey);
+                    }
+                }
+            }
         }
-        resultMap.setData(segLocationBeanList);
+        resultMap.setHeader(ResultMapConstant.TOTAL_SIZE, segmentKeyList.size());
+        resultMap.setData(RequestUtils.getDataByRange(segmentKeyList, request));
         return resultMap;
     }
 }
