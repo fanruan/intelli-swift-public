@@ -1,10 +1,9 @@
 package com.fr.swift.boot.controller;
 
-import com.fr.swift.Collect;
 import com.fr.swift.SwiftContext;
 import com.fr.swift.base.json.JsonBuilder;
 import com.fr.swift.base.meta.MetaDataColumnBean;
-import com.fr.swift.base.meta.SwiftMetaDataBean;
+import com.fr.swift.base.meta.SwiftMetaDataEntity;
 import com.fr.swift.boot.controller.result.ResultMap;
 import com.fr.swift.boot.controller.result.ResultMapConstant;
 import com.fr.swift.boot.util.RequestUtils;
@@ -88,8 +87,8 @@ public class TableCotroller {
                     SwiftMetaDataColumn metaDataColumnBean = JsonBuilder.readValue(fieldMap, MetaDataColumnBean.class);
                     metaDataColumnList.add(metaDataColumnBean);
                 }
-                SwiftMetaDataBean swiftMetaDataBean = new SwiftMetaDataBean(tableName, metaDataColumnList);
-                boolean result = metaDataService.addMetaData(tableName, swiftMetaDataBean);
+                SwiftMetaDataEntity swiftMetaDataEntity = new SwiftMetaDataEntity(tableName, metaDataColumnList);
+                boolean result = metaDataService.addMetaData(tableName, swiftMetaDataEntity);
                 resultMap.setData(result);
             }
         } catch (Exception e) {

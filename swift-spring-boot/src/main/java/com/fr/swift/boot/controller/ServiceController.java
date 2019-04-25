@@ -4,7 +4,7 @@ import com.fr.swift.SwiftContext;
 import com.fr.swift.boot.controller.result.ResultMap;
 import com.fr.swift.boot.controller.result.ResultMapConstant;
 import com.fr.swift.boot.util.RequestUtils;
-import com.fr.swift.config.bean.SwiftServiceInfoBean;
+import com.fr.swift.config.entity.SwiftServiceInfoEntity;
 import com.fr.swift.config.service.SwiftServiceInfoService;
 import com.fr.swift.property.SwiftProperty;
 import com.fr.swift.service.manager.ClusterServiceManager;
@@ -46,13 +46,13 @@ public class ServiceController extends BaseController {
     @RequestMapping(method = RequestMethod.GET)
     public ResultMap swiftAllServices(HttpServletResponse response, HttpServletRequest request) {
         ResultMap resultMap = new ResultMap();
-        List<SwiftServiceInfoBean> serviceInfoBeanList = new ArrayList<SwiftServiceInfoBean>();
+        List<SwiftServiceInfoEntity> serviceInfoBeanList = new ArrayList<SwiftServiceInfoEntity>();
 //        if (swiftProperty.isCluster()) {
         serviceInfoBeanList.addAll(serviceInfoService.getAllServiceInfo());
 //        } else {
 //            String localId = swiftProperty.getClusterId();
 //            for (String allSwiftServiceName : ServiceBeanFactory.getAllSwiftServiceNames()) {
-//                serviceInfoBeanList.add(new SwiftServiceInfoBean(allSwiftServiceName, localId, localId, false));
+//                serviceInfoBeanList.add(new SwiftServiceInfoEntity(allSwiftServiceName, localId, localId, false));
 //            }
 //        }
         resultMap.setHeader(ResultMapConstant.TOTAL_SIZE, serviceInfoBeanList.size());

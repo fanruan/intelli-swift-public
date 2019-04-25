@@ -1,5 +1,6 @@
 package com.fr.swift.config.entity;
 
+import com.fr.swift.executor.config.SwiftExecutorTaskEntity;
 import com.fr.swift.executor.task.ExecutorTask;
 import com.fr.swift.executor.task.ExecutorTypeContainer;
 import com.fr.swift.executor.type.DBStatusType;
@@ -19,6 +20,9 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.powermock.modules.junit4.PowerMockRunnerDelegate;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * This class created on 2019/3/7
@@ -65,10 +69,16 @@ public class SwiftExecutorTaskEntityTest {
     }
 
     @Test
-    public void testConvert() {
+    public void testConvert() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         ExecutorTypeContainer.getInstance().registerClass(ExecutorTaskType.TRANSFER, TestExecutorTask.class);
         SwiftExecutorTaskEntity entity = new SwiftExecutorTaskEntity(executorTask);
-        ExecutorTask executorTask = entity.convert();
+        Class<? extends ExecutorTask> clazz = ExecutorTypeContainer.getInstance().getClassByType(entity.getExecutorTaskType());
+
+        Constructor constructor = clazz.getDeclaredConstructor(SourceKey.class, boolean.class, ExecutorTaskType.class, LockType.class,
+                String.class, DBStatusType.class, String.class, long.class, String.class);
+
+        ExecutorTask executorTask = (ExecutorTask) constructor.newInstance(new SourceKey(entity.getSourceKey()), true, entity.getExecutorTaskType(), entity.getLockType(),
+                entity.getLockKey(), entity.getDbStatusType(), entity.getTaskId(), entity.getCreateTime(), entity.getTaskContent());
         Assert.assertEquals(executorTask.getTaskId(), "taskId");
         Assert.assertEquals(executorTask.getSourceKey(), new SourceKey("test"));
         Assert.assertTrue(executorTask.isPersistent());
