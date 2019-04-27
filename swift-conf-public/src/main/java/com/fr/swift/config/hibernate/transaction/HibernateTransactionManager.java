@@ -17,7 +17,7 @@ import java.lang.reflect.Proxy;
 public class HibernateTransactionManager extends BaseTransactionManager {
 
     @Override
-    protected ConfigSession createSession() {
+    protected ConfigSession createSession() throws ClassNotFoundException {
         Session session = HibernateManager.INSTANCE.getFactory().openSession();
         return (ConfigSession) Proxy.newProxyInstance(this.getClass().getClassLoader(),
                 new Class[]{ConfigSession.class}, new SessionInvocationHandler(session));
