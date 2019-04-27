@@ -1,7 +1,6 @@
 package com.fr.swift.config.hibernate;
 
-import com.fr.swift.config.SwiftConfigConstants;
-import com.fr.swift.executor.task.AbstractExecutorTask;
+import com.fr.swift.config.SwiftConfigRegistryImpl;
 import com.fr.swift.util.Assert;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
@@ -27,8 +26,9 @@ public enum HibernateManager {
         } else {
             configuration.configure("hibernate.cfg.xml");
         }
-        SwiftConfigConstants.registerEntity(AbstractExecutorTask.TYPE);
-        for (Class<?> entity : SwiftConfigConstants.getEntities()) {
+
+//        SwiftConfigConstants.registerEntity(AbstractExecutorTask.TYPE);
+        for (Class<?> entity : SwiftConfigRegistryImpl.INSTANCE.getEntities()) {
             Assert.notNull(entity);
             configuration.addAnnotatedClass(entity);
         }
