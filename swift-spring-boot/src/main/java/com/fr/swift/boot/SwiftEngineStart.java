@@ -3,6 +3,7 @@ package com.fr.swift.boot;
 import com.fineio.FineIO;
 import com.fr.swift.SwiftContext;
 import com.fr.swift.boot.register.BootRegister;
+import com.fr.swift.bytebuddy.DynamicClassLoader;
 import com.fr.swift.cluster.listener.NodeStartedListener;
 import com.fr.swift.config.PublicConfig;
 import com.fr.swift.config.SwiftConfigRegistryImpl;
@@ -29,15 +30,16 @@ public class SwiftEngineStart {
 
     public static void start(String[] args) {
         try {
-            SwiftConfigRegistryImpl.INSTANCE.registerEntity("com.fr.swift.config.entity.SwiftSegmentEntity");
-            SwiftConfigRegistryImpl.INSTANCE.registerEntity("com.fr.swift.config.entity.SwiftColumnIndexingConf");
-            SwiftConfigRegistryImpl.INSTANCE.registerEntity("com.fr.swift.config.entity.SwiftConfigEntity");
-            SwiftConfigRegistryImpl.INSTANCE.registerEntity("com.fr.swift.config.entity.SwiftSegmentLocationEntity");
-            SwiftConfigRegistryImpl.INSTANCE.registerEntity("com.fr.swift.config.entity.SwiftServiceInfoEntity");
-            SwiftConfigRegistryImpl.INSTANCE.registerEntity("com.fr.swift.config.entity.SwiftTableAllotConf");
-            SwiftConfigRegistryImpl.INSTANCE.registerEntity("com.fr.swift.config.entity.SwiftTablePathEntity");
-            SwiftConfigRegistryImpl.INSTANCE.registerEntity("com.fr.swift.base.meta.SwiftMetaDataEntity");
-            SwiftConfigRegistryImpl.INSTANCE.registerEntity("com.fr.swift.executor.config.SwiftExecutorTaskEntity");
+            ClassLoader loader = new DynamicClassLoader(SwiftEngineStart.class.getClassLoader());
+            SwiftConfigRegistryImpl.INSTANCE.registerEntity("com.fr.swift.config.entity.SwiftSegmentEntity", loader);
+            SwiftConfigRegistryImpl.INSTANCE.registerEntity("com.fr.swift.config.entity.SwiftColumnIndexingConf", loader);
+            SwiftConfigRegistryImpl.INSTANCE.registerEntity("com.fr.swift.config.entity.SwiftConfigEntity", loader);
+            SwiftConfigRegistryImpl.INSTANCE.registerEntity("com.fr.swift.config.entity.SwiftSegmentLocationEntity", loader);
+            SwiftConfigRegistryImpl.INSTANCE.registerEntity("com.fr.swift.config.entity.SwiftServiceInfoEntity", loader);
+            SwiftConfigRegistryImpl.INSTANCE.registerEntity("com.fr.swift.config.entity.SwiftTableAllotConf", loader);
+            SwiftConfigRegistryImpl.INSTANCE.registerEntity("com.fr.swift.config.entity.SwiftTablePathEntity", loader);
+            SwiftConfigRegistryImpl.INSTANCE.registerEntity("com.fr.swift.base.meta.SwiftMetaDataBean", loader);
+            SwiftConfigRegistryImpl.INSTANCE.registerEntity("com.fr.swift.executor.config.SwiftExecutorTaskEntity", loader);
             SwiftLoggers.setLoggerFactory(new SwiftLog4jLoggers());
             ClusterListenerHandler.addInitialListener(new SwiftClusterListener());
             SwiftContext.get().init();

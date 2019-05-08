@@ -4,7 +4,7 @@ package com.fr.swift.boot.controller.test;
 import com.fr.swift.SwiftContext;
 import com.fr.swift.base.json.JsonBuilder;
 import com.fr.swift.base.meta.MetaDataColumnBean;
-import com.fr.swift.base.meta.SwiftMetaDataEntity;
+import com.fr.swift.base.meta.SwiftMetaDataBean;
 import com.fr.swift.basics.base.selector.ProxySelector;
 import com.fr.swift.compare.Comparators;
 import com.fr.swift.config.service.SwiftMetaDataService;
@@ -120,10 +120,10 @@ public class TestController {
     @RequestMapping("swift/createTable")
     @ResponseBody
     public Boolean createTable() {
-        SwiftMetaData metaData = new SwiftMetaDataEntity();
-        ((SwiftMetaDataEntity) metaData).setId("test_yiguan");
-        ((SwiftMetaDataEntity) metaData).setSwiftDatabase(SwiftDatabase.CUBE);
-        ((SwiftMetaDataEntity) metaData).setTableName("test_yiguan");
+        SwiftMetaData metaData = new SwiftMetaDataBean();
+        ((SwiftMetaDataBean) metaData).setId("test_yiguan");
+        ((SwiftMetaDataBean) metaData).setSwiftDatabase(SwiftDatabase.CUBE);
+        ((SwiftMetaDataBean) metaData).setTableName("test_yiguan");
         List<SwiftMetaDataColumn> metaDataColumns = new ArrayList<SwiftMetaDataColumn>();
         metaDataColumns.add(new MetaDataColumnBean("id", Types.VARCHAR));
         metaDataColumns.add(new MetaDataColumnBean("currentTime", Types.TIMESTAMP));
@@ -132,7 +132,7 @@ public class TestController {
         metaDataColumns.add(new MetaDataColumnBean("json", Types.VARCHAR));
         metaDataColumns.add(new MetaDataColumnBean("longValue", Types.BIGINT));
 
-        ((SwiftMetaDataEntity) metaData).setFields(metaDataColumns);
+        ((SwiftMetaDataBean) metaData).setFields(metaDataColumns);
         SwiftContext.get().getBean(SwiftMetaDataService.class).addMetaData("test_yiguan", metaData);
         return true;
     }
@@ -202,10 +202,10 @@ public class TestController {
     @RequestMapping("swift/createYiguanTable")
     @ResponseBody
     public Boolean createYiguanTable() {
-        SwiftMetaData metaData = new SwiftMetaDataEntity();
-        ((SwiftMetaDataEntity) metaData).setId("test_yiguan");
-        ((SwiftMetaDataEntity) metaData).setSwiftDatabase(SwiftDatabase.CUBE);
-        ((SwiftMetaDataEntity) metaData).setTableName("test_yiguan");
+        SwiftMetaData metaData = new SwiftMetaDataBean();
+        ((SwiftMetaDataBean) metaData).setId("test_yiguan");
+        ((SwiftMetaDataBean) metaData).setSwiftDatabase(SwiftDatabase.CUBE);
+        ((SwiftMetaDataBean) metaData).setTableName("test_yiguan");
         List<SwiftMetaDataColumn> metaDataColumns = new ArrayList<SwiftMetaDataColumn>();
         metaDataColumns.add(new MetaDataColumnBean("id", Types.VARCHAR));
         metaDataColumns.add(new MetaDataColumnBean("currentTime", Types.TIMESTAMP));
@@ -217,7 +217,7 @@ public class TestController {
         metaDataColumns.add(new MetaDataColumnBean("date", Types.VARCHAR));
         metaDataColumns.add(new MetaDataColumnBean("combine", Types.BIGINT));
 
-        ((SwiftMetaDataEntity) metaData).setFields(metaDataColumns);
+        ((SwiftMetaDataBean) metaData).setFields(metaDataColumns);
         SwiftContext.get().getBean(SwiftMetaDataService.class).addMetaData("test_yiguan", metaData);
         return true;
     }
