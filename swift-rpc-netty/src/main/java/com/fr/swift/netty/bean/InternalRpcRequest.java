@@ -1,7 +1,7 @@
 package com.fr.swift.netty.bean;
 
-import com.fr.swift.rpc.bean.impl.RpcRequest;
 
+import com.fr.swift.basic.SwiftRequest;
 
 /**
  * This class created on 2018/6/6
@@ -10,7 +10,7 @@ import com.fr.swift.rpc.bean.impl.RpcRequest;
  * @description
  * @since Advanced FineBI 5.0
  */
-public class InternalRpcRequest extends RpcRequest {
+public class InternalRpcRequest extends SwiftRequest {
 
     private static final long serialVersionUID = -4343246390244615885L;
 
