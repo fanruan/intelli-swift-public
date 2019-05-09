@@ -260,6 +260,7 @@ public class DynamicClassLoader extends ClassLoader {
             AnnotationDescription.Builder typeBuilder = AnnotationDescription.Builder.ofType(com.fasterxml.jackson.annotation.JsonSubTypes.Type.class);
             typeBuilder = typeBuilder.define("value", type.value())
                     .define("name", type.name());
+            dynamicType(type.value());
             list.add(typeBuilder.build());
         }
         TypeDescription annotationType = TypeDescription.ForLoadedType.Generic.Builder.rawType(com.fasterxml.jackson.annotation.JsonSubTypes.Type.class).build().asErasure();

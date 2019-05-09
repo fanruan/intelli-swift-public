@@ -59,6 +59,7 @@ public class SwiftBeanMapper implements BeanMapper {
             if (null != genericSuperclass) {
                 dynamicType(loader, genericSuperclass);
             }
+
             return loader.loadClass(((Class) type).getName());
         } else if (type instanceof ParameterizedType) {
             List<Type> classes = new ArrayList<Type>();
