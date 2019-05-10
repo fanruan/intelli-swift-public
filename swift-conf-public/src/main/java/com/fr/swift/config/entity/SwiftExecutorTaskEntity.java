@@ -63,8 +63,11 @@ public class SwiftExecutorTaskEntity implements Serializable, ObjectConverter<Ex
     @Column(name = "clusterId")
     protected String clusterId;
 
-    @Column(name = "taskContent")
+    @Column(name = "taskContent", length = 4000)
     protected String taskContent;
+
+    public SwiftExecutorTaskEntity() {
+    }
 
     public SwiftExecutorTaskEntity(ExecutorTask task) {
         this.clusterId = SwiftProperty.getProperty().getClusterId();
