@@ -180,9 +180,7 @@ public class SwiftExecutorTaskEntity implements Serializable, ObjectConverter<Ex
             Class<? extends ExecutorTask> clazz = ExecutorTypeContainer.getInstance().getClassByType(taskType);
 
             TaskType taskTypeAnnotation = clazz.getAnnotation(TaskType.class);
-            if (taskTypeAnnotation == null) {
-                throw new Exception("TaskType annotation is null!");
-            }
+
             executorTaskType = (ExecutorTaskType) Enum.valueOf(taskTypeAnnotation.type(), taskType);
 
             Constructor constructor = clazz.getDeclaredConstructor(SourceKey.class, boolean.class, ExecutorTaskType.class, LockType.class,
