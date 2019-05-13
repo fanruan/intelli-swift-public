@@ -4,6 +4,7 @@ import com.fr.swift.config.oper.ConfigQuery;
 import com.fr.swift.config.oper.ConfigWhere;
 import com.fr.swift.config.oper.Expression;
 import com.fr.swift.config.oper.Order;
+import com.fr.swift.config.oper.Page;
 import org.hibernate.Session;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -84,6 +85,11 @@ public class HibernateQuery<T> implements ConfigQuery<T> {
     @Override
     public int executeUpdate() {
         return 0;
+    }
+
+    @Override
+    public Page<T> executeQuery(int page, int size) {
+        return null;
     }
 
     private Path getPath(Expression order) {
