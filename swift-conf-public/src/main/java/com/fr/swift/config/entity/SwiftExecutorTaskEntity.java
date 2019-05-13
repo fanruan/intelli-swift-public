@@ -6,6 +6,7 @@ import com.fr.swift.executor.task.ExecutorTypeContainer;
 import com.fr.swift.executor.type.DBStatusType;
 import com.fr.swift.executor.type.ExecutorTaskType;
 import com.fr.swift.executor.type.LockType;
+import com.fr.swift.executor.type.TaskType;
 import com.fr.swift.log.SwiftLoggers;
 import com.fr.swift.property.SwiftProperty;
 import com.fr.swift.source.SourceKey;
@@ -16,6 +17,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 
@@ -46,8 +48,9 @@ public class SwiftExecutorTaskEntity implements Serializable, ObjectConverter<Ex
     protected long createTime;
 
     @Column(name = "executorTaskType")
-    @Enumerated(EnumType.STRING)
-    protected ExecutorTaskType executorTaskType;
+    protected String taskType;
+    @Transient
+    private ExecutorTaskType executorTaskType;
 
     @Column(name = "lockType")
     @Enumerated(EnumType.STRING)
@@ -63,8 +66,11 @@ public class SwiftExecutorTaskEntity implements Serializable, ObjectConverter<Ex
     @Column(name = "clusterId")
     protected String clusterId;
 
-    @Column(name = "taskContent")
+    @Column(name = "taskContent", length = 4000)
     protected String taskContent;
+
+    public SwiftExecutorTaskEntity() {
+    }
 
     public SwiftExecutorTaskEntity(ExecutorTask task) {
         this.clusterId = SwiftProperty.getProperty().getClusterId();
@@ -72,6 +78,7 @@ public class SwiftExecutorTaskEntity implements Serializable, ObjectConverter<Ex
         this.sourceKey = task.getSourceKey().getId();
         this.createTime = task.getCreateTime();
         this.executorTaskType = task.getExecutorTaskType();
+        this.taskType = task.getExecutorTaskType().name();
         this.lockType = task.getLockType();
         this.lockKey = task.getLockKey();
         this.dbStatusType = task.getDbStatusType();
@@ -119,6 +126,14 @@ public class SwiftExecutorTaskEntity implements Serializable, ObjectConverter<Ex
         this.executorTaskType = executorTaskType;
     }
 
+    public String getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(String taskType) {
+        this.taskType = taskType;
+    }
+
     public LockType getLockType() {
         return lockType;
     }
@@ -162,7 +177,11 @@ public class SwiftExecutorTaskEntity implements Serializable, ObjectConverter<Ex
     @Override
     public ExecutorTask convert() {
         try {
-            Class<? extends ExecutorTask> clazz = ExecutorTypeContainer.getInstance().getClassByType(this.executorTaskType);
+            Class<? extends ExecutorTask> clazz = ExecutorTypeContainer.getInstance().getClassByType(taskType);
+
+            TaskType taskTypeAnnotation = clazz.getAnnotation(TaskType.class);
+
+            executorTaskType = (ExecutorTaskType) Enum.valueOf(taskTypeAnnotation.type(), taskType);
 
             Constructor constructor = clazz.getDeclaredConstructor(SourceKey.class, boolean.class, ExecutorTaskType.class, LockType.class,
                     String.class, DBStatusType.class, String.class, long.class, String.class);
