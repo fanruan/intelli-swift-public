@@ -4,9 +4,9 @@ import com.fr.swift.executor.config.SwiftExecutorTaskEntity;
 import com.fr.swift.executor.task.ExecutorTask;
 import com.fr.swift.executor.task.ExecutorTypeContainer;
 import com.fr.swift.executor.type.DBStatusType;
-import com.fr.swift.executor.type.ExecutorTaskType;
 import com.fr.swift.executor.type.LockType;
 import com.fr.swift.executor.type.StatusType;
+import com.fr.swift.executor.type.SwiftTaskType;
 import com.fr.swift.property.SwiftProperty;
 import com.fr.swift.source.SourceKey;
 import org.junit.Assert;
@@ -49,7 +49,7 @@ public class SwiftExecutorTaskEntityTest {
         PowerMockito.mockStatic(SwiftProperty.class);
         Mockito.when(SwiftProperty.getProperty()).thenReturn(swiftProperty);
         Mockito.when(swiftProperty.getClusterId()).thenReturn("127.0.0.1");
-        executorTask = new TestExecutorTask(new SourceKey("test"), true, ExecutorTaskType.TRANSFER, LockType.TABLE,
+        executorTask = new TestExecutorTask(new SourceKey("test"), true, SwiftTaskType.TRANSFER, LockType.TABLE,
                 "lock", DBStatusType.ACTIVE, "taskId", time, "taskContent");
         entity = new SwiftExecutorTaskEntity(executorTask);
     }
@@ -59,7 +59,8 @@ public class SwiftExecutorTaskEntityTest {
         Assert.assertEquals(entity.getTaskId(), "taskId");
         Assert.assertEquals(entity.getSourceKey(), "test");
         Assert.assertEquals(entity.getCreateTime(), time);
-        Assert.assertEquals(entity.getExecutorTaskType(), ExecutorTaskType.TRANSFER);
+        Assert.assertEquals(entity.getTaskType(), SwiftTaskType.TRANSFER.name());
+        Assert.assertEquals(entity.getExecutorTaskType(), SwiftTaskType.TRANSFER);
         Assert.assertEquals(entity.getLockType(), LockType.TABLE);
         Assert.assertEquals(entity.getLockKey(), "lock");
         Assert.assertEquals(entity.getDbStatusType(), DBStatusType.ACTIVE);
@@ -82,7 +83,8 @@ public class SwiftExecutorTaskEntityTest {
         Assert.assertEquals(executorTask.getTaskId(), "taskId");
         Assert.assertEquals(executorTask.getSourceKey(), new SourceKey("test"));
         Assert.assertTrue(executorTask.isPersistent());
-        Assert.assertEquals(executorTask.getExecutorTaskType(), ExecutorTaskType.TRANSFER);
+        Assert.assertEquals(entity.getTaskType(), SwiftTaskType.TRANSFER.name());
+        Assert.assertEquals(executorTask.getExecutorTaskType(), SwiftTaskType.TRANSFER);
         Assert.assertEquals(executorTask.getLockType(), LockType.TABLE);
         Assert.assertEquals(executorTask.getLockKey(), "lock");
         Assert.assertEquals(executorTask.getDbStatusType(), DBStatusType.ACTIVE);
