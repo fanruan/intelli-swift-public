@@ -3,10 +3,10 @@ package com.fr.swift.boot.controller.test;
 
 import com.fr.swift.SwiftContext;
 import com.fr.swift.base.json.JsonBuilder;
-import com.fr.swift.basics.base.selector.ProxySelector;
-import com.fr.swift.compare.Comparators;
 import com.fr.swift.base.meta.MetaDataColumnBean;
 import com.fr.swift.base.meta.SwiftMetaDataBean;
+import com.fr.swift.basics.base.selector.ProxySelector;
+import com.fr.swift.compare.Comparators;
 import com.fr.swift.config.service.SwiftMetaDataService;
 import com.fr.swift.config.service.SwiftSegmentService;
 import com.fr.swift.db.SwiftDatabase;
