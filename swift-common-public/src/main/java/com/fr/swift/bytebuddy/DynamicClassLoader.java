@@ -8,6 +8,7 @@ import com.fr.swift.annotation.persistence.Enumerated;
 import com.fr.swift.annotation.persistence.Id;
 import com.fr.swift.annotation.persistence.MappedSuperclass;
 import com.fr.swift.annotation.persistence.Table;
+import com.fr.swift.annotation.persistence.Transient;
 import com.fr.swift.base.json.annotation.JsonIgnore;
 import com.fr.swift.base.json.annotation.JsonIgnoreProperties;
 import com.fr.swift.base.json.annotation.JsonProperty;
@@ -148,6 +149,10 @@ public class DynamicClassLoader extends ClassLoader {
                 List<AnnotationDescription> list = new ArrayList<AnnotationDescription>();
                 if (fieldAnnotations.isAnnotationPresent(Id.class)) {
                     AnnotationDescription annotation = AnnotationDescription.Builder.ofType(javax.persistence.Id.class).build();
+                    list.add(annotation);
+                }
+                if (fieldAnnotations.isAnnotationPresent(Transient.class)) {
+                    AnnotationDescription annotation = AnnotationDescription.Builder.ofType(javax.persistence.Transient.class).build();
                     list.add(annotation);
                 }
                 if (fieldAnnotations.isAnnotationPresent(Column.class)) {
