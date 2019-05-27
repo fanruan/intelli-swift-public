@@ -1,5 +1,6 @@
 package com.fr.swift.fineio.connector;
 
+import com.fineio.accessor.Block;
 import com.fineio.io.file.FileBlock;
 import com.fr.swift.cube.io.impl.fineio.connector.BaseConnector;
 import com.fr.swift.file.exception.SwiftFileException;
@@ -46,7 +47,7 @@ public class FtpConnector extends BaseConnector {
     }
 
     @Override
-    public boolean delete(FileBlock block) {
+    public boolean delete(Block block) {
         String path = getPath(block, false);
         FtpFileSystemImpl fileSystem = pool.borrowObject(path);
         try {
@@ -59,7 +60,7 @@ public class FtpConnector extends BaseConnector {
     }
 
     @Override
-    public boolean exists(FileBlock block) {
+    public boolean exists(Block block) {
         String path = getPath(block, false);
         FtpFileSystemImpl fileSystem = pool.borrowObject(path);
         try {
@@ -69,16 +70,33 @@ public class FtpConnector extends BaseConnector {
         }
     }
 
-    private String getPath(FileBlock block, boolean mkdir) {
-        String path = getFolderPath(block).getAbsolutePath();
-        FtpFileSystemImpl fileSystem = pool.borrowObject(path);
-        try {
-            if (mkdir && !fileSystem.isExists()) {
-                fileSystem.mkdirs();
+    @Override
+    public Block list(String dir) {
+        return null;
+    }
+
+    private String getPath(Block block, boolean mkdir) {
+        if (block instanceof FileBlock) {
+            String path = getFolderPath((FileBlock) block).getAbsolutePath();
+            FtpFileSystemImpl fileSystem = pool.borrowObject(path);
+            try {
+                if (mkdir && !fileSystem.isExists()) {
+                    fileSystem.mkdirs();
+                }
+                return path + "/" + ((FileBlock) block).getFileName();
+            } finally {
+                pool.returnObject(path, fileSystem);
             }
-            return path + "/" + block.getBlockURI();
-        } finally {
-            pool.returnObject(path, fileSystem);
+        } else {
+            FtpFileSystemImpl fileSystem = pool.borrowObject(block.getPath());
+            try {
+                if (mkdir && !fileSystem.isExists()) {
+                    fileSystem.mkdirs();
+                }
+                return block.getPath();
+            } finally {
+                pool.returnObject(block.getPath(), fileSystem);
+            }
         }
     }
 }

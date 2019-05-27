@@ -1,5 +1,6 @@
 package com.fr.swift.fineio.connector;
 
+import com.fineio.accessor.Block;
 import com.fineio.io.file.FileBlock;
 import com.fr.swift.cube.io.impl.fineio.connector.BaseConnector;
 import com.fr.swift.file.exception.SwiftFileException;
@@ -46,7 +47,7 @@ public class HdfsConnector extends BaseConnector {
     }
 
     @Override
-    public boolean delete(FileBlock block) {
+    public boolean delete(Block block) {
         String path = getPath(block, false);
         SwiftFileSystem fileSystem = pool.borrowObject(path);
         try {
@@ -59,7 +60,7 @@ public class HdfsConnector extends BaseConnector {
     }
 
     @Override
-    public boolean exists(FileBlock block) {
+    public boolean exists(Block block) {
         String path = getPath(block, false);
         SwiftFileSystem fileSystem = pool.borrowObject(path);
         try {
@@ -67,6 +68,17 @@ public class HdfsConnector extends BaseConnector {
         } finally {
             pool.returnObject(path, fileSystem);
         }
+    }
+
+    /**
+     * TODO
+     *
+     * @param dir
+     * @return
+     */
+    @Override
+    public Block list(String dir) {
+        return null;
     }
 
     @Override
@@ -82,16 +94,28 @@ public class HdfsConnector extends BaseConnector {
         }
     }
 
-    private String getPath(FileBlock fileBlock, boolean mkdir) {
-        String path = getFolderPath(fileBlock).getPath();
-        SwiftFileSystem fileSystem = pool.borrowObject(path);
-        try {
-            if (mkdir && !fileSystem.isExists()) {
-                fileSystem.mkdirs();
+    private String getPath(Block fileBlock, boolean mkdir) {
+        if (fileBlock instanceof FileBlock) {
+            String path = getFolderPath((FileBlock) fileBlock).getPath();
+            SwiftFileSystem fileSystem = pool.borrowObject(path);
+            try {
+                if (mkdir && !fileSystem.isExists()) {
+                    fileSystem.mkdirs();
+                }
+                return path + "/" + ((FileBlock) fileBlock).getFileName();
+            } finally {
+                pool.returnObject(path, fileSystem);
             }
-            return path + "/" + fileBlock.getFileName();
-        } finally {
-            pool.returnObject(path, fileSystem);
+        } else {
+            SwiftFileSystem fileSystem = pool.borrowObject(fileBlock.getPath());
+            try {
+                if (mkdir && !fileSystem.isExists()) {
+                    fileSystem.mkdirs();
+                }
+                return fileBlock.getPath();
+            } finally {
+                pool.returnObject(fileBlock.getPath(), fileSystem);
+            }
         }
     }
 }

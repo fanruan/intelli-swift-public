@@ -1,5 +1,6 @@
 package com.fr.swift.fineio;
 
+import com.fineio.accessor.Block;
 import com.fineio.io.file.FileBlock;
 import com.fr.swift.cube.io.impl.fineio.connector.BaseConnector;
 import com.fr.swift.file.CloudOssUtils;
@@ -15,6 +16,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 /**
  * @author yee
@@ -33,7 +35,7 @@ public class OssConnector extends BaseConnector {
     public InputStream read(FileBlock fileBlock) throws IOException {
         try {
             LZ4FastDecompressor decompressor = LZ4Factory.fastestInstance().fastDecompressor();
-            return new LZ4BlockInputStream(CloudOssUtils.getObjectStream(pool, fileBlock.getBlockURI().getPath()), decompressor);
+            return new LZ4BlockInputStream(CloudOssUtils.getObjectStream(pool, fileBlock.getPath()), decompressor);
         } catch (Exception e) {
             if (e instanceof IOException) {
                 throw (IOException) e;
@@ -50,7 +52,7 @@ public class OssConnector extends BaseConnector {
         try {
             IOUtils.copyLarge(is, zos);
             zos.finish();
-            CloudOssUtils.upload(pool, fileBlock.getBlockURI().getPath(), new ByteArrayInputStream(bos.toByteArray()));
+            CloudOssUtils.upload(pool, fileBlock.getPath(), new ByteArrayInputStream(bos.toByteArray()));
         } catch (Exception e) {
             if (e instanceof IOException) {
                 throw (IOException) e;
@@ -62,9 +64,9 @@ public class OssConnector extends BaseConnector {
     }
 
     @Override
-    public boolean delete(FileBlock fileBlock) {
+    public boolean delete(Block block) {
         try {
-            CloudOssUtils.delete(pool, fileBlock.getBlockURI().getPath());
+            CloudOssUtils.delete(pool, block.getPath());
             return true;
         } catch (Exception e) {
             return false;
@@ -72,18 +74,35 @@ public class OssConnector extends BaseConnector {
     }
 
     @Override
-    public boolean exists(FileBlock fileBlock) {
+    public boolean exists(Block block) {
         try {
-            return CloudOssUtils.exists(pool, fileBlock.getBlockURI().getPath());
+            return CloudOssUtils.exists(pool, block.getPath());
         } catch (Exception e) {
             return false;
         }
     }
 
+    /**
+     * TODO OSS 实现list
+     *
+     * @param dir
+     * @return
+     */
+    @Override
+    public Block list(String dir) {
+        try {
+            List<String> names = CloudOssUtils.listNames(pool, dir);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     @Override
     public boolean copy(FileBlock fileBlock, FileBlock fileBlock1) throws IOException {
         try {
-            return CloudOssUtils.copy(pool, fileBlock.getBlockURI().getPath(), fileBlock1.getBlockURI().getPath());
+            return CloudOssUtils.copy(pool, fileBlock.getPath(), fileBlock1.getPath());
         } catch (Exception e) {
             if (e instanceof IOException) {
                 throw (IOException) e;

@@ -9,7 +9,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 
 /**
  * @author yee
@@ -24,8 +23,8 @@ public class OssConnectorDemo {
         config.setBucketName("**");
         config.setEndpoint("oss-cn-shenzhen.aliyuncs.com");
         OssConnector ossConnector = new OssConnector("", new OssClientPool(config));
-        ossConnector.write(new FileBlock(URI.create("cubes/1")), new FileInputStream("/Users/yee/Downloads/nsdi15-final147.pdf"));
-        InputStream is = ossConnector.read(new FileBlock(URI.create("cubes/1")));
+        ossConnector.write(new FileBlock("cubes/1"), new FileInputStream("/Users/yee/Downloads/nsdi15-final147.pdf"));
+        InputStream is = ossConnector.read(new FileBlock("cubes/1"));
         FileOutputStream fileOutputStream = new FileOutputStream("/Users/yee/Downloads/b.pdf");
         IOUtils.copy(is, fileOutputStream);
         is.close();
