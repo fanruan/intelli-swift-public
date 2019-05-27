@@ -5,13 +5,12 @@ import com.fineio.v3.connector.PackageConnector;
 import com.fr.swift.SwiftContext;
 import com.fr.swift.beans.annotation.SwiftBean;
 import com.fr.swift.config.bean.FineIOConnectorConfig;
+import com.fr.swift.config.service.SwiftFineIOConnectorService;
 import com.fr.swift.cube.io.impl.fineio.connector.PackageConnectorImpl;
 import com.fr.swift.cube.io.impl.fineio.connector.annotation.ConnectorBuilder;
 import com.fr.swift.cube.io.impl.fineio.connector.builder.BaseConnectorBuilder;
 import com.fr.swift.fineio.connector.FtpConnector;
-import com.fr.swift.repository.PackageConnectorConfig;
-import com.fr.swift.repository.config.FtpRepositoryConfig;
-import com.fr.swift.service.SwiftRepositoryConfService;
+import com.fr.swift.repository.config.FtpConnectorConfig;
 import com.fr.swift.util.Strings;
 import com.fr.swift.util.Util;
 
@@ -25,14 +24,14 @@ import java.util.Properties;
 @ConnectorBuilder("FTP")
 @SwiftBean(name = "FTP")
 public class SwiftFtpFileSystemFactory extends BaseConnectorBuilder {
-    private FtpRepositoryConfig config;
+    private FtpConnectorConfig config;
 
 
     @Override
     public FineIOConnectorConfig loadFromProperties(Properties properties) {
-        PackageConnectorConfig config = SwiftContext.get().getBean(SwiftRepositoryConfService.class).getCurrentRepository();
-        if (null != config && config.getType().equals("FTP")) {
-            FtpRepositoryConfig ftpConfig = (FtpRepositoryConfig) config;
+        FineIOConnectorConfig config = SwiftContext.get().getBean(SwiftFineIOConnectorService.class).getCurrentConfig();
+        if (null != config && config.type().equals("FTP")) {
+            FtpConnectorConfig ftpConfig = (FtpConnectorConfig) config;
             ftpConfig.setProtocol(properties.getProperty("fineio.protocol", ftpConfig.getProtocol()));
             ftpConfig.setRootPath(properties.getProperty("fineio.root", ftpConfig.getRootPath()));
             ftpConfig.setCharset(properties.getProperty("fineio.charset", ftpConfig.getCharset()));
@@ -48,7 +47,7 @@ public class SwiftFtpFileSystemFactory extends BaseConnectorBuilder {
             String charset = properties.getProperty("fineio.charset", "UTF-8");
             String port = properties.getProperty("fineio.port", "21");
             String root = properties.getProperty("fineio.root", "/");
-            FtpRepositoryConfig ftpConfig = new FtpRepositoryConfig();
+            FtpConnectorConfig ftpConfig = new FtpConnectorConfig();
             if (Strings.isNotEmpty(host)) {
                 ftpConfig.setProtocol(protocol);
                 ftpConfig.setRootPath(root);

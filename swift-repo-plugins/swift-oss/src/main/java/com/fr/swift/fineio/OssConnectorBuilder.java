@@ -6,14 +6,13 @@ import com.fr.swift.SwiftContext;
 import com.fr.swift.beans.annotation.SwiftBean;
 import com.fr.swift.config.bean.FineIOConnectorConfig;
 import com.fr.swift.config.service.SwiftCubePathService;
+import com.fr.swift.config.service.SwiftFineIOConnectorService;
 import com.fr.swift.cube.io.impl.fineio.connector.PackageConnectorImpl;
 import com.fr.swift.cube.io.impl.fineio.connector.annotation.ConnectorBuilder;
 import com.fr.swift.cube.io.impl.fineio.connector.builder.BaseConnectorBuilder;
 import com.fr.swift.file.OssClientPool;
-import com.fr.swift.repository.PackageConnectorConfig;
 import com.fr.swift.repository.config.OssConnectorType;
 import com.fr.swift.repository.config.OssRepositoryConfig;
-import com.fr.swift.service.SwiftRepositoryConfService;
 import com.fr.swift.util.Util;
 
 import java.util.Properties;
@@ -22,8 +21,8 @@ import java.util.Properties;
  * @author yee
  * @date 2018-12-20
  */
-@ConnectorBuilder("OSSConnector")
-@SwiftBean(name = "OSSConnector")
+@ConnectorBuilder("OSS")
+@SwiftBean(name = "OSS")
 public class OssConnectorBuilder extends BaseConnectorBuilder {
     private OssRepositoryConfig config;
 
@@ -40,8 +39,8 @@ public class OssConnectorBuilder extends BaseConnectorBuilder {
 
     @Override
     public FineIOConnectorConfig loadFromProperties(Properties properties) {
-        PackageConnectorConfig config = SwiftContext.get().getBean(SwiftRepositoryConfService.class).getCurrentRepository();
-        if (null != config && config.getType().equals(OssConnectorType.OSS)) {
+        FineIOConnectorConfig config = SwiftContext.get().getBean(SwiftFineIOConnectorService.class).getCurrentConfig();
+        if (null != config && config.type().equals(OssConnectorType.OSS.name())) {
             OssRepositoryConfig ossConfig = (OssRepositoryConfig) config;
             ossConfig.setBucketName(properties.getProperty("fineio.bucketName", ossConfig.getBucketName()));
             ossConfig.setAccessKeyId(properties.getProperty("fineio.accessKeyId", ossConfig.getAccessKeyId()));

@@ -3,14 +3,13 @@ package com.fr.swift.repository.config;
 import com.fr.swift.config.annotation.ConfigField;
 import com.fr.swift.config.bean.FineIOConnectorConfig;
 import com.fr.swift.file.SwiftPackageConnectorType;
-import com.fr.swift.repository.PackageConnectorConfig;
 import com.fr.swift.util.Strings;
 
 /**
  * @author yee
  * @date 2018/6/15
  */
-public class FtpRepositoryConfig implements PackageConnectorConfig, FineIOConnectorConfig {
+public class FtpConnectorConfig implements FineIOConnectorConfig {
 
     @ConfigField
     private String protocol = "FTP";
@@ -144,11 +143,6 @@ public class FtpRepositoryConfig implements PackageConnectorConfig, FineIOConnec
     }
 
     @Override
-    public SwiftPackageConnectorType getType() {
-        return SwiftPackageConnectorType.FTP;
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -157,7 +151,7 @@ public class FtpRepositoryConfig implements PackageConnectorConfig, FineIOConnec
             return false;
         }
 
-        FtpRepositoryConfig that = (FtpRepositoryConfig) o;
+        FtpConnectorConfig that = (FtpConnectorConfig) o;
 
         if (protocol != null ? !protocol.equals(that.protocol) : that.protocol != null) {
             return false;
@@ -218,7 +212,7 @@ public class FtpRepositoryConfig implements PackageConnectorConfig, FineIOConnec
 
     @Override
     public String type() {
-        return getType().name();
+        return SwiftPackageConnectorType.FTP.name();
     }
 
     @Override

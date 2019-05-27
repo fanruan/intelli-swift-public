@@ -2,15 +2,13 @@ package com.fr.swift.repository.config;
 
 import com.fr.swift.config.annotation.ConfigField;
 import com.fr.swift.config.bean.FineIOConnectorConfig;
-import com.fr.swift.file.PackageConnectorType;
-import com.fr.swift.repository.PackageConnectorConfig;
 import com.fr.swift.util.Strings;
 
 /**
  * @author yee
  * @date 2019-01-21
  */
-public class OssRepositoryConfig implements PackageConnectorConfig, FineIOConnectorConfig {
+public class OssRepositoryConfig implements FineIOConnectorConfig {
 
     @ConfigField
     private String endpoint;
@@ -54,13 +52,8 @@ public class OssRepositoryConfig implements PackageConnectorConfig, FineIOConnec
     }
 
     @Override
-    public PackageConnectorType getType() {
-        return OssConnectorType.OSS;
-    }
-
-    @Override
     public String type() {
-        return getType().name();
+        return OssConnectorType.OSS.name();
     }
 
     @Override

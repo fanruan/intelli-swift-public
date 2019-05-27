@@ -9,7 +9,7 @@ import com.fr.swift.file.exception.SwiftFileException;
 import com.fr.swift.file.system.pool.FtpClientPoolFactory;
 import com.fr.swift.file.system.pool.config.FtpClientPoolConfig;
 import com.fr.swift.log.SwiftLoggers;
-import com.fr.swift.repository.config.FtpRepositoryConfig;
+import com.fr.swift.repository.config.FtpConnectorConfig;
 import com.fr.swift.repository.utils.SwiftRepositoryUtils;
 import com.fr.swift.util.Strings;
 import org.apache.commons.pool2.ObjectPool;
@@ -31,7 +31,7 @@ public class FtpConnector extends BaseConnector {
     private ObjectPool<SwiftFTPClient> clientPool;
     private String rootURI;
 
-    public FtpConnector(FtpRepositoryConfig config) {
+    public FtpConnector(FtpConnectorConfig config) {
         super(config.getRootPath());
         GenericObjectPoolConfig poolConfig = new FtpClientPoolConfig().getPoolConfig();
         poolConfig.setTestOnBorrow(true);
@@ -159,7 +159,7 @@ public class FtpConnector extends BaseConnector {
         } finally {
             returnClient(ftp);
         }
-        return path;
+        return block.getPath();
     }
 
     private boolean createDirectory(SwiftFTPClient client, String path) throws Exception {
