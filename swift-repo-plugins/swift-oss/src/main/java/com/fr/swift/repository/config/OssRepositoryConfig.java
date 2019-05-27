@@ -2,15 +2,15 @@ package com.fr.swift.repository.config;
 
 import com.fr.swift.config.annotation.ConfigField;
 import com.fr.swift.config.bean.FineIOConnectorConfig;
-import com.fr.swift.file.SwiftFileSystemType;
-import com.fr.swift.repository.SwiftFileSystemConfig;
+import com.fr.swift.file.PackageConnectorType;
+import com.fr.swift.repository.PackageConnectorConfig;
 import com.fr.swift.util.Strings;
 
 /**
  * @author yee
  * @date 2019-01-21
  */
-public class OssRepositoryConfig implements SwiftFileSystemConfig, FineIOConnectorConfig {
+public class OssRepositoryConfig implements PackageConnectorConfig, FineIOConnectorConfig {
 
     @ConfigField
     private String endpoint;
@@ -54,8 +54,8 @@ public class OssRepositoryConfig implements SwiftFileSystemConfig, FineIOConnect
     }
 
     @Override
-    public SwiftFileSystemType getType() {
-        return OssType.OSS;
+    public PackageConnectorType getType() {
+        return OssConnectorType.OSS;
     }
 
     @Override

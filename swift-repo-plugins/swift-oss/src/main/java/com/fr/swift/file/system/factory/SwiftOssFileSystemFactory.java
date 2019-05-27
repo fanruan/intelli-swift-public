@@ -1,7 +1,7 @@
 package com.fr.swift.file.system.factory;
 
 import com.fr.swift.beans.annotation.SwiftBean;
-import com.fr.swift.file.system.annotation.FileSystemFactory;
+import com.fr.swift.file.system.annotation.PackageConnectorFactory;
 import com.fr.swift.file.system.impl.OssFileSystemImpl;
 import com.fr.swift.file.system.pool.OssFileSystemPool;
 import com.fr.swift.file.system.pool.RemoteFileSystemPool;
@@ -15,7 +15,7 @@ import java.util.Properties;
  * @author yee
  * @date 2018/8/21
  */
-@FileSystemFactory(name = "OSS")
+@PackageConnectorFactory(name = "OSS")
 @SwiftBean(name = "OSS")
 public class SwiftOssFileSystemFactory extends BasePooledFileSystemFactory<OssFileSystemImpl, OssRepositoryConfig> {
 

@@ -1,14 +1,14 @@
 package com.fr.swift.repository.config;
 
 import com.fr.swift.config.annotation.ConfigField;
-import com.fr.swift.file.SwiftFileSystemType;
-import com.fr.swift.repository.SwiftFileSystemConfig;
+import com.fr.swift.file.PackageConnectorType;
+import com.fr.swift.repository.PackageConnectorConfig;
 
 /**
  * @author yee
  * @date 2018/6/15
  */
-public class HdfsRepositoryConfig implements SwiftFileSystemConfig {
+public class HdfsRepositoryConfig implements PackageConnectorConfig {
     @ConfigField
     private String fsName = "fs.defaultFS";
     @ConfigField
@@ -54,8 +54,8 @@ public class HdfsRepositoryConfig implements SwiftFileSystemConfig {
     }
 
     @Override
-    public SwiftFileSystemType getType() {
-        return HdfsSystemType.HDFS;
+    public PackageConnectorType getType() {
+        return HdfsConnectorType.HDFS;
     }
 
     @Override

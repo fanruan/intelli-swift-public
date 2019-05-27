@@ -1,7 +1,7 @@
 package com.fr.swift.file.system.factory;
 
 import com.fr.swift.beans.annotation.SwiftBean;
-import com.fr.swift.file.system.annotation.FileSystemFactory;
+import com.fr.swift.file.system.annotation.PackageConnectorFactory;
 import com.fr.swift.file.system.impl.HdfsFileSystemImpl;
 import com.fr.swift.file.system.pool.BaseRemoteFileSystemPool;
 import com.fr.swift.file.system.pool.HdfsFileSystemPool;
@@ -13,7 +13,7 @@ import java.util.Properties;
  * @author yee
  * @date 2018/8/21
  */
-@FileSystemFactory(name = "HDFS")
+@PackageConnectorFactory(name = "HDFS")
 @SwiftBean(name = "HDFS")
 public class HdfsFileSystemFactory extends BasePooledFileSystemFactory<HdfsFileSystemImpl, HdfsRepositoryConfig> {
     @Override

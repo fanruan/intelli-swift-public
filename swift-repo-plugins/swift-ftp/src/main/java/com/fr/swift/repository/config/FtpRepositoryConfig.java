@@ -1,15 +1,15 @@
 package com.fr.swift.repository.config;
 
 import com.fr.swift.config.annotation.ConfigField;
-import com.fr.swift.file.SwiftRemoteFileSystemType;
-import com.fr.swift.repository.SwiftFileSystemConfig;
+import com.fr.swift.file.SwiftPackageConnectorType;
+import com.fr.swift.repository.PackageConnectorConfig;
 import com.fr.swift.util.Strings;
 
 /**
  * @author yee
  * @date 2018/6/15
  */
-public class FtpRepositoryConfig implements SwiftFileSystemConfig {
+public class FtpRepositoryConfig implements PackageConnectorConfig {
 
     @ConfigField
     private String protocol = "FTP";
@@ -143,8 +143,8 @@ public class FtpRepositoryConfig implements SwiftFileSystemConfig {
     }
 
     @Override
-    public SwiftRemoteFileSystemType getType() {
-        return SwiftRemoteFileSystemType.FTP;
+    public SwiftPackageConnectorType getType() {
+        return SwiftPackageConnectorType.FTP;
     }
 
     @Override
