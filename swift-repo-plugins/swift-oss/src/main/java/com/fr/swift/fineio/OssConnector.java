@@ -110,4 +110,9 @@ public class OssConnector extends BaseConnector {
             throw new IOException(e);
         }
     }
+
+    @Override
+    public long size(Block block) {
+        return super.size(block);
+    }
 }

@@ -1,10 +1,12 @@
 package com.fr.swift.fineio;
 
 import com.fineio.storage.Connector;
+import com.fineio.v3.connector.PackageConnector;
 import com.fr.swift.SwiftContext;
 import com.fr.swift.beans.annotation.SwiftBean;
 import com.fr.swift.config.bean.FineIOConnectorConfig;
 import com.fr.swift.config.service.SwiftCubePathService;
+import com.fr.swift.cube.io.impl.fineio.connector.PackageConnectorImpl;
 import com.fr.swift.cube.io.impl.fineio.connector.annotation.ConnectorBuilder;
 import com.fr.swift.cube.io.impl.fineio.connector.builder.BaseConnectorBuilder;
 import com.fr.swift.file.OssClientPool;
@@ -29,6 +31,11 @@ public class OssConnectorBuilder extends BaseConnectorBuilder {
     public Connector build() {
         Util.requireNonNull(config);
         return new OssConnector(SwiftContext.get().getBean(SwiftCubePathService.class).getSwiftPath(), new OssClientPool(config));
+    }
+
+    @Override
+    public PackageConnector buildPackageConnector() {
+        return new PackageConnectorImpl(build());
     }
 
     @Override

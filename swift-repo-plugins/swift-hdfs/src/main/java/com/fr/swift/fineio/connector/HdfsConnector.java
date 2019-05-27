@@ -118,4 +118,9 @@ public class HdfsConnector extends BaseConnector {
             }
         }
     }
+
+    @Override
+    public long size(Block block) {
+        return super.size(block);
+    }
 }

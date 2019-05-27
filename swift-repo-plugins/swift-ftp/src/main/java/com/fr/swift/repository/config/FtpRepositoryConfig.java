@@ -1,6 +1,7 @@
 package com.fr.swift.repository.config;
 
 import com.fr.swift.config.annotation.ConfigField;
+import com.fr.swift.config.bean.FineIOConnectorConfig;
 import com.fr.swift.file.SwiftPackageConnectorType;
 import com.fr.swift.repository.PackageConnectorConfig;
 import com.fr.swift.util.Strings;
@@ -9,7 +10,7 @@ import com.fr.swift.util.Strings;
  * @author yee
  * @date 2018/6/15
  */
-public class FtpRepositoryConfig implements PackageConnectorConfig {
+public class FtpRepositoryConfig implements PackageConnectorConfig, FineIOConnectorConfig {
 
     @ConfigField
     private String protocol = "FTP";
@@ -213,5 +214,15 @@ public class FtpRepositoryConfig implements PackageConnectorConfig {
         result = 31 * result + (dataTimeout != null ? dataTimeout.hashCode() : 0);
         result = 31 * result + (rootPath != null ? rootPath.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String type() {
+        return getType().name();
+    }
+
+    @Override
+    public String basePath() {
+        return Strings.EMPTY;
     }
 }
