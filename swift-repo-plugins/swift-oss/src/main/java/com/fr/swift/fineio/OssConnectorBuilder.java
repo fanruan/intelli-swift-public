@@ -7,12 +7,12 @@ import com.fr.swift.beans.annotation.SwiftBean;
 import com.fr.swift.config.bean.FineIOConnectorConfig;
 import com.fr.swift.config.service.SwiftCubePathService;
 import com.fr.swift.config.service.SwiftFineIOConnectorService;
-import com.fr.swift.cube.io.impl.fineio.connector.PackageConnectorImpl;
 import com.fr.swift.cube.io.impl.fineio.connector.annotation.ConnectorBuilder;
 import com.fr.swift.cube.io.impl.fineio.connector.builder.BaseConnectorBuilder;
 import com.fr.swift.file.OssClientPool;
 import com.fr.swift.repository.config.OssConnectorType;
 import com.fr.swift.repository.config.OssRepositoryConfig;
+import com.fr.swift.repository.connector.PackageConnectorImpl;
 import com.fr.swift.util.Util;
 
 import java.util.Properties;
@@ -22,7 +22,7 @@ import java.util.Properties;
  * @date 2018-12-20
  */
 @ConnectorBuilder("OSS")
-@SwiftBean(name = "OSS")
+@SwiftBean
 public class OssConnectorBuilder extends BaseConnectorBuilder {
     private OssRepositoryConfig config;
 
@@ -39,7 +39,7 @@ public class OssConnectorBuilder extends BaseConnectorBuilder {
 
     @Override
     public FineIOConnectorConfig loadFromProperties(Properties properties) {
-        FineIOConnectorConfig config = SwiftContext.get().getBean(SwiftFineIOConnectorService.class).getCurrentConfig();
+        FineIOConnectorConfig config = SwiftContext.get().getBean(SwiftFineIOConnectorService.class).getCurrentConfig(SwiftFineIOConnectorService.Type.CONNECTOR);
         if (null != config && config.type().equals(OssConnectorType.OSS.name())) {
             OssRepositoryConfig ossConfig = (OssRepositoryConfig) config;
             ossConfig.setBucketName(properties.getProperty("fineio.bucketName", ossConfig.getBucketName()));
