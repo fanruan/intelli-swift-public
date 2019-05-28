@@ -2,7 +2,7 @@ package com.fr.swift.file.client.impl;
 
 import com.fr.swift.file.client.SwiftFTPClient;
 import com.fr.swift.file.exception.SwiftFileException;
-import com.fr.swift.repository.config.FtpRepositoryConfig;
+import com.fr.swift.repository.config.FtpConnectorConfig;
 import com.fr.swift.repository.utils.SwiftRepositoryUtils;
 import com.fr.swift.util.Strings;
 import org.apache.commons.net.ftp.FTPClient;
@@ -30,7 +30,7 @@ public class FTPClientImpl implements SwiftFTPClient {
     private int soTimeout;
     private int dataTimeout;
 
-    public FTPClientImpl(FtpRepositoryConfig config) {
+    public FTPClientImpl(FtpConnectorConfig config) {
         this.host = config.getHost();
         this.port = Integer.parseInt(config.getPort());
         if (Strings.isNotEmpty(config.getUsername())) {

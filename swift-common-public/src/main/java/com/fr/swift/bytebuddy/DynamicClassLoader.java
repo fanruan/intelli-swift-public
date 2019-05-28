@@ -20,15 +20,21 @@ import net.bytebuddy.description.annotation.AnnotationDescription;
 import net.bytebuddy.description.annotation.AnnotationList;
 import net.bytebuddy.description.field.FieldDescription;
 import net.bytebuddy.description.field.FieldList;
+import net.bytebuddy.description.method.MethodDescription;
+import net.bytebuddy.description.modifier.Visibility;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.dynamic.loading.ClassReloadingStrategy;
+import net.bytebuddy.implementation.MethodDelegation;
+import net.bytebuddy.implementation.SuperMethodCall;
 import net.bytebuddy.matcher.ElementMatchers;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.EnumType;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -172,16 +178,30 @@ public class DynamicClassLoader extends ClassLoader {
                     AnnotationDescription.Builder convertBuilder = AnnotationDescription.Builder
                             .ofType(javax.persistence.Convert.class);
                     Class converter = convert.converter();
+                    Object o = converter.newInstance();
                     ParameterizedType genericInterface = (ParameterizedType) converter.getGenericInterfaces()[0];
-                    TypeDescription.Generic build = TypeDescription.Generic.Builder.parameterizedType(AttributeConverter.class, genericInterface.getActualTypeArguments()).build();
-                    DynamicType.Unloaded make = new ByteBuddy().redefine(converter).implement(build).name(converter.getName() + "_").make();
-                    Method method = ClassLoader.class.getDeclaredMethod( "defineClass", String.class, byte[].class, int.class, int.class,
+                    Type[] types = genericInterface.getActualTypeArguments();
+                    TypeDescription.Generic build = TypeDescription.Generic.Builder.parameterizedType(AttributeConverter.class, types).build();
+                    DynamicType.Unloaded make = new ByteBuddy().subclass(Object.class).implement(build).name(converter.getName() + "_").defineMethod("convertToDatabaseColumn", types[1], Visibility.PUBLIC)
+                            .withParameters(types[0])
+                            .intercept(MethodDelegation.to(o, converter, "delegate"))
+                            .defineMethod("convertToEntityAttribute", types[0], Visibility.PUBLIC)
+                            .withParameters(types[1])
+                            .intercept(MethodDelegation.to(o, converter, "delegate"))
+                            .method(ElementMatchers.<MethodDescription>isDeclaredBy(Object.class))
+                            .intercept(SuperMethodCall.INSTANCE).make();
+                    Method method = ClassLoader.class.getDeclaredMethod("defineClass", String.class, byte[].class, int.class, int.class,
                             ProtectionDomain.class);
                     method.setAccessible(true);
                     byte[] bytes = make.getBytes();
-                    converter = (Class) method.invoke(loader, converter.getName() + "_", bytes, 0, bytes.length, null);
+                    Class loaded = (Class) method.invoke(loader, converter.getName() + "_", bytes, 0, bytes.length, null);
                     method.setAccessible(false);
-                    convertBuilder = convertBuilder.define("converter", converter)
+                    Field delegate = loaded.getDeclaredField("delegate");
+                    delegate.setAccessible(true);
+                    delegate.set(null, o);
+                    delegate.setAccessible(false);
+
+                    convertBuilder = convertBuilder.define("converter", loaded)
                             .define("attributeName", convert.attributeName())
                             .define("disableConversion", convert.disableConversion());
                     list.add(convertBuilder.build());

@@ -1,19 +1,22 @@
 package com.fr.swift.repository.config;
 
+import com.fr.swift.config.annotation.ConfigField;
 import com.fr.swift.config.bean.FineIOConnectorConfig;
-import com.fr.swift.file.SwiftFileSystemType;
-import com.fr.swift.repository.SwiftFileSystemConfig;
 import com.fr.swift.util.Strings;
 
 /**
  * @author yee
  * @date 2019-01-21
  */
-public class OssRepositoryConfig implements SwiftFileSystemConfig, FineIOConnectorConfig {
+public class OssRepositoryConfig implements FineIOConnectorConfig {
 
+    @ConfigField
     private String endpoint;
+    @ConfigField
     private String accessKeyId;
+    @ConfigField
     private String accessKeySecret;
+    @ConfigField
     private String bucketName;
 
     public String getEndpoint() {
@@ -49,13 +52,8 @@ public class OssRepositoryConfig implements SwiftFileSystemConfig, FineIOConnect
     }
 
     @Override
-    public SwiftFileSystemType getType() {
-        return OssType.OSS;
-    }
-
-    @Override
     public String type() {
-        return getType().name();
+        return OssConnectorType.OSS.name();
     }
 
     @Override

@@ -1,15 +1,15 @@
 package com.fr.swift.repository.config;
 
 import com.fr.swift.config.annotation.ConfigField;
-import com.fr.swift.file.SwiftRemoteFileSystemType;
-import com.fr.swift.repository.SwiftFileSystemConfig;
+import com.fr.swift.config.bean.FineIOConnectorConfig;
+import com.fr.swift.file.SwiftPackageConnectorType;
 import com.fr.swift.util.Strings;
 
 /**
  * @author yee
  * @date 2018/6/15
  */
-public class FtpRepositoryConfig implements SwiftFileSystemConfig {
+public class FtpConnectorConfig implements FineIOConnectorConfig {
 
     @ConfigField
     private String protocol = "FTP";
@@ -143,11 +143,6 @@ public class FtpRepositoryConfig implements SwiftFileSystemConfig {
     }
 
     @Override
-    public SwiftRemoteFileSystemType getType() {
-        return SwiftRemoteFileSystemType.FTP;
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -156,7 +151,7 @@ public class FtpRepositoryConfig implements SwiftFileSystemConfig {
             return false;
         }
 
-        FtpRepositoryConfig that = (FtpRepositoryConfig) o;
+        FtpConnectorConfig that = (FtpConnectorConfig) o;
 
         if (protocol != null ? !protocol.equals(that.protocol) : that.protocol != null) {
             return false;
@@ -213,5 +208,15 @@ public class FtpRepositoryConfig implements SwiftFileSystemConfig {
         result = 31 * result + (dataTimeout != null ? dataTimeout.hashCode() : 0);
         result = 31 * result + (rootPath != null ? rootPath.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public String type() {
+        return SwiftPackageConnectorType.FTP.name();
+    }
+
+    @Override
+    public String basePath() {
+        return Strings.EMPTY;
     }
 }

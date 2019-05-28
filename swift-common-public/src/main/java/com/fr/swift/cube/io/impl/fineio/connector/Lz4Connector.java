@@ -1,7 +1,9 @@
 package com.fr.swift.cube.io.impl.fineio.connector;
 
+import com.fineio.accessor.Block;
 import com.fineio.io.file.FileBlock;
 import com.fr.swift.util.IoUtil;
+import com.fr.swift.util.Strings;
 import net.jpountz.lz4.LZ4BlockInputStream;
 import net.jpountz.lz4.LZ4BlockOutputStream;
 import net.jpountz.lz4.LZ4Compressor;
@@ -21,7 +23,7 @@ import java.io.InputStream;
  * @author yee
  * @date 2018/8/9
  */
-public class Lz4Connector extends BaseConnector {
+public class Lz4Connector extends FileConnector {
     private static final int BLOCK_SIZE = 32 * 1024 * 1024;
 
     private Lz4Connector(String path) {
@@ -57,12 +59,12 @@ public class Lz4Connector extends BaseConnector {
     }
 
     @Override
-    public boolean delete(FileBlock block) {
+    public boolean delete(Block block) {
         return this.getPath(block, false).delete();
     }
 
     @Override
-    public boolean exists(FileBlock block) {
+    public boolean exists(Block block) {
         File file = this.getPath(block, false);
         return file.exists() && file.length() > 0L;
     }
@@ -79,12 +81,15 @@ public class Lz4Connector extends BaseConnector {
         }
     }
 
-    private File getPath(FileBlock block, boolean mkdir) {
-        File parent = this.getFolderPath(block);
-        if (!parent.exists() && mkdir) {
-            parent.mkdirs();
+    private File getPath(Block block, boolean mkdir) {
+        if (block instanceof FileBlock) {
+            File parent = this.getFolderPath((FileBlock) block);
+            if (!parent.exists() && mkdir) {
+                parent.mkdirs();
+            }
+            return new File(parent, block.getName());
+        } else {
+            return new File(Strings.unifySlash(parentURI + "/" + block.getPath()));
         }
-
-        return new File(parent, block.getFileName());
     }
 }
