@@ -37,11 +37,10 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * @author yee
@@ -49,8 +48,8 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class DynamicClassLoader extends ClassLoader {
     private ClassLoader parent;
-    private ConcurrentMap<String, Object> lockMap = new ConcurrentHashMap<String, Object>();
-    private Set<String> redefineSet = new HashSet<String>();
+    private static ConcurrentMap<String, Object> LOCK_MAP = new ConcurrentHashMap<String, Object>();
+    private static ConcurrentSkipListSet<String> REDEFINE_SET = new ConcurrentSkipListSet<String>();
     private ByteBuddy buddy = new ByteBuddy();
 
     public DynamicClassLoader(ClassLoader parent) {
@@ -89,9 +88,9 @@ public class DynamicClassLoader extends ClassLoader {
 
     private Object getClassLock(String className) {
         Object lock = this;
-        if (lockMap != null) {
+        if (LOCK_MAP != null) {
             Object newLock = new Object();
-            lock = lockMap.putIfAbsent(className, newLock);
+            lock = LOCK_MAP.putIfAbsent(className, newLock);
             if (lock == null) {
                 lock = newLock;
             }
@@ -109,22 +108,27 @@ public class DynamicClassLoader extends ClassLoader {
                 c = this.getClass().getClassLoader().loadClass(name);
             }
         }
-        if (name.startsWith("com.fr.swift") && !redefineSet.contains(name)) {
+        if (name.startsWith("com.fr.swift") && !REDEFINE_SET.contains(name)) {
             Class<?> loaded = dynamicType(c);
-            redefineSet.add(name);
+            REDEFINE_SET.add(name);
             return loaded;
         }
         return c;
     }
 
-    private Class<?> dynamicType(Class<?> c) {
+    private Class<?> dynamicType(Class<?> c) throws ClassNotFoundException {
         TypeDescription.Generic typeDefinitions = TypeDescription.Generic.Builder.rawType(c).build();
         DynamicType.Builder<?> builder = transform(buddy.redefine(c), typeDefinitions.asErasure(), parent);
         DynamicType.Unloaded<?> make = builder.make();
+        Class<?> superclass = c.getSuperclass();
+        if (null != superclass && !Object.class.equals(superclass)) {
+            Class<?> aClass = loadClass(superclass.getName());
+            REDEFINE_SET.add(aClass.getName());
+        }
         return make.load(parent, ClassReloadingStrategy.fromInstalledAgent()).getLoaded();
     }
 
-    private DynamicType.Builder<?> transform(DynamicType.Builder<?> builder, TypeDescription typeDescription, ClassLoader classLoader) {
+    private DynamicType.Builder<?> transform(DynamicType.Builder<?> builder, TypeDescription typeDescription, ClassLoader classLoader) throws ClassNotFoundException {
         AnnotationList typeAnnotations = typeDescription.getInheritedAnnotations();
         if (null != typeAnnotations && !typeAnnotations.isEmpty()) {
             builder = buildTypeAnnotations(builder, typeAnnotations);
@@ -241,7 +245,7 @@ public class DynamicClassLoader extends ClassLoader {
                 .define("updatable", column.updatable()).build();
     }
 
-    private DynamicType.Builder<?> buildTypeAnnotations(DynamicType.Builder<?> builder, AnnotationList typeAnnotations) {
+    private DynamicType.Builder<?> buildTypeAnnotations(DynamicType.Builder<?> builder, AnnotationList typeAnnotations) throws ClassNotFoundException {
         if (typeAnnotations.isAnnotationPresent(Entity.class)) {
             builder = buildEntity(builder);
         }
@@ -277,7 +281,7 @@ public class DynamicClassLoader extends ClassLoader {
         return builder.annotateType(jsonIgnorePropertiesBuilder.defineArray("value", jsonIgnoreProperties.value()).build());
     }
 
-    private DynamicType.Builder<?> buildJsonSubTypes(DynamicType.Builder<?> builder, JsonSubTypes jsonSubTypes) {
+    private DynamicType.Builder<?> buildJsonSubTypes(DynamicType.Builder<?> builder, JsonSubTypes jsonSubTypes) throws ClassNotFoundException {
         AnnotationDescription.Builder jsonSubTypesBuilder = AnnotationDescription.Builder.ofType(com.fasterxml.jackson.annotation.JsonSubTypes.class);
         JsonSubTypes.Type[] types = jsonSubTypes.value();
         List<AnnotationDescription> list = new ArrayList<AnnotationDescription>();
