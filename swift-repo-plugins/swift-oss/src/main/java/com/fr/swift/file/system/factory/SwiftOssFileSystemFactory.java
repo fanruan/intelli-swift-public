@@ -15,8 +15,8 @@ import java.util.Properties;
  * @author yee
  * @date 2018/8/21
  */
-@FileSystemFactory(name = "OSS")
-@SwiftBean(name = "OSS")
+@FileSystemFactory(name = "swiftOssFileSystemFactory")
+@SwiftBean(name = "swiftOssFileSystemFactory")
 public class SwiftOssFileSystemFactory extends BasePooledFileSystemFactory<OssFileSystemImpl, OssRepositoryConfig> {
 
     @Override

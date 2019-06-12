@@ -13,6 +13,7 @@ import org.apache.commons.io.IOUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -32,8 +33,12 @@ public class OssConnector extends BaseConnector {
     @Override
     public InputStream read(FileBlock fileBlock) throws IOException {
         try {
-            LZ4FastDecompressor decompressor = LZ4Factory.fastestInstance().fastDecompressor();
-            return new LZ4BlockInputStream(CloudOssUtils.getObjectStream(pool, fileBlock.getBlockURI().getPath()), decompressor);
+            if (CloudOssUtils.exists(pool, fileBlock.getBlockURI().getPath())) {
+                LZ4FastDecompressor decompressor = LZ4Factory.fastestInstance().fastDecompressor();
+                return new LZ4BlockInputStream(CloudOssUtils.getObjectStream(pool, fileBlock.getBlockURI().getPath()), decompressor);
+            } else {
+                throw new FileNotFoundException(fileBlock.getBlockURI().getPath());
+            }
         } catch (Exception e) {
             if (e instanceof IOException) {
                 throw (IOException) e;

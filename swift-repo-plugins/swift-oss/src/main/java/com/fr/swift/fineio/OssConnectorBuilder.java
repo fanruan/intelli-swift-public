@@ -20,8 +20,8 @@ import java.util.Properties;
  * @author yee
  * @date 2018-12-20
  */
-@ConnectorBuilder("OSSConnector")
-@SwiftBean(name = "OSSConnector")
+@ConnectorBuilder("OSS")
+@SwiftBean(name = "OSS")
 public class OssConnectorBuilder extends BaseConnectorBuilder {
     private OssRepositoryConfig config;
 
