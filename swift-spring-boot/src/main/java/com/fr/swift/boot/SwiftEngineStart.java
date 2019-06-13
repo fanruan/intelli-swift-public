@@ -37,6 +37,7 @@ public class SwiftEngineStart {
             ProviderTaskManager.start();
             SwiftCommandParser.parseCommand(args);
             BootRegister.registerProxy();
+            BootRegister.registerExecutorTask();
             PublicConfig.load();
 
             SwiftContext.get().getBean(LocalManager.class).startUp();
@@ -44,9 +45,7 @@ public class SwiftEngineStart {
                 ClusterListenerHandler.handlerEvent(new ClusterEvent(ClusterEventType.JOIN_CLUSTER, ClusterType.CONFIGURE));
             }
             SwiftContext.get().getBean(ServerManager.class).startUp();
-
             BootRegister.registerListener();
-            BootRegister.registerExecutorTask();
 
             SwiftLoggers.getLogger().info("Swift engine start successful");
         } catch (Throwable e) {
