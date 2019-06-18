@@ -8,7 +8,7 @@ import com.fr.swift.base.meta.SwiftMetaDataBean;
 import com.fr.swift.basics.base.selector.ProxySelector;
 import com.fr.swift.compare.Comparators;
 import com.fr.swift.config.service.SwiftMetaDataService;
-import com.fr.swift.db.SwiftDatabase;
+import com.fr.swift.db.SwiftSchema;
 import com.fr.swift.db.Table;
 import com.fr.swift.query.QueryRunnerProvider;
 import com.fr.swift.query.aggregator.AggregatorType;
@@ -58,6 +58,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+
 
 /**
  * This class created on 2018/6/13
@@ -170,7 +171,7 @@ public class TestController {
     public Boolean createTable() {
         SwiftMetaData metaData = new SwiftMetaDataBean();
         ((SwiftMetaDataBean) metaData).setId("test_yiguan");
-        ((SwiftMetaDataBean) metaData).setSwiftSchema(SwiftDatabase.CUBE);
+        ((SwiftMetaDataBean) metaData).setSwiftSchema(SwiftSchema.CUBE);
         ((SwiftMetaDataBean) metaData).setTableName("test_yiguan");
         List<SwiftMetaDataColumn> metaDataColumns = new ArrayList<SwiftMetaDataColumn>();
         metaDataColumns.add(new MetaDataColumnBean("id", Types.VARCHAR));
@@ -288,7 +289,7 @@ public class TestController {
     public Boolean createYiguanTable() {
         SwiftMetaData metaData = new SwiftMetaDataBean();
         ((SwiftMetaDataBean) metaData).setId("test_yiguan");
-        ((SwiftMetaDataBean) metaData).setSwiftSchema(SwiftDatabase.CUBE);
+        ((SwiftMetaDataBean) metaData).setSwiftSchema(SwiftSchema.CUBE);
         ((SwiftMetaDataBean) metaData).setTableName("test_yiguan");
         List<SwiftMetaDataColumn> metaDataColumns = new ArrayList<SwiftMetaDataColumn>();
         metaDataColumns.add(new MetaDataColumnBean("id", Types.VARCHAR));
