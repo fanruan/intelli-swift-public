@@ -320,7 +320,7 @@ public class TestController {
     @ResponseBody
     public Object testFunnel() throws Exception {
         DayFilterBean dayFilter = new DayFilterBean("date", "20180601", 30);
-        ParameterColumnsBean paramColumn = new ParameterColumnsBean("id", "eventType", "combine");
+        ParameterColumnsBean paramColumn = new ParameterColumnsBean("id", "eventType", "currentTime", "date");
         FunnelFunctionBean aggregation = new FunnelFunctionBean(2592000, dayFilter, paramColumn, Arrays.asList("login", "browseGoods"));
         FunnelQueryBean bean = new FunnelQueryBean(aggregation);
         bean.setPostAggregations(Arrays.<PostQueryInfoBean>asList(new FunnelMedianInfoBean()));
