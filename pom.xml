@@ -16,7 +16,7 @@
     </properties>
 
     <modules>
-<!--        <module>swift-redis</module>-->
+        <module>swift-redis</module>
         <module>swift-rpc-netty</module>
         <module>swift-spring-boot</module>
 <!--        <module>swift-zookeeper</module>-->
