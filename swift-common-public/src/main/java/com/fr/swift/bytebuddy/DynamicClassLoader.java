@@ -23,6 +23,7 @@ import net.bytebuddy.description.field.FieldList;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.description.modifier.Visibility;
 import net.bytebuddy.description.type.TypeDescription;
+import net.bytebuddy.description.type.TypeList;
 import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.dynamic.loading.ClassReloadingStrategy;
 import net.bytebuddy.implementation.MethodDelegation;
@@ -37,7 +38,9 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -152,10 +155,8 @@ public class DynamicClassLoader extends ClassLoader {
             }
             AnnotationList fieldAnnotations = field.getDeclaredAnnotations();
             if (null != fieldAnnotations && !fieldAnnotations.isEmpty()) {
-                TypeDescription typeDefinition = field.getType().asErasure();
-                if (isNeedDynamic(typeDefinition)) {
-                    loadClass(typeDefinition.getTypeName());
-                }
+                TypeDescription.Generic type = field.getType();
+                loadFieldType(type);
                 List<AnnotationDescription> list = new ArrayList<AnnotationDescription>();
                 if (fieldAnnotations.isAnnotationPresent(Id.class)) {
                     AnnotationDescription annotation = AnnotationDescription.Builder.ofType(javax.persistence.Id.class).build();
@@ -228,6 +229,19 @@ public class DynamicClassLoader extends ClassLoader {
             }
         }
         return builder;
+    }
+
+    private void loadFieldType(TypeDescription.Generic type) throws ClassNotFoundException {
+        TypeDescription typeDefinition = type.asErasure();
+        if (isNeedDynamic(typeDefinition)) {
+            loadClass(typeDefinition.getTypeName());
+        } else if (typeDefinition.isAssignableTo(Collection.class) || typeDefinition.isAssignableTo(Map.class)) {
+            TypeList.Generic typeArguments = type.getTypeArguments();
+            for (int j = 0; j < typeArguments.size(); j++) {
+                TypeDescription.Generic arg = typeArguments.get(j);
+                loadFieldType(arg);
+            }
+        }
     }
 
     private AnnotationDescription buildColumn(Column column) {
