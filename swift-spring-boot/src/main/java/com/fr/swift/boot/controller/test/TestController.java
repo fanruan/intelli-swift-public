@@ -26,7 +26,7 @@ import com.fr.swift.query.info.bean.query.GroupQueryInfoBean;
 import com.fr.swift.query.info.bean.query.QueryBeanFactory;
 import com.fr.swift.query.info.bean.type.DimensionType;
 import com.fr.swift.query.query.QueryBean;
-import com.fr.swift.query.result.SwiftResultSetUtils;
+import com.fr.swift.query.result.QueryResultSetSerializer;
 import com.fr.swift.result.SwiftResultSet;
 import com.fr.swift.segment.insert.HistoryBlockImporter;
 import com.fr.swift.service.AnalyseService;
@@ -156,7 +156,7 @@ public class TestController {
         return queryBean;
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
 
         MetricBean money = new MetricBean("money", AggregatorType.COUNT);
         money.setFilter(new NumberInRangeFilterBean());
@@ -200,7 +200,7 @@ public class TestController {
         query.setDimensions(Arrays.asList(dimensionBean));
         query.setAggregations(Arrays.asList(metricBean));
         AnalyseService service = ProxySelector.getInstance().getFactory().getProxy(AnalyseService.class);
-        SwiftResultSet resultSet = SwiftResultSetUtils.toSwiftResultSet(
+        SwiftResultSet resultSet = QueryResultSetSerializer.toSwiftResultSet(
                 service.getQueryResult(QueryBeanFactory.queryBean2String(query)), query);
         List<Row> rows = new ArrayList<Row>();
         while (resultSet.hasNext()) {
@@ -273,7 +273,7 @@ public class TestController {
         dimensionBean.setType(DimensionType.DETAIL_ALL_COLUMN);
         query.setDimensions(Arrays.asList(dimensionBean));
         AnalyseService service = ProxySelector.getInstance().getFactory().getProxy(AnalyseService.class);
-        SwiftResultSet resultSet = SwiftResultSetUtils.toSwiftResultSet(
+        SwiftResultSet resultSet = QueryResultSetSerializer.toSwiftResultSet(
                 service.getQueryResult(QueryBeanFactory.queryBean2String(query)), query);
         List<Row> rows = new ArrayList<Row>();
         int limit = 200;
