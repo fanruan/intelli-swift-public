@@ -6,7 +6,6 @@ import com.fr.swift.boot.register.BootRegister;
 import com.fr.swift.bytebuddy.DynamicClassLoader;
 import com.fr.swift.cluster.listener.NodeStartedListener;
 import com.fr.swift.config.PublicConfig;
-import com.fr.swift.config.SwiftConfigRegistryImpl;
 import com.fr.swift.cube.queue.ProviderTaskManager;
 import com.fr.swift.event.ClusterEvent;
 import com.fr.swift.event.ClusterEventType;
@@ -31,24 +30,20 @@ public class SwiftEngineStart {
     public static void start(String[] args) {
         try {
             ClassLoader loader = new DynamicClassLoader(SwiftEngineStart.class.getClassLoader());
-            SwiftConfigRegistryImpl.INSTANCE.registerEntity("com.fr.swift.config.entity.SwiftSegmentEntity", loader);
-            SwiftConfigRegistryImpl.INSTANCE.registerEntity("com.fr.swift.config.entity.SwiftColumnIndexingConf", loader);
-            SwiftConfigRegistryImpl.INSTANCE.registerEntity("com.fr.swift.config.entity.SwiftConfigEntity", loader);
-            SwiftConfigRegistryImpl.INSTANCE.registerEntity("com.fr.swift.config.entity.SwiftSegmentLocationEntity", loader);
-            SwiftConfigRegistryImpl.INSTANCE.registerEntity("com.fr.swift.config.entity.SwiftServiceInfoEntity", loader);
-            SwiftConfigRegistryImpl.INSTANCE.registerEntity("com.fr.swift.config.entity.SwiftTableAllotConf", loader);
-            SwiftConfigRegistryImpl.INSTANCE.registerEntity("com.fr.swift.config.entity.SwiftTablePathEntity", loader);
-            SwiftConfigRegistryImpl.INSTANCE.registerEntity("com.fr.swift.base.meta.SwiftMetaDataBean", loader);
-            SwiftConfigRegistryImpl.INSTANCE.registerEntity("com.fr.swift.executor.config.SwiftExecutorTaskEntity", loader);
-            SwiftLoggers.setLoggerFactory(new SwiftLog4jLoggers());
-            ClusterListenerHandler.addInitialListener(new SwiftClusterListener());
-            SwiftContext.get().init();
+            BootRegister.registerEntity(loader);
+            BootRegister.registerExecutorTask();
 
+            SwiftLoggers.setLoggerFactory(new SwiftLog4jLoggers());
+            SwiftContext.get().init();
+            ClusterListenerHandler.addInitialListener(new SwiftClusterListener());
             ClusterListenerHandler.addInitialListener(NodeStartedListener.INSTANCE);
             FineIO.setLogger(new FineIoLogger());
             ProviderTaskManager.start();
             SwiftCommandParser.parseCommand(args);
+
             BootRegister.registerProxy();
+            BootRegister.registerListener();
+
             PublicConfig.load();
 
             SwiftContext.get().getBean(LocalManager.class).startUp();
@@ -56,10 +51,6 @@ public class SwiftEngineStart {
                 ClusterListenerHandler.handlerEvent(new ClusterEvent(ClusterEventType.JOIN_CLUSTER, ClusterType.CONFIGURE));
             }
             SwiftContext.get().getBean(ServerManager.class).startUp();
-
-            BootRegister.registerListener();
-            BootRegister.registerExecutorTask();
-
             SwiftLoggers.getLogger().info("Swift engine start successful");
         } catch (Throwable e) {
             SwiftLoggers.getLogger().error(e);
