@@ -15,11 +15,9 @@ import com.fr.swift.query.aggregator.AggregatorType;
 import com.fr.swift.query.info.bean.element.DimensionBean;
 import com.fr.swift.query.info.bean.element.MetricBean;
 import com.fr.swift.query.info.bean.element.aggregation.FunnelFunctionBean;
-import com.fr.swift.query.info.bean.element.aggregation.funnel.DayFilterBean;
 import com.fr.swift.query.info.bean.element.aggregation.funnel.ParameterColumnsBean;
+import com.fr.swift.query.info.bean.element.aggregation.funnel.filter.DayFilterInfo;
 import com.fr.swift.query.info.bean.element.filter.impl.NumberInRangeFilterBean;
-import com.fr.swift.query.info.bean.post.FunnelMedianInfoBean;
-import com.fr.swift.query.info.bean.post.PostQueryInfoBean;
 import com.fr.swift.query.info.bean.query.DetailQueryInfoBean;
 import com.fr.swift.query.info.bean.query.FunnelQueryBean;
 import com.fr.swift.query.info.bean.query.GroupQueryInfoBean;
@@ -57,7 +55,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 /**
  * This class created on 2018/6/13
@@ -223,7 +220,7 @@ public class TestController {
                 // [10003409308807394455, 1528410985, browseGoods, 浏览商品, {"name":"watch","city":"长沙","brand":"Apple","price":2608.283}, 20180608]
                 List data = new ArrayList();
                 data.add(row.getValue(0));  // id
-                data.add(Long.parseLong(row.getValue(1).toString()));  // timestamp
+                data.add(Long.parseLong(row.getValue(1).toString()) * 1000);  // timestamp
                 data.add(row.getValue(2));  // eventType
                 try {
                     Map map = JsonBuilder.readValue((String) row.getValue(4), Map.class);
@@ -237,14 +234,14 @@ public class TestController {
                 }
                 String day = row.getValue(row.getSize() - 1);
                 data.add(day);  // date
-                long timestamp = (Long) data.get(1);
-                long eventType = GLOBAL_TYPE_DICT.get(data.get(2));
-                try {
-                    long dayIndex = TimeUnit.MILLISECONDS.toDays(format.parse(day).getTime() - millisOn201861);
-                    Long combine = (timestamp << 32) | (eventType << 16) | dayIndex;
-                    data.add(combine); // combine
-                } catch (Exception ig) {
-                }
+//                long timestamp = (Long) data.get(1);
+//                long eventType = GLOBAL_TYPE_DICT.get(data.get(2));
+//                try {
+//                    long dayIndex = TimeUnit.MILLISECONDS.toDays(format.parse(day).getTime() - millisOn201861);
+//                    Long combine = (timestamp << 32) | (eventType << 16) | dayIndex;
+//                    data.add(combine); // combine
+//                } catch (Exception ig) {
+//                }
                 return new ListBasedRow(data);
             }
         }));
@@ -299,7 +296,7 @@ public class TestController {
         metaDataColumns.add(new MetaDataColumnBean("brand", Types.VARCHAR));
         metaDataColumns.add(new MetaDataColumnBean("price", Types.DOUBLE));
         metaDataColumns.add(new MetaDataColumnBean("date", Types.VARCHAR));
-        metaDataColumns.add(new MetaDataColumnBean("combine", Types.BIGINT));
+//        metaDataColumns.add(new MetaDataColumnBean("combine", Types.BIGINT));
 
         ((SwiftMetaDataBean) metaData).setFields(metaDataColumns);
         SwiftContext.get().getBean(SwiftMetaDataService.class).addMetaData("test_yiguan", metaData);
@@ -319,11 +316,11 @@ public class TestController {
     @RequestMapping("swift/query/funnel")
     @ResponseBody
     public Object testFunnel() throws Exception {
-        DayFilterBean dayFilter = new DayFilterBean("date", "20180601", 30);
+        DayFilterInfo dayFilter = new DayFilterInfo("date", "20180601", 30);
         ParameterColumnsBean paramColumn = new ParameterColumnsBean("id", "eventType", "currentTime", "date");
         FunnelFunctionBean aggregation = new FunnelFunctionBean(2592000, dayFilter, paramColumn, Arrays.asList("login", "browseGoods"));
         FunnelQueryBean bean = new FunnelQueryBean(aggregation);
-        bean.setPostAggregations(Arrays.<PostQueryInfoBean>asList(new FunnelMedianInfoBean()));
+//        bean.setPostAggregations(Arrays.<PostQueryInfoBean>asList(new FunnelMedianInfoBean()));
         bean.setQueryId(UUID.randomUUID().toString());
         bean.setTableName("test_yiguan");
         SwiftResultSet resultSet = QueryRunnerProvider.getInstance().query(bean);
