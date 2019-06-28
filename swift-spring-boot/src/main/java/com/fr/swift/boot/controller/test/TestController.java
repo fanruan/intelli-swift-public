@@ -26,7 +26,7 @@ import com.fr.swift.query.info.bean.query.GroupQueryInfoBean;
 import com.fr.swift.query.info.bean.query.QueryBeanFactory;
 import com.fr.swift.query.info.bean.type.DimensionType;
 import com.fr.swift.query.query.QueryBean;
-import com.fr.swift.query.result.QueryResultSetSerializer;
+import com.fr.swift.query.result.serialize.QueryResultSetSerializer;
 import com.fr.swift.result.SwiftResultSet;
 import com.fr.swift.segment.insert.HistoryBlockImporter;
 import com.fr.swift.service.AnalyseService;
