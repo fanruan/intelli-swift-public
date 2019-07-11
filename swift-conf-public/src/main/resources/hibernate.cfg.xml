@@ -29,7 +29,7 @@
         </property>
 
         <property name="hbm2ddl.auto">update</property>
-        <property name="show_sql">true</property>
+        <property name="show_sql">false</property>
         <property name="format_sql">true</property>
         <!-- #hibernate.connection.provider_class org.hibernate.connection.C3P0ConnectionProvider -->
         <property name="hibernate.connection.provider_class">
