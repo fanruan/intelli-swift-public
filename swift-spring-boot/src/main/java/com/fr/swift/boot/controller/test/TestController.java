@@ -16,10 +16,13 @@ import com.fr.swift.query.info.bean.element.AggregationBean;
 import com.fr.swift.query.info.bean.element.DimensionBean;
 import com.fr.swift.query.info.bean.element.MetricBean;
 import com.fr.swift.query.info.bean.element.filter.impl.InFilterBean;
+import com.fr.swift.query.info.bean.post.FunnelPostInfoBean;
+import com.fr.swift.query.info.bean.post.PostQueryInfoBean;
 import com.fr.swift.query.info.bean.query.DetailQueryInfoBean;
 import com.fr.swift.query.info.bean.query.GroupQueryInfoBean;
 import com.fr.swift.query.info.bean.query.QueryBeanFactory;
 import com.fr.swift.query.info.bean.type.DimensionType;
+import com.fr.swift.query.info.bean.type.PostQueryType;
 import com.fr.swift.query.info.funnel.FunnelAggregationBean;
 import com.fr.swift.query.info.funnel.FunnelEventBean;
 import com.fr.swift.query.info.funnel.ParameterColumnsBean;
@@ -216,9 +219,7 @@ public class TestController {
         metricBean.setColumn("id");
         query.setDimensions(Arrays.asList(dimensionBean));
         query.setAggregations(Arrays.<AggregationBean>asList(metricBean));
-        AnalyseService service = ProxySelector.getInstance().getFactory().getProxy(AnalyseService.class);
-        SwiftResultSet resultSet = QueryResultSetSerializer.toSwiftResultSet(
-                service.getQueryResult(QueryBeanFactory.queryBean2String(query)), query);
+        SwiftResultSet resultSet = QueryRunnerProvider.getInstance().query(query);
         List<Row> rows = new ArrayList<Row>();
         while (resultSet.hasNext()) {
             rows.add(resultSet.getNextRow());
@@ -353,9 +354,11 @@ public class TestController {
         timeWindow.setDuration(30);
         timeWindow.setUnit(TimeUnit.DAYS);
         funnelAggregationBean.setTimeWindow(timeWindow);
+        funnelAggregationBean.setCalculateTime(true);
         funnelAggregationBean.setTimeFilter(new DayFilterInfo("currentTime", "20180601", 30));
 
-        GroupQueryInfoBean bean = GroupQueryInfoBean.builder("test_yiguan").setAggregations(funnelAggregationBean).build();
+        GroupQueryInfoBean bean = GroupQueryInfoBean.builder("test_yiguan").setAggregations(funnelAggregationBean)
+                .setPostAggregations(Arrays.<PostQueryInfoBean>asList(new FunnelPostInfoBean(PostQueryType.FUNNEL_TIME_MEDIAN), new FunnelPostInfoBean(PostQueryType.FUNNEL_CONVERSION_RATE))).build();
 
         SwiftResultSet resultSet = QueryRunnerProvider.getInstance().query(bean);
         List<Row> rows = new ArrayList<Row>();
