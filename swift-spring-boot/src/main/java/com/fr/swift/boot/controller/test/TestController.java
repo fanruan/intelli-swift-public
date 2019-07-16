@@ -212,11 +212,14 @@ public class TestController {
         DimensionBean dimensionBean = new DimensionBean();
         dimensionBean.setType(DimensionType.GROUP);
         dimensionBean.setColumn("eventType");
+        DimensionBean d = new DimensionBean(DimensionType.GROUP);
+        d.setColumn("city");
         MetricBean metricBean = new MetricBean();
         metricBean.setType(AggregatorType.COUNT);
         metricBean.setColumn("id");
-        query.setDimensions(Arrays.asList(dimensionBean));
+        query.setDimensions(Arrays.asList(dimensionBean, d));
         query.setAggregations(Arrays.<AggregationBean>asList(metricBean));
+        query.setFilter(new InFilterBean("eventType", "addCart"));
         SwiftResultSet resultSet = QueryRunnerProvider.getInstance().query(query);
         List<Row> rows = new ArrayList<Row>();
         while (resultSet.hasNext()) {
@@ -268,7 +271,7 @@ public class TestController {
                 new SourceKey("test_yiguan"),
                 new HashAllotRule(0, 10));
         HistoryBlockImporter importer = new HistoryBlockImporter(table, alloter);
-        importer.importData(new ProgressResultSet(new LimitedResultSet(resultSet, 8000000), "test_yiguan"));
+        importer.importData(new ProgressResultSet(new LimitedResultSet(resultSet, 1000000), "test_yiguan"));
 //        SwiftSegmentService service = SwiftContext.get().getBean("segmentServiceProvider", SwiftSegmentService.class);
 //        List<SegmentKey> segmentKeys = service.getSegmentByKey("test_yiguan");
 //        List<Segment> segments = new ArrayList<Segment>();
@@ -349,11 +352,12 @@ public class TestController {
         FunnelEventBean third = new FunnelEventBean();
         third.setSteps(Arrays.asList("order", "confirm"));
         third.setName("order");
-        funnelAggregationBean.setEvents(Arrays.asList(first, second));
+        funnelAggregationBean.setEvents(Arrays.asList(first, second, third));
         TimeWindowBean timeWindow = new TimeWindowBean();
         timeWindow.setDuration(30);
         timeWindow.setUnit(TimeUnit.DAYS);
         funnelAggregationBean.setTimeWindow(timeWindow);
+//        funnelAggregationBean.setTimeGroup(TimeGroup.DAYS);
         funnelAggregationBean.setTimeFilter(new DayFilterInfo("currentTime", "20180601", 30));
 
         GroupQueryInfoBean bean = GroupQueryInfoBean.builder("test_yiguan").setAggregations(funnelAggregationBean).build();
