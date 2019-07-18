@@ -16,19 +16,14 @@ import com.fr.swift.query.info.bean.element.AggregationBean;
 import com.fr.swift.query.info.bean.element.DimensionBean;
 import com.fr.swift.query.info.bean.element.MetricBean;
 import com.fr.swift.query.info.bean.element.filter.impl.InFilterBean;
-import com.fr.swift.query.info.bean.post.FunnelPostInfoBean;
-import com.fr.swift.query.info.bean.post.PostQueryInfoBean;
 import com.fr.swift.query.info.bean.query.DetailQueryInfoBean;
 import com.fr.swift.query.info.bean.query.GroupQueryInfoBean;
 import com.fr.swift.query.info.bean.query.QueryBeanFactory;
 import com.fr.swift.query.info.bean.type.DimensionType;
-import com.fr.swift.query.info.bean.type.PostQueryType;
-import com.fr.swift.query.info.funnel.FunnelAggregationBean;
-import com.fr.swift.query.info.funnel.FunnelEventBean;
+import com.fr.swift.query.info.funnel.FunnelPathsAggregationBean;
+import com.fr.swift.query.info.funnel.FunnelVirtualStep;
 import com.fr.swift.query.info.funnel.ParameterColumnsBean;
 import com.fr.swift.query.info.funnel.filter.DayFilterInfo;
-import com.fr.swift.query.info.funnel.group.post.PostGroupBean;
-import com.fr.swift.query.info.funnel.group.time.TimeGroup;
 import com.fr.swift.query.query.QueryBean;
 import com.fr.swift.query.query.funnel.TimeWindowBean;
 import com.fr.swift.query.result.serialize.QueryResultSetSerializer;
@@ -162,28 +157,6 @@ public class TestController {
         return queryBean;
     }
 
-    public static void main(String[] args) throws Exception {
-        FunnelAggregationBean funnelAggregationBean = new FunnelAggregationBean();
-        funnelAggregationBean.setTimeFilter(new DayFilterInfo("currentTime", "20180601", 30));
-        TimeWindowBean timeWindow = new TimeWindowBean();
-        timeWindow.setUnit(TimeUnit.SECONDS);
-        timeWindow.setDuration(2592000);
-        funnelAggregationBean.setTimeWindow(timeWindow);
-        FunnelEventBean login = new FunnelEventBean();
-        login.setName("login");
-        login.setSteps(Collections.singletonList("login"));
-        FunnelEventBean browseGoods = new FunnelEventBean();
-        browseGoods.setName("browseGoods");
-        browseGoods.setSteps(Collections.singletonList("browseGoods"));
-        funnelAggregationBean.setEvents(Arrays.asList(login, browseGoods));
-        funnelAggregationBean.setColumn("eventType");
-        funnelAggregationBean.setColumns(new ParameterColumnsBean("id", "currentTime"));
-        funnelAggregationBean.setCalculateTime(true);
-        funnelAggregationBean.setTimeGroup(TimeGroup.WORK_DAY);
-        funnelAggregationBean.setPostGroup(new PostGroupBean(1, "city", Collections.<double[]>emptyList()));
-        GroupQueryInfoBean funnelTable = GroupQueryInfoBean.builder("funnelTable").setAggregations(funnelAggregationBean).build();
-        System.out.println(JsonBuilder.writeJsonString(funnelTable));
-    }
 
     @RequestMapping("swift/createTable")
     @ResponseBody
@@ -214,11 +187,14 @@ public class TestController {
         DimensionBean dimensionBean = new DimensionBean();
         dimensionBean.setType(DimensionType.GROUP);
         dimensionBean.setColumn("eventType");
+        DimensionBean d = new DimensionBean(DimensionType.GROUP);
+        d.setColumn("city");
         MetricBean metricBean = new MetricBean();
         metricBean.setType(AggregatorType.COUNT);
         metricBean.setColumn("id");
-        query.setDimensions(Arrays.asList(dimensionBean));
+        query.setDimensions(Arrays.asList(dimensionBean, d));
         query.setAggregations(Arrays.<AggregationBean>asList(metricBean));
+        query.setFilter(new InFilterBean("eventType", "addCart"));
         SwiftResultSet resultSet = QueryRunnerProvider.getInstance().query(query);
         List<Row> rows = new ArrayList<Row>();
         while (resultSet.hasNext()) {
@@ -270,7 +246,7 @@ public class TestController {
                 new SourceKey("test_yiguan"),
                 new HashAllotRule(0, 10));
         HistoryBlockImporter importer = new HistoryBlockImporter(table, alloter);
-        importer.importData(new ProgressResultSet(new LimitedResultSet(resultSet, 8000000), "test_yiguan"));
+        importer.importData(new ProgressResultSet(new LimitedResultSet(resultSet, 1000000), "test_yiguan"));
 //        SwiftSegmentService service = SwiftContext.get().getBean("segmentServiceProvider", SwiftSegmentService.class);
 //        List<SegmentKey> segmentKeys = service.getSegmentByKey("test_yiguan");
 //        List<Segment> segments = new ArrayList<Segment>();
@@ -338,27 +314,28 @@ public class TestController {
     @ResponseBody
     public Object testFunnel() throws Exception {
 
-        FunnelAggregationBean funnelAggregationBean = new FunnelAggregationBean();
-        funnelAggregationBean.setTimeGroup(TimeGroup.WORK_DAY);
+        FunnelPathsAggregationBean funnelAggregationBean = new FunnelPathsAggregationBean();
         funnelAggregationBean.setColumn("eventType");
-        funnelAggregationBean.setColumns(new ParameterColumnsBean("id", "currentTime"));
-        FunnelEventBean first = new FunnelEventBean();
+        funnelAggregationBean.setParamColumns(new ParameterColumnsBean("id", "currentTime"));
+        FunnelVirtualStep first = new FunnelVirtualStep();
         first.setName("login");
-        first.setSteps(Collections.singletonList("login"));
+        first.setEvents(Arrays.asList("login", "browseGoods"));
         first.setFilter(new InFilterBean("city", "深圳"));
-        FunnelEventBean second = new FunnelEventBean();
+        FunnelVirtualStep second = new FunnelVirtualStep();
         second.setName("browseGoods");
-        second.setSteps(Collections.singletonList("searchGoods"));
-        funnelAggregationBean.setEvents(Arrays.asList(first, second));
+        second.setEvents(Collections.singletonList("searchGoods"));
+        FunnelVirtualStep third = new FunnelVirtualStep();
+        third.setEvents(Arrays.asList("order", "confirm"));
+        third.setName("order");
+        funnelAggregationBean.setSteps(Arrays.asList(first, second, third));
         TimeWindowBean timeWindow = new TimeWindowBean();
         timeWindow.setDuration(30);
         timeWindow.setUnit(TimeUnit.DAYS);
         funnelAggregationBean.setTimeWindow(timeWindow);
-        funnelAggregationBean.setCalculateTime(true);
+//        funnelAggregationBean.setTimeGroup(TimeGroup.DAYS);
         funnelAggregationBean.setTimeFilter(new DayFilterInfo("currentTime", "20180601", 30));
 
-        GroupQueryInfoBean bean = GroupQueryInfoBean.builder("test_yiguan").setAggregations(funnelAggregationBean)
-                .setPostAggregations(Arrays.<PostQueryInfoBean>asList(new FunnelPostInfoBean(PostQueryType.FUNNEL_TIME_MEDIAN), new FunnelPostInfoBean(PostQueryType.FUNNEL_CONVERSION_RATE))).build();
+        GroupQueryInfoBean bean = GroupQueryInfoBean.builder("test_yiguan").setAggregations(funnelAggregationBean).build();
 
         SwiftResultSet resultSet = QueryRunnerProvider.getInstance().query(bean);
         List<Row> rows = new ArrayList<Row>();
