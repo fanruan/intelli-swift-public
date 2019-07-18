@@ -3,7 +3,6 @@ package com.fr.swift.boot;
 import com.fineio.FineIO;
 import com.fr.swift.SwiftContext;
 import com.fr.swift.boot.register.BootRegister;
-import com.fr.swift.bytebuddy.DynamicClassLoader;
 import com.fr.swift.cluster.listener.NodeStartedListener;
 import com.fr.swift.config.PublicConfig;
 import com.fr.swift.cube.queue.ProviderTaskManager;
@@ -29,21 +28,16 @@ public class SwiftEngineStart {
 
     public static void start(String[] args) {
         try {
-            ClassLoader loader = new DynamicClassLoader(SwiftEngineStart.class.getClassLoader());
-            BootRegister.registerEntity(loader);
-            BootRegister.registerExecutorTask();
-
             SwiftLoggers.setLoggerFactory(new SwiftLog4jLoggers());
-            SwiftContext.get().init();
             ClusterListenerHandler.addInitialListener(new SwiftClusterListener());
+            SwiftContext.get().init();
+
             ClusterListenerHandler.addInitialListener(NodeStartedListener.INSTANCE);
             FineIO.setLogger(new FineIoLogger());
             ProviderTaskManager.start();
             SwiftCommandParser.parseCommand(args);
-
             BootRegister.registerProxy();
-            BootRegister.registerListener();
-
+            BootRegister.registerExecutorTask();
             PublicConfig.load();
 
             SwiftContext.get().getBean(LocalManager.class).startUp();
@@ -51,6 +45,8 @@ public class SwiftEngineStart {
                 ClusterListenerHandler.handlerEvent(new ClusterEvent(ClusterEventType.JOIN_CLUSTER, ClusterType.CONFIGURE));
             }
             SwiftContext.get().getBean(ServerManager.class).startUp();
+            BootRegister.registerListener();
+
             SwiftLoggers.getLogger().info("Swift engine start successful");
         } catch (Throwable e) {
             SwiftLoggers.getLogger().error(e);
