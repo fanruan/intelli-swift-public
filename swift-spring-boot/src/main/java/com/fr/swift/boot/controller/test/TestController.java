@@ -20,13 +20,10 @@ import com.fr.swift.query.info.bean.query.DetailQueryInfoBean;
 import com.fr.swift.query.info.bean.query.GroupQueryInfoBean;
 import com.fr.swift.query.info.bean.query.QueryBeanFactory;
 import com.fr.swift.query.info.bean.type.DimensionType;
-import com.fr.swift.query.info.funnel.FunnelAggregationBean;
-import com.fr.swift.query.info.funnel.FunnelEventBean;
 import com.fr.swift.query.info.funnel.FunnelPathsAggregationBean;
+import com.fr.swift.query.info.funnel.FunnelVirtualStep;
 import com.fr.swift.query.info.funnel.ParameterColumnsBean;
 import com.fr.swift.query.info.funnel.filter.DayFilterInfo;
-import com.fr.swift.query.info.funnel.group.post.PostGroupBean;
-import com.fr.swift.query.info.funnel.group.time.TimeGroup;
 import com.fr.swift.query.query.QueryBean;
 import com.fr.swift.query.query.funnel.TimeWindowBean;
 import com.fr.swift.query.result.serialize.QueryResultSetSerializer;
@@ -160,28 +157,6 @@ public class TestController {
         return queryBean;
     }
 
-    public static void main(String[] args) throws Exception {
-        FunnelAggregationBean funnelAggregationBean = new FunnelAggregationBean();
-        funnelAggregationBean.setTimeFilter(new DayFilterInfo("currentTime", "20180601", 30));
-        TimeWindowBean timeWindow = new TimeWindowBean();
-        timeWindow.setUnit(TimeUnit.SECONDS);
-        timeWindow.setDuration(2592000);
-        funnelAggregationBean.setTimeWindow(timeWindow);
-        FunnelEventBean login = new FunnelEventBean();
-        login.setName("login");
-        login.setSteps(Collections.singletonList("login"));
-        FunnelEventBean browseGoods = new FunnelEventBean();
-        browseGoods.setName("browseGoods");
-        browseGoods.setSteps(Collections.singletonList("browseGoods"));
-        funnelAggregationBean.setEvents(Arrays.asList(login, browseGoods));
-        funnelAggregationBean.setColumn("eventType");
-        funnelAggregationBean.setColumns(new ParameterColumnsBean("id", "currentTime"));
-        funnelAggregationBean.setCalculateTime(true);
-        funnelAggregationBean.setTimeGroup(TimeGroup.WORK_DAY);
-        funnelAggregationBean.setPostGroup(new PostGroupBean(1, "city", Collections.<double[]>emptyList()));
-        GroupQueryInfoBean funnelTable = GroupQueryInfoBean.builder("funnelTable").setAggregations(funnelAggregationBean).build();
-        System.out.println(JsonBuilder.writeJsonString(funnelTable));
-    }
 
     @RequestMapping("swift/createTable")
     @ResponseBody
@@ -341,18 +316,18 @@ public class TestController {
 
         FunnelPathsAggregationBean funnelAggregationBean = new FunnelPathsAggregationBean();
         funnelAggregationBean.setColumn("eventType");
-        funnelAggregationBean.setColumns(new ParameterColumnsBean("id", "currentTime"));
-        FunnelEventBean first = new FunnelEventBean();
+        funnelAggregationBean.setParamColumns(new ParameterColumnsBean("id", "currentTime"));
+        FunnelVirtualStep first = new FunnelVirtualStep();
         first.setName("login");
-        first.setSteps(Arrays.asList("login", "browseGoods"));
+        first.setEvents(Arrays.asList("login", "browseGoods"));
         first.setFilter(new InFilterBean("city", "深圳"));
-        FunnelEventBean second = new FunnelEventBean();
+        FunnelVirtualStep second = new FunnelVirtualStep();
         second.setName("browseGoods");
-        second.setSteps(Collections.singletonList("searchGoods"));
-        FunnelEventBean third = new FunnelEventBean();
-        third.setSteps(Arrays.asList("order", "confirm"));
+        second.setEvents(Collections.singletonList("searchGoods"));
+        FunnelVirtualStep third = new FunnelVirtualStep();
+        third.setEvents(Arrays.asList("order", "confirm"));
         third.setName("order");
-        funnelAggregationBean.setEvents(Arrays.asList(first, second, third));
+        funnelAggregationBean.setSteps(Arrays.asList(first, second, third));
         TimeWindowBean timeWindow = new TimeWindowBean();
         timeWindow.setDuration(30);
         timeWindow.setUnit(TimeUnit.DAYS);
