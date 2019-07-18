@@ -3,6 +3,7 @@ package com.fr.swift.boot;
 import com.fineio.FineIO;
 import com.fr.swift.SwiftContext;
 import com.fr.swift.boot.register.BootRegister;
+import com.fr.swift.bytebuddy.DynamicClassLoader;
 import com.fr.swift.cluster.listener.NodeStartedListener;
 import com.fr.swift.config.PublicConfig;
 import com.fr.swift.cube.queue.ProviderTaskManager;
@@ -28,6 +29,10 @@ public class SwiftEngineStart {
 
     public static void start(String[] args) {
         try {
+            ClassLoader loader = new DynamicClassLoader(SwiftEngineStart.class.getClassLoader());
+            BootRegister.registerEntity(loader);
+            BootRegister.registerExecutorTask();
+
             SwiftLoggers.setLoggerFactory(new SwiftLog4jLoggers());
             ClusterListenerHandler.addInitialListener(new SwiftClusterListener());
             SwiftContext.get().init();
