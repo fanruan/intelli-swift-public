@@ -13,11 +13,11 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.aliyun.oss</groupId>
-            <artifactId>aliyun-sdk-oss</artifactId>
-            <version>3.0.0</version>
-            <scope>compile</scope>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk</artifactId>
+            <version>1.11.594</version>
         </dependency>
+
         <dependency>
             <groupId>com.fr.intelligence</groupId>
             <artifactId>swift-base-config</artifactId>
