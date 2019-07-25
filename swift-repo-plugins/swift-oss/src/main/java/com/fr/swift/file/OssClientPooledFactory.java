@@ -1,7 +1,10 @@
 package com.fr.swift.file;
 
-import com.aliyun.oss.OSS;
-import com.aliyun.oss.OSSClientBuilder;
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.client.builder.AwsClientBuilder;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.fr.swift.repository.config.OssRepositoryConfig;
 import org.apache.commons.pool2.BasePooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
@@ -11,7 +14,7 @@ import org.apache.commons.pool2.impl.DefaultPooledObject;
  * @author yee
  * @date 2018-12-20
  */
-class OssClientPooledFactory extends BasePooledObjectFactory<OSS> {
+class OssClientPooledFactory extends BasePooledObjectFactory<AmazonS3> {
     private OssRepositoryConfig config;
 
     public OssClientPooledFactory(OssRepositoryConfig config) {
@@ -19,17 +22,31 @@ class OssClientPooledFactory extends BasePooledObjectFactory<OSS> {
     }
 
     @Override
-    public OSS create() throws Exception {
-        return new OSSClientBuilder().build(config.getEndpoint(), config.getAccessKeyId(), config.getAccessKeySecret());
+    public AmazonS3 create() throws Exception {
+        AWSCredentials credentials = new AWSCredentials() {
+            @Override
+            public String getAWSAccessKeyId() {
+                return config.getAccessKeyId();
+            }
+
+            @Override
+            public String getAWSSecretKey() {
+                return config.getAccessKeySecret();
+            }
+        };
+        AmazonS3ClientBuilder standard = AmazonS3ClientBuilder.standard()
+                .withCredentials(new AWSStaticCredentialsProvider(credentials))
+                .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(config.getEndpoint(), "oss"));
+        return standard.build();
     }
 
     @Override
-    public PooledObject<OSS> wrap(OSS ossClient) {
-        return new DefaultPooledObject<OSS>(ossClient);
+    public PooledObject<AmazonS3> wrap(AmazonS3 ossClient) {
+        return new DefaultPooledObject<AmazonS3>(ossClient);
     }
 
     @Override
-    public void destroyObject(PooledObject<OSS> p) throws Exception {
+    public void destroyObject(PooledObject<AmazonS3> p) throws Exception {
         p.getObject().shutdown();
     }
 }
