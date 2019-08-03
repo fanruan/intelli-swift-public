@@ -1,7 +1,7 @@
 package com.fr.swift.bytebuddy;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fr.swift.base.json.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.junit.Test;
 
 import javax.persistence.Column;

@@ -9,11 +9,6 @@ import com.fr.swift.annotation.persistence.Id;
 import com.fr.swift.annotation.persistence.MappedSuperclass;
 import com.fr.swift.annotation.persistence.Table;
 import com.fr.swift.annotation.persistence.Transient;
-import com.fr.swift.base.json.annotation.JsonIgnore;
-import com.fr.swift.base.json.annotation.JsonIgnoreProperties;
-import com.fr.swift.base.json.annotation.JsonProperty;
-import com.fr.swift.base.json.annotation.JsonSubTypes;
-import com.fr.swift.base.json.annotation.JsonTypeInfo;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.agent.ByteBuddyAgent;
 import net.bytebuddy.description.annotation.AnnotationDescription;
@@ -211,18 +206,6 @@ public class DynamicClassLoader extends ClassLoader {
                             .define("disableConversion", convert.disableConversion());
                     list.add(convertBuilder.build());
                 }
-                if (fieldAnnotations.isAnnotationPresent(JsonProperty.class)) {
-                    JsonProperty jsonIgnore = fieldAnnotations.ofType(JsonProperty.class).loadSilent();
-                    AnnotationDescription.Builder jsonIgnoreBuilder = AnnotationDescription.Builder
-                            .ofType(com.fasterxml.jackson.annotation.JsonProperty.class).define("value", jsonIgnore.value());
-                    list.add(jsonIgnoreBuilder.build());
-                }
-                if (fieldAnnotations.isAnnotationPresent(JsonIgnore.class)) {
-                    JsonIgnore jsonIgnore = fieldAnnotations.ofType(JsonIgnore.class).loadSilent();
-                    AnnotationDescription.Builder jsonIgnoreBuilder = AnnotationDescription.Builder
-                            .ofType(com.fasterxml.jackson.annotation.JsonIgnore.class).define("value", jsonIgnore.value());
-                    list.add(jsonIgnoreBuilder.build());
-                }
                 if (!list.isEmpty()) {
                     builder = builder.field(ElementMatchers.is(field)).annotateField(list);
                 }
@@ -275,50 +258,9 @@ public class DynamicClassLoader extends ClassLoader {
             AnnotationDescription annotation = AnnotationDescription.Builder.ofType(javax.persistence.MappedSuperclass.class).build();
             builder = builder.annotateType(annotation);
         }
-        if (typeAnnotations.isAnnotationPresent(JsonTypeInfo.class)) {
-            JsonTypeInfo typeInfo = typeAnnotations.ofType(JsonTypeInfo.class).loadSilent();
-            builder = buildTypeInfo(builder, typeInfo);
-        }
-        if (typeAnnotations.isAnnotationPresent(JsonSubTypes.class)) {
-            JsonSubTypes jsonSubTypes = typeAnnotations.ofType(JsonSubTypes.class).loadSilent();
-            builder = buildJsonSubTypes(builder, jsonSubTypes);
-        }
-        if (typeAnnotations.isAnnotationPresent(JsonIgnoreProperties.class)) {
-            JsonIgnoreProperties jsonIgnoreProperties = typeAnnotations.ofType(JsonIgnoreProperties.class).loadSilent();
-            builder = buildJsonIgnoreProperties(builder, jsonIgnoreProperties);
-        }
         return builder;
     }
 
-    private DynamicType.Builder<?> buildJsonIgnoreProperties(DynamicType.Builder<?> builder, JsonIgnoreProperties jsonIgnoreProperties) {
-        AnnotationDescription.Builder jsonIgnorePropertiesBuilder = AnnotationDescription.Builder.ofType(com.fasterxml.jackson.annotation.JsonIgnoreProperties.class);
-        return builder.annotateType(jsonIgnorePropertiesBuilder.defineArray("value", jsonIgnoreProperties.value()).build());
-    }
-
-    private DynamicType.Builder<?> buildJsonSubTypes(DynamicType.Builder<?> builder, JsonSubTypes jsonSubTypes) throws ClassNotFoundException {
-        AnnotationDescription.Builder jsonSubTypesBuilder = AnnotationDescription.Builder.ofType(com.fasterxml.jackson.annotation.JsonSubTypes.class);
-        JsonSubTypes.Type[] types = jsonSubTypes.value();
-        List<AnnotationDescription> list = new ArrayList<AnnotationDescription>();
-        for (JsonSubTypes.Type type : types) {
-            AnnotationDescription.Builder typeBuilder = AnnotationDescription.Builder.ofType(com.fasterxml.jackson.annotation.JsonSubTypes.Type.class);
-            typeBuilder = typeBuilder.define("value", type.value())
-                    .define("name", type.name());
-            dynamicType(type.value());
-            list.add(typeBuilder.build());
-        }
-        TypeDescription annotationType = TypeDescription.ForLoadedType.Generic.Builder.rawType(com.fasterxml.jackson.annotation.JsonSubTypes.Type.class).build().asErasure();
-        jsonSubTypesBuilder = jsonSubTypesBuilder.defineAnnotationArray("value", annotationType, list.toArray(new AnnotationDescription[0]));
-        return builder.annotateType(jsonSubTypesBuilder.build());
-    }
-
-    private DynamicType.Builder<?> buildTypeInfo(DynamicType.Builder<?> builder, JsonTypeInfo typeInfo) {
-        AnnotationDescription.Builder typeInfoBuilder = AnnotationDescription.Builder.ofType(com.fasterxml.jackson.annotation.JsonTypeInfo.class);
-        typeInfoBuilder = typeInfoBuilder.define("visible", typeInfo.visible());
-        typeInfoBuilder = typeInfoBuilder.define("property", typeInfo.property());
-        typeInfoBuilder = typeInfoBuilder.define("use", com.fasterxml.jackson.annotation.JsonTypeInfo.Id.valueOf(typeInfo.use().name()));
-        typeInfoBuilder = typeInfoBuilder.define("include", com.fasterxml.jackson.annotation.JsonTypeInfo.As.valueOf(typeInfo.include().name()));
-        return builder.annotateType(typeInfoBuilder.build());
-    }
 
     private DynamicType.Builder<?> buildEntity(DynamicType.Builder<?> builder) {
         AnnotationDescription entity = AnnotationDescription.Builder.ofType(javax.persistence.Entity.class).build();
