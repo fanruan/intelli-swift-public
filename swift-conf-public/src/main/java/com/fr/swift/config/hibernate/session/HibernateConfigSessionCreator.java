@@ -1,4 +1,4 @@
-package com.fr.swift.config.hibernate.transaction;
+package com.fr.swift.config.hibernate.session;
 
 import com.fr.swift.beans.annotation.SwiftBean;
 import com.fr.swift.config.hibernate.HibernateManager;
