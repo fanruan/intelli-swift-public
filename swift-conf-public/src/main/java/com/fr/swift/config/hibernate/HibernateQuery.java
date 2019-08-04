@@ -73,11 +73,6 @@ public class HibernateQuery<T> implements ConfigQuery<T> {
     }
 
     @Override
-    public int executeUpdate() {
-        return 0;
-    }
-
-    @Override
     public Page<T> executeQuery(int page, int size) {
         countQuery.select(builder.count(countRoot));
         long total = session.createQuery(countQuery).getSingleResult().longValue();
