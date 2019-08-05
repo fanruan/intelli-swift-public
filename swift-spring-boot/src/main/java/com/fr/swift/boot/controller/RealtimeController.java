@@ -5,7 +5,7 @@ import com.fr.swift.SwiftContext;
 import com.fr.swift.basic.URL;
 import com.fr.swift.basics.base.selector.ProxySelector;
 import com.fr.swift.basics.base.selector.UrlSelector;
-import com.fr.swift.config.bean.SwiftServiceInfoBean;
+import com.fr.swift.config.entity.SwiftServiceInfoEntity;
 import com.fr.swift.config.service.SwiftServiceInfoService;
 import com.fr.swift.db.Table;
 import com.fr.swift.db.impl.SwiftDatabase;
@@ -51,8 +51,8 @@ public class RealtimeController extends BaseController {
     }
 
     private URL getMasterURL() {
-        List<SwiftServiceInfoBean> swiftServiceInfoBeans = SwiftContext.get().getBean(SwiftServiceInfoService.class).getServiceInfoByService(ClusterNodeService.SERVICE);
-        SwiftServiceInfoBean swiftServiceInfoBean = swiftServiceInfoBeans.get(0);
+        List<SwiftServiceInfoEntity> swiftServiceInfoBeans = SwiftContext.get().getBean(SwiftServiceInfoService.class).getServiceInfoByService(ClusterNodeService.SERVICE);
+        SwiftServiceInfoEntity swiftServiceInfoBean = swiftServiceInfoBeans.get(0);
         return UrlSelector.getInstance().getFactory().getURL(swiftServiceInfoBean.getServiceInfo());
     }
 

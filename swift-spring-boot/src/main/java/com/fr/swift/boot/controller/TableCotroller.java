@@ -1,6 +1,5 @@
 package com.fr.swift.boot.controller;
 
-import com.fr.swift.Collect;
 import com.fr.swift.SwiftContext;
 import com.fr.swift.base.json.JsonBuilder;
 import com.fr.swift.base.meta.MetaDataColumnBean;

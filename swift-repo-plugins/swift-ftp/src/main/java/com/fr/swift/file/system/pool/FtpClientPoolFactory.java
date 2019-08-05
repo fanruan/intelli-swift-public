@@ -3,7 +3,7 @@ package com.fr.swift.file.system.pool;
 import com.fr.swift.file.client.SwiftFTPClient;
 import com.fr.swift.file.client.impl.FTPClientImpl;
 import com.fr.swift.file.client.impl.SFTPClientImpl;
-import com.fr.swift.repository.config.FtpRepositoryConfig;
+import com.fr.swift.repository.config.FtpConnectorConfig;
 import org.apache.commons.pool2.PooledObject;
 import org.apache.commons.pool2.PooledObjectFactory;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
@@ -13,9 +13,9 @@ import org.apache.commons.pool2.impl.DefaultPooledObject;
  * @date 2018-12-03
  */
 public class FtpClientPoolFactory implements PooledObjectFactory<SwiftFTPClient> {
-    private FtpRepositoryConfig config;
+    private FtpConnectorConfig config;
 
-    public FtpClientPoolFactory(FtpRepositoryConfig config) {
+    public FtpClientPoolFactory(FtpConnectorConfig config) {
         this.config = config;
     }
 

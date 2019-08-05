@@ -15,13 +15,13 @@ public class AllotRuleConverterTest {
     private String allotString = "{\"capacity\":100}";
 
     @Test
-    public void convertToDatabaseColumn() {
+    public void convertToDatabaseColumn() throws IllegalAccessException, InstantiationException, ClassNotFoundException {
         String allotColumn = new AllotRuleConverter().convertToDatabaseColumn(allotRule);
         assertEquals(allotString, allotColumn);
     }
 
     @Test
-    public void convertToEntityAttribute() {
+    public void convertToEntityAttribute() throws IllegalAccessException, InstantiationException, ClassNotFoundException {
         AllotRule allotRule = new AllotRuleConverter().convertToEntityAttribute(allotString);
         assertEquals(this.allotRule.getType(), allotRule.getType());
         assertEquals(this.allotRule.getCapacity(), allotRule.getCapacity());

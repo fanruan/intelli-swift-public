@@ -15,13 +15,13 @@ public class URIConverterTest {
     private String json = "\"file://seg0\"";
 
     @Test
-    public void convertToDatabaseColumn() {
+    public void convertToDatabaseColumn() throws IllegalAccessException, InstantiationException, ClassNotFoundException {
         String json = new URIConverter().convertToDatabaseColumn(uri);
         assertEquals(this.json, json);
     }
 
     @Test
-    public void convertToEntityAttribute() {
+    public void convertToEntityAttribute() throws IllegalAccessException, InstantiationException, ClassNotFoundException {
         URI uri = new URIConverter().convertToEntityAttribute(json);
         assertEquals(this.uri, uri);
     }
