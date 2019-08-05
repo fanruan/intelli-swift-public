@@ -113,6 +113,6 @@ public class OssConnector extends BaseConnector {
 
     @Override
     public long size(Block block) {
-        return super.size(block);
+        return 0;
     }
 }

@@ -34,7 +34,7 @@ public class OssConnectorBuilder extends BaseConnectorBuilder {
 
     @Override
     public PackageConnector buildPackageConnector() {
-        return new PackageConnectorImpl(build());
+        return new PackageConnectorImpl(((com.fineio.storage.v3.Connector) build()));
     }
 
     @Override
