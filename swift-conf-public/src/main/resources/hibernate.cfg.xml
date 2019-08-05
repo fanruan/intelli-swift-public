@@ -7,9 +7,9 @@
     <session-factory>
         <!--数据源信息 for Druid-->
         <property name="driverClassName">com.mysql.jdbc.Driver</property>
-        <property name="url">jdbc:mysql://localhost:3306/test_hibernate</property>
-        <property name="username">admin</property>
-        <property name="password">admin</property>
+        <property name="url">jdbc:mysql://localhost:3306/demo</property>
+        <property name="username">root</property>
+        <property name="password">123456</property>
         <property name="filter">stat,log4j</property>
         <property name="initialSize">5</property>
         <property name="maxActive">100</property>
