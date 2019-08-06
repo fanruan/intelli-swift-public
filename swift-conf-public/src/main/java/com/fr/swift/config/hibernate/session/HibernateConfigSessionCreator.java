@@ -1,9 +1,9 @@
-package com.fr.swift.config.hibernate.transaction;
+package com.fr.swift.config.hibernate.session;
 
 import com.fr.swift.beans.annotation.SwiftBean;
 import com.fr.swift.config.hibernate.HibernateManager;
 import com.fr.swift.config.oper.ConfigSession;
-import com.fr.swift.config.oper.impl.BaseTransactionManager;
+import com.fr.swift.config.oper.impl.BaseConfigSessionCreator;
 import com.fr.swift.config.oper.proxy.SessionInvocationHandler;
 import org.hibernate.Session;
 
@@ -14,10 +14,10 @@ import java.lang.reflect.Proxy;
  * @date 2018-11-28
  */
 @SwiftBean
-public class HibernateTransactionManager extends BaseTransactionManager {
+public class HibernateConfigSessionCreator extends BaseConfigSessionCreator {
 
     @Override
-    protected ConfigSession createSession() throws ClassNotFoundException {
+    public ConfigSession createSession() throws ClassNotFoundException {
         Session session = HibernateManager.INSTANCE.getFactory().openSession();
         return (ConfigSession) Proxy.newProxyInstance(this.getClass().getClassLoader(),
                 new Class[]{ConfigSession.class}, new SessionInvocationHandler(session));
