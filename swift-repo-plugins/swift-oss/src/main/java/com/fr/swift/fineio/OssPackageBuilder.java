@@ -3,9 +3,12 @@ package com.fr.swift.fineio;
 import com.fineio.v3.connector.PackageConnector;
 import com.fr.swift.SwiftContext;
 import com.fr.swift.beans.annotation.SwiftBean;
+import com.fr.swift.config.SwiftConfig;
+import com.fr.swift.config.SwiftConfigConstants;
 import com.fr.swift.config.bean.FineIOConnectorConfig;
-import com.fr.swift.config.service.SwiftCubePathService;
-import com.fr.swift.config.service.SwiftFineIOConnectorService;
+import com.fr.swift.config.entity.SwiftConfigEntity;
+import com.fr.swift.config.query.SwiftConfigEntityQueryBus;
+import com.fr.swift.context.ContextProvider;
 import com.fr.swift.cube.io.impl.fineio.connector.annotation.PackConnectorBuilder;
 import com.fr.swift.cube.io.impl.fineio.connector.builder.PackageConnectorBuilder;
 import com.fr.swift.file.OssClientPool;
@@ -28,13 +31,17 @@ public class OssPackageBuilder implements PackageConnectorBuilder<OssRepositoryC
     @Override
     public PackageConnector build(OssRepositoryConfig config) {
         Util.requireNonNull(config);
-        OssConnector ossConnector = new OssConnector(SwiftContext.get().getBean(SwiftCubePathService.class).getSwiftPath(), new OssClientPool(config));
+        final String contextPath = SwiftContext.get().getBean(ContextProvider.class).getContextPath();
+        final SwiftConfigEntityQueryBus query = (SwiftConfigEntityQueryBus) SwiftContext.get().getBean(SwiftConfig.class).query(SwiftConfigEntity.class);
+        final String path = query.select(SwiftConfigConstants.Namespace.SWIFT_CUBE_PATH, String.class, contextPath);
+        OssConnector ossConnector = new OssConnector(path, new OssClientPool(config));
         return new PackageConnectorImpl(ossConnector);
     }
 
     @Override
     public OssRepositoryConfig loadFromProperties(Properties properties) {
-        FineIOConnectorConfig config = SwiftContext.get().getBean(SwiftFineIOConnectorService.class).getCurrentConfig(SwiftFineIOConnectorService.Type.PACKAGE);
+        final SwiftConfigEntityQueryBus query = (SwiftConfigEntityQueryBus) SwiftContext.get().getBean(SwiftConfig.class).query(SwiftConfigEntity.class);
+        final FineIOConnectorConfig config = query.select(SwiftConfigConstants.Namespace.FINE_IO_CONNECTOR, FineIOConnectorConfig.class, null);
         if (null != config && config.type().equals(OssConnectorType.OSS.name())) {
             OssRepositoryConfig ossConfig = (OssRepositoryConfig) config;
             ossConfig.setBucketName(properties.getProperty("package.bucketName", ossConfig.getBucketName()));
