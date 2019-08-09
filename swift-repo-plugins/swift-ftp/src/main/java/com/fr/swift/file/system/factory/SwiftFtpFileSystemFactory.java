@@ -4,11 +4,8 @@ import com.fineio.storage.Connector;
 import com.fineio.v3.connector.PackageConnector;
 import com.fr.swift.SwiftContext;
 import com.fr.swift.beans.annotation.SwiftBean;
-import com.fr.swift.config.SwiftConfig;
-import com.fr.swift.config.SwiftConfigConstants;
 import com.fr.swift.config.bean.FineIOConnectorConfig;
-import com.fr.swift.config.entity.SwiftConfigEntity;
-import com.fr.swift.config.query.SwiftConfigEntityQueryBus;
+import com.fr.swift.config.service.SwiftFineIOConnectorService;
 import com.fr.swift.cube.io.impl.fineio.connector.annotation.ConnectorBuilder;
 import com.fr.swift.cube.io.impl.fineio.connector.builder.BaseConnectorBuilder;
 import com.fr.swift.fineio.connector.FtpConnector;
@@ -32,8 +29,7 @@ public class SwiftFtpFileSystemFactory extends BaseConnectorBuilder {
 
     @Override
     public FineIOConnectorConfig loadFromProperties(Properties properties) {
-        final SwiftConfigEntityQueryBus query = (SwiftConfigEntityQueryBus) SwiftContext.get().getBean(SwiftConfig.class).query(SwiftConfigEntity.class);
-        final FineIOConnectorConfig config = query.select(SwiftConfigConstants.Namespace.FINE_IO_CONNECTOR, FineIOConnectorConfig.class, null);
+        FineIOConnectorConfig config = SwiftContext.get().getBean(SwiftFineIOConnectorService.class).getCurrentConfig(SwiftFineIOConnectorService.Type.CONNECTOR);
         if (null != config && config.type().equals("FTP")) {
             FtpConnectorConfig ftpConfig = (FtpConnectorConfig) config;
             ftpConfig.setProtocol(properties.getProperty("fineio.protocol", ftpConfig.getProtocol()));
