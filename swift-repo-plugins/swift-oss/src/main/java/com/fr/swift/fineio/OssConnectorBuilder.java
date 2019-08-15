@@ -4,6 +4,7 @@ import com.fineio.storage.Connector;
 import com.fineio.v3.connector.PackageConnector;
 import com.fr.swift.SwiftContext;
 import com.fr.swift.beans.annotation.SwiftBean;
+import com.fr.swift.config.SwiftConfigConstants;
 import com.fr.swift.config.bean.FineIOConnectorConfig;
 import com.fr.swift.config.service.SwiftCubePathService;
 import com.fr.swift.config.service.SwiftFineIOConnectorService;
@@ -34,12 +35,12 @@ public class OssConnectorBuilder extends BaseConnectorBuilder {
 
     @Override
     public PackageConnector buildPackageConnector() {
-        return new PackageConnectorImpl(build());
+        return new PackageConnectorImpl(((com.fineio.storage.v3.Connector) build()));
     }
 
     @Override
     public FineIOConnectorConfig loadFromProperties(Properties properties) {
-        FineIOConnectorConfig config = SwiftContext.get().getBean(SwiftFineIOConnectorService.class).getCurrentConfig(SwiftFineIOConnectorService.Type.CONNECTOR);
+        FineIOConnectorConfig config = SwiftContext.get().getBean(SwiftFineIOConnectorService.class).getCurrentConfig(SwiftConfigConstants.Namespace.FINE_IO_CONNECTOR);
         if (null != config && config.type().equals(OssConnectorType.OSS.name())) {
             OssRepositoryConfig ossConfig = (OssRepositoryConfig) config;
             ossConfig.setBucketName(properties.getProperty("fineio.bucketName", ossConfig.getBucketName()));

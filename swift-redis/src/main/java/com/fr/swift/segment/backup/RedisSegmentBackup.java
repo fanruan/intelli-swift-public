@@ -52,7 +52,7 @@ public class RedisSegmentBackup implements SwiftSegmentBackup {
     }
 
     @Override
-    public void backupNullIndex() {
+    public void backupNullIndex(int cursor) {
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.fr.swift.file.system.factory;
 import com.fineio.v3.connector.PackageConnector;
 import com.fr.swift.SwiftContext;
 import com.fr.swift.beans.annotation.SwiftBean;
+import com.fr.swift.config.SwiftConfigConstants;
 import com.fr.swift.config.bean.FineIOConnectorConfig;
 import com.fr.swift.config.service.SwiftFineIOConnectorService;
 import com.fr.swift.cube.io.impl.fineio.connector.annotation.PackConnectorBuilder;
@@ -28,7 +29,7 @@ public class SwiftFtpPackageBuilder implements PackageConnectorBuilder<FtpConnec
 
     @Override
     public FtpConnectorConfig loadFromProperties(Properties properties) {
-        FineIOConnectorConfig config = SwiftContext.get().getBean(SwiftFineIOConnectorService.class).getCurrentConfig(SwiftFineIOConnectorService.Type.PACKAGE);
+        FineIOConnectorConfig config = SwiftContext.get().getBean(SwiftFineIOConnectorService.class).getCurrentConfig(SwiftConfigConstants.Namespace.FINE_IO_PACKAGE);
         if (null != config && config.type().equals("FTP")) {
             FtpConnectorConfig ftpConfig = (FtpConnectorConfig) config;
             ftpConfig.setProtocol(properties.getProperty("package.protocol", ftpConfig.getProtocol()));
