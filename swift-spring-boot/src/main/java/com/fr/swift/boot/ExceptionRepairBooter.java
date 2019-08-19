@@ -40,7 +40,7 @@ public class ExceptionRepairBooter {
     }
 
     private static void bootConsumers() {
-        int nThreads = Runtime.getRuntime().availableProcessors();
+        int nThreads = Math.min(Runtime.getRuntime().availableProcessors(), 2);
         ExecutorService slaveExecutor = SwiftExecutors.newFixedThreadPool(nThreads, new PoolThreadFactory(ExceptionInfoConsumer.class));
         ExecutorService masterExecutor = SwiftExecutors.newFixedThreadPool(nThreads, new PoolThreadFactory(ExceptionInfoConsumer.class));
         for (int i = 0; i < nThreads; i++) {
