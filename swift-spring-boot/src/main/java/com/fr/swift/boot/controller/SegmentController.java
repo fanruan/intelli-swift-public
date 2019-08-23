@@ -28,7 +28,7 @@ import java.util.Map;
 @RequestMapping("/api/segment")
 public class SegmentController {
 
-    private SwiftSegmentService swiftSegmentService = SwiftContext.get().getBean("segmentServiceProvider", SwiftSegmentService.class);
+    private SwiftSegmentService swiftSegmentService = SwiftContext.get().getBean(SwiftSegmentService.class);
 
     @ResponseBody
     @RequestMapping(method = RequestMethod.GET)
