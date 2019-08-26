@@ -52,6 +52,8 @@ public class SwiftEngineStart {
             SwiftContext.get().getBean(ServerManager.class).startUp();
             BootRegister.registerListener();
 
+            ExceptionRepairBooter.boot();
+
             SwiftLoggers.getLogger().info("Swift engine start successful");
         } catch (Throwable e) {
             SwiftLoggers.getLogger().error(e);
