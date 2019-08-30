@@ -181,7 +181,7 @@ public class TestController {
     @RequestMapping("swift/query/group")
     @ResponseBody
     public Object testGroup() throws Exception {
-        GroupQueryInfoBean query = new GroupQueryInfoBean();
+        GroupQueryInfoBean query = GroupQueryInfoBean.builder(null).build();
         query.setQueryId(UUID.randomUUID().toString());
         query.setTableName("test_yiguan");
         DimensionBean dimensionBean = new DimensionBean();
@@ -260,7 +260,7 @@ public class TestController {
     @RequestMapping("swift/query/detail")
     @ResponseBody
     public Object testDetail() throws Exception {
-        DetailQueryInfoBean query = new DetailQueryInfoBean();
+        DetailQueryInfoBean query = DetailQueryInfoBean.builder(null).build();
         query.setTableName("test_yiguan");
         query.setQueryId(UUID.randomUUID().toString());
         DimensionBean dimensionBean = new DimensionBean();
