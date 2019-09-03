@@ -21,9 +21,6 @@ public class CloudOssUtils {
         try {
             oss.putObject(bucketName, objectName, is, null);
             return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
         } finally {
             pool.returnObject(oss);
             IoUtil.close(is);
