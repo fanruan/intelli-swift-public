@@ -49,4 +49,14 @@ class OssClientPooledFactory extends BasePooledObjectFactory<AmazonS3> {
     public void destroyObject(PooledObject<AmazonS3> p) throws Exception {
         p.getObject().shutdown();
     }
+
+    @Override
+    public boolean validateObject(PooledObject<AmazonS3> p) {
+        try {
+            p.getObject().getBucketLocation(config.getBucketName());
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }

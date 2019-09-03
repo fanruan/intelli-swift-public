@@ -21,6 +21,9 @@ public class CloudOssUtils {
         try {
             oss.putObject(bucketName, objectName, is, null);
             return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         } finally {
             pool.returnObject(oss);
             IoUtil.close(is);
@@ -106,5 +109,19 @@ public class CloudOssUtils {
 
     public static List<String> listNames(OssClientPool pool, String path) throws Exception {
         return listNames(pool, pool.getConfig().getBucketName(), path);
+    }
+
+    public static List<S3ObjectSummary> list(OssClientPool pool, String path) throws Exception {
+        AmazonS3 oss = pool.borrowObject();
+        List<S3ObjectSummary> result = new ArrayList<>();
+        try {
+            ObjectListing list = oss.listObjects(pool.getConfig().getBucketName(), path);
+            for (S3ObjectSummary objectSummary : list.getObjectSummaries()) {
+                result.add(objectSummary);
+            }
+        } finally {
+            pool.returnObject(oss);
+        }
+        return result;
     }
 }
