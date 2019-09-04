@@ -1,5 +1,7 @@
 package com.fr.swift.netty.rpc.server;
 
+import com.fr.swift.service.ServiceStarter;
+
 /**
  * This class created on 2018/6/8
  *
@@ -7,10 +9,6 @@ package com.fr.swift.netty.rpc.server;
  * @description
  * @since Advanced FineBI 5.0
  */
-public interface NettyServiceStarter {
-
-    void start() throws Exception;
-
-    void stop() throws Exception;
+public interface NettyServiceStarter extends ServiceStarter {
 
 }
