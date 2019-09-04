@@ -50,6 +50,7 @@ public class ExceptionRepairBooter {
     }
 
     private static void bootQueue() {
+        //TODO Master切换的时候也要处理
         //初始化任务队列，取出未处理的异常加入队列
         SlaveExceptionInfoQueue.getInstance().initExceptionInfoQueue();
         MasterExceptionInfoQueue.getInstance().initExceptionInfoQueue();
