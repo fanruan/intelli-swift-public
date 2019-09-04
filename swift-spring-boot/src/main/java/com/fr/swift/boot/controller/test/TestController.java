@@ -5,31 +5,22 @@ import com.fr.swift.SwiftContext;
 import com.fr.swift.base.json.JsonBuilder;
 import com.fr.swift.base.meta.MetaDataColumnBean;
 import com.fr.swift.base.meta.SwiftMetaDataBean;
-import com.fr.swift.basics.base.selector.ProxySelector;
 import com.fr.swift.compare.Comparators;
 import com.fr.swift.config.service.SwiftMetaDataService;
 import com.fr.swift.db.SwiftSchema;
 import com.fr.swift.db.Table;
 import com.fr.swift.query.QueryRunnerProvider;
-import com.fr.swift.query.aggregator.AggregatorType;
-import com.fr.swift.query.info.bean.element.AggregationBean;
-import com.fr.swift.query.info.bean.element.DimensionBean;
-import com.fr.swift.query.info.bean.element.MetricBean;
 import com.fr.swift.query.info.bean.element.filter.impl.InFilterBean;
-import com.fr.swift.query.info.bean.query.DetailQueryInfoBean;
 import com.fr.swift.query.info.bean.query.GroupQueryInfoBean;
 import com.fr.swift.query.info.bean.query.QueryBeanFactory;
-import com.fr.swift.query.info.bean.type.DimensionType;
 import com.fr.swift.query.info.funnel.FunnelPathsAggregationBean;
 import com.fr.swift.query.info.funnel.FunnelVirtualStep;
 import com.fr.swift.query.info.funnel.ParameterColumnsBean;
 import com.fr.swift.query.info.funnel.filter.DayFilterInfo;
 import com.fr.swift.query.query.QueryBean;
 import com.fr.swift.query.query.funnel.TimeWindowBean;
-import com.fr.swift.query.result.serialize.QueryResultSetSerializer;
 import com.fr.swift.result.SwiftResultSet;
 import com.fr.swift.segment.insert.HistoryBlockImporter;
-import com.fr.swift.service.AnalyseService;
 import com.fr.swift.source.ListBasedRow;
 import com.fr.swift.source.Row;
 import com.fr.swift.source.SourceKey;
@@ -57,7 +48,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -181,26 +171,27 @@ public class TestController {
     @RequestMapping("swift/query/group")
     @ResponseBody
     public Object testGroup() throws Exception {
-        GroupQueryInfoBean query = new GroupQueryInfoBean();
-        query.setQueryId(UUID.randomUUID().toString());
-        query.setTableName("test_yiguan");
-        DimensionBean dimensionBean = new DimensionBean();
-        dimensionBean.setType(DimensionType.GROUP);
-        dimensionBean.setColumn("eventType");
-        DimensionBean d = new DimensionBean(DimensionType.GROUP);
-        d.setColumn("city");
-        MetricBean metricBean = new MetricBean();
-        metricBean.setType(AggregatorType.COUNT);
-        metricBean.setColumn("id");
-        query.setDimensions(Arrays.asList(dimensionBean, d));
-        query.setAggregations(Arrays.<AggregationBean>asList(metricBean));
-        query.setFilter(new InFilterBean("eventType", "addCart"));
-        SwiftResultSet resultSet = QueryRunnerProvider.getInstance().query(query);
-        List<Row> rows = new ArrayList<Row>();
-        while (resultSet.hasNext()) {
-            rows.add(resultSet.getNextRow());
-        }
-        return rows;
+//        GroupQueryInfoBean query = new GroupQueryInfoBean();
+//        query.setQueryId(UUID.randomUUID().toString());
+//        query.setTableName("test_yiguan");
+//        DimensionBean dimensionBean = new DimensionBean();
+//        dimensionBean.setType(DimensionType.GROUP);
+//        dimensionBean.setColumn("eventType");
+//        DimensionBean d = new DimensionBean(DimensionType.GROUP);
+//        d.setColumn("city");
+//        MetricBean metricBean = new MetricBean();
+//        metricBean.setType(AggregatorType.COUNT);
+//        metricBean.setColumn("id");
+//        query.setDimensions(Arrays.asList(dimensionBean, d));
+//        query.setAggregations(Arrays.<AggregationBean>asList(metricBean));
+//        query.setFilter(new InFilterBean("eventType", "addCart"));
+//        SwiftResultSet resultSet = QueryRunnerProvider.getInstance().query(query);
+//        List<Row> rows = new ArrayList<Row>();
+//        while (resultSet.hasNext()) {
+//            rows.add(resultSet.getNextRow());
+//        }
+//        return rows;
+        return null;
     }
 
     @RequestMapping("swift/importYiguan")
@@ -260,21 +251,22 @@ public class TestController {
     @RequestMapping("swift/query/detail")
     @ResponseBody
     public Object testDetail() throws Exception {
-        DetailQueryInfoBean query = new DetailQueryInfoBean();
-        query.setTableName("test_yiguan");
-        query.setQueryId(UUID.randomUUID().toString());
-        DimensionBean dimensionBean = new DimensionBean();
-        dimensionBean.setType(DimensionType.DETAIL_ALL_COLUMN);
-        query.setDimensions(Arrays.asList(dimensionBean));
-        AnalyseService service = ProxySelector.getInstance().getFactory().getProxy(AnalyseService.class);
-        SwiftResultSet resultSet = QueryResultSetSerializer.toSwiftResultSet(
-                service.getQueryResult(QueryBeanFactory.queryBean2String(query)), query);
-        List<Row> rows = new ArrayList<Row>();
-        int limit = 200;
-        while (resultSet.hasNext() && limit-- > 0) {
-            rows.add(resultSet.getNextRow());
-        }
-        return rows;
+//        DetailQueryInfoBean query = new DetailQueryInfoBean();
+//        query.setTableName("test_yiguan");
+//        query.setQueryId(UUID.randomUUID().toString());
+//        DimensionBean dimensionBean = new DimensionBean();
+//        dimensionBean.setType(DimensionType.DETAIL_ALL_COLUMN);
+//        query.setDimensions(Arrays.asList(dimensionBean));
+//        AnalyseService service = ProxySelector.getInstance().getFactory().getProxy(AnalyseService.class);
+//        SwiftResultSet resultSet = QueryResultSetSerializer.toSwiftResultSet(
+//                service.getQueryResult(QueryBeanFactory.queryBean2String(query)), query);
+//        List<Row> rows = new ArrayList<Row>();
+//        int limit = 200;
+//        while (resultSet.hasNext() && limit-- > 0) {
+//            rows.add(resultSet.getNextRow());
+//        }
+//        return rows;
+        return null;
     }
 
     @RequestMapping("swift/createYiguanTable")
