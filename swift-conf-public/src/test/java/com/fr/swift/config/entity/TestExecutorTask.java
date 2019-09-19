@@ -15,7 +15,8 @@ import com.fr.swift.source.SourceKey;
 public class TestExecutorTask extends AbstractExecutorTask {
 
     protected TestExecutorTask(SourceKey sourceKey, boolean persistent, ExecutorTaskType executorTaskType, LockType lockType,
-                               String lockKey, DBStatusType dbStatusType, String taskId, long createTime, String taskContent) {
-        super(sourceKey, persistent, executorTaskType, lockType, lockKey, dbStatusType, taskId, createTime, taskContent);
+                               String lockKey, DBStatusType dbStatusType, String taskId, long createTime, String taskContent,
+                               int priority) {
+        super(sourceKey, persistent, executorTaskType, lockType, lockKey, dbStatusType, taskId, createTime, taskContent, priority);
     }
 }
