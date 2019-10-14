@@ -1,10 +1,15 @@
 package com.fr.swift.fineio;
 
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.fineio.accessor.Block;
 import com.fineio.io.file.FileBlock;
+import com.fineio.v3.file.DirectoryBlock;
 import com.fr.swift.cube.io.impl.fineio.connector.BaseConnector;
 import com.fr.swift.file.CloudOssUtils;
 import com.fr.swift.file.OssClientPool;
+import com.fr.swift.log.SwiftLoggers;
+import com.fr.swift.repository.utils.SwiftRepositoryUtils;
+import com.fr.swift.util.Strings;
 import net.jpountz.lz4.LZ4BlockInputStream;
 import net.jpountz.lz4.LZ4BlockOutputStream;
 import net.jpountz.lz4.LZ4Compressor;
@@ -16,6 +21,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -35,7 +42,7 @@ public class OssConnector extends BaseConnector {
     public InputStream read(FileBlock fileBlock) throws IOException {
         try {
             LZ4FastDecompressor decompressor = LZ4Factory.fastestInstance().fastDecompressor();
-            return new LZ4BlockInputStream(CloudOssUtils.getObjectStream(pool, fileBlock.getPath()), decompressor);
+            return new LZ4BlockInputStream(CloudOssUtils.getObjectStream(pool, Strings.trimSeparator(fileBlock.getPath(), "//", "/")), decompressor);
         } catch (Exception e) {
             if (e instanceof IOException) {
                 throw (IOException) e;
@@ -52,7 +59,7 @@ public class OssConnector extends BaseConnector {
         try {
             IOUtils.copyLarge(is, zos);
             zos.finish();
-            CloudOssUtils.upload(pool, fileBlock.getPath(), new ByteArrayInputStream(bos.toByteArray()));
+            CloudOssUtils.upload(pool, Strings.trimSeparator(fileBlock.getPath(), "//", "/"), new ByteArrayInputStream(bos.toByteArray()));
         } catch (Exception e) {
             if (e instanceof IOException) {
                 throw (IOException) e;
@@ -91,12 +98,23 @@ public class OssConnector extends BaseConnector {
     @Override
     public Block list(String dir) {
         try {
-            List<String> names = CloudOssUtils.listNames(pool, dir);
-
+            List<S3ObjectSummary> summaries = "/".equals(dir) ?
+                    CloudOssUtils.list(pool, Strings.EMPTY) : CloudOssUtils.list(pool, dir);
+            if (summaries.isEmpty()) {
+                return new DirectoryBlock(dir, Collections.<Block>emptyList());
+            }
+            List<Block> blocks = new ArrayList<>();
+            for (S3ObjectSummary summary : summaries) {
+                final String key = summary.getKey();
+                final String parent = SwiftRepositoryUtils.getParent(key);
+                final String name = SwiftRepositoryUtils.getName(key);
+                blocks.add(new FileBlock(parent, name));
+            }
+            return new DirectoryBlock(dir, blocks);
         } catch (Exception e) {
-            e.printStackTrace();
+            SwiftLoggers.getLogger().error(e);
+            return new DirectoryBlock(dir, Collections.<Block>emptyList());
         }
-        return null;
     }
 
     @Override

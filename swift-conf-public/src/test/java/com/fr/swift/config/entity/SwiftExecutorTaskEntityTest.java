@@ -51,7 +51,7 @@ public class SwiftExecutorTaskEntityTest {
         Mockito.when(SwiftProperty.getProperty()).thenReturn(swiftProperty);
         Mockito.when(swiftProperty.getClusterId()).thenReturn("127.0.0.1");
         executorTask = new TestExecutorTask(new SourceKey("test"), true, SwiftTaskType.TRANSFER, LockType.TABLE,
-                "lock", DBStatusType.ACTIVE, "taskId", time, "taskContent");
+                "lock", DBStatusType.ACTIVE, "taskId", time, "taskContent", 0);
         entity = new SwiftExecutorTaskEntity(executorTask);
     }
 
