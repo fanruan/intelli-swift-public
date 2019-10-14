@@ -1,6 +1,8 @@
 package com.fr.swift.context;
 
 import com.fr.swift.beans.annotation.SwiftBean;
+import com.fr.swift.property.SwiftProperty;
+import com.fr.swift.util.Strings;
 
 import java.io.File;
 
@@ -12,7 +14,11 @@ import java.io.File;
 public class DefaultContextProvider implements ContextProvider {
     @Override
     public String getContextPath() {
-        String classPath = ContextUtil.getClassPath();
-        return new File(classPath).isDirectory() ? classPath + "/../" : classPath + "/../../";
+        final String path = SwiftProperty.getProperty().getCubesPath();
+        if (Strings.isEmpty(path)) {
+            String classPath = ContextUtil.getClassPath();
+            return new File(classPath).isDirectory() ? classPath + "/../" : classPath + "/../../";
+        }
+        return path;
     }
 }
