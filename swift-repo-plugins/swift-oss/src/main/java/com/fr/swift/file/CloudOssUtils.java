@@ -1,13 +1,9 @@
 package com.fr.swift.file;
 
-import com.aliyun.oss.OSS;
-import com.aliyun.oss.common.comm.ResponseMessage;
-import com.aliyun.oss.model.CopyObjectResult;
-import com.aliyun.oss.model.ListObjectsRequest;
-import com.aliyun.oss.model.OSSObject;
-import com.aliyun.oss.model.OSSObjectSummary;
-import com.aliyun.oss.model.ObjectListing;
-import com.aliyun.oss.model.PutObjectResult;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.ObjectListing;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.fr.swift.util.IoUtil;
 import com.fr.swift.util.Strings;
 
@@ -21,13 +17,9 @@ import java.util.List;
  */
 public class CloudOssUtils {
     public static boolean upload(OssClientPool pool, String bucketName, String objectName, InputStream is) throws Exception {
-        OSS oss = pool.borrowObject();
+        AmazonS3 oss = pool.borrowObject();
         try {
-            PutObjectResult result = oss.putObject(bucketName, objectName, is);
-            ResponseMessage response = result.getResponse();
-            if (null != response) {
-                return response.isSuccessful();
-            }
+            oss.putObject(bucketName, objectName, is, null);
             return true;
         } finally {
             pool.returnObject(oss);
@@ -36,8 +28,9 @@ public class CloudOssUtils {
     }
 
     public static InputStream getObjectStream(OssClientPool pool, String bucketName, String objectName) throws Exception {
-        OSS oss = pool.borrowObject();
-        OSSObject object = oss.getObject(bucketName, objectName);
+
+        AmazonS3 oss = pool.borrowObject();
+        S3Object object = oss.getObject(bucketName, objectName);
         try {
             return object.getObjectContent();
         } finally {
@@ -54,7 +47,7 @@ public class CloudOssUtils {
     }
 
     public static boolean exists(OssClientPool pool, String bucketName, String objectName) throws Exception {
-        OSS oss = pool.borrowObject();
+        AmazonS3 oss = pool.borrowObject();
         try {
             return oss.doesObjectExist(bucketName, objectName);
         } finally {
@@ -67,7 +60,7 @@ public class CloudOssUtils {
     }
 
     public static void delete(OssClientPool pool, String bucketName, String objectName) throws Exception {
-        OSS oss = pool.borrowObject();
+        AmazonS3 oss = pool.borrowObject();
         try {
             oss.deleteObject(bucketName, objectName);
         } finally {
@@ -80,10 +73,10 @@ public class CloudOssUtils {
     }
 
     public static boolean copy(OssClientPool pool, String srcBucket, String srcObjectName, String destBucket, String destObject) throws Exception {
-        OSS oss = pool.borrowObject();
+        AmazonS3 oss = pool.borrowObject();
         try {
-            CopyObjectResult result = oss.copyObject(srcBucket, srcObjectName, destBucket, destObject);
-            return result.getResponse().isSuccessful();
+            oss.copyObject(srcBucket, srcObjectName, destBucket, destObject);
+            return true;
         } finally {
             pool.returnObject(oss);
         }
@@ -95,14 +88,11 @@ public class CloudOssUtils {
     }
 
     public static List<String> listNames(OssClientPool pool, String bucketName, String path) throws Exception {
-        OSS oss = pool.borrowObject();
+        AmazonS3 oss = pool.borrowObject();
         List<String> names = new ArrayList<String>();
         try {
-            ListObjectsRequest request = new ListObjectsRequest(bucketName);
-            request.setDelimiter("/");
-            request.setPrefix(path);
-            ObjectListing list = oss.listObjects(request);
-            for (OSSObjectSummary objectSummary : list.getObjectSummaries()) {
+            ObjectListing list = oss.listObjects(bucketName, path);
+            for (S3ObjectSummary objectSummary : list.getObjectSummaries()) {
                 names.add(objectSummary.getKey());
             }
             for (String commonPrefix : list.getCommonPrefixes()) {
@@ -116,5 +106,19 @@ public class CloudOssUtils {
 
     public static List<String> listNames(OssClientPool pool, String path) throws Exception {
         return listNames(pool, pool.getConfig().getBucketName(), path);
+    }
+
+    public static List<S3ObjectSummary> list(OssClientPool pool, String path) throws Exception {
+        AmazonS3 oss = pool.borrowObject();
+        List<S3ObjectSummary> result = new ArrayList<>();
+        try {
+            ObjectListing list = oss.listObjects(pool.getConfig().getBucketName(), path);
+            for (S3ObjectSummary objectSummary : list.getObjectSummaries()) {
+                result.add(objectSummary);
+            }
+        } finally {
+            pool.returnObject(oss);
+        }
+        return result;
     }
 }

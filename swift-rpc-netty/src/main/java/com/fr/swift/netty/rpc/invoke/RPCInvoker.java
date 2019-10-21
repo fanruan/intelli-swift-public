@@ -12,7 +12,7 @@ import com.fr.swift.netty.rpc.client.async.AsyncRpcClientHandler;
 import com.fr.swift.netty.rpc.client.sync.SyncRpcClientHandler;
 import com.fr.swift.netty.rpc.pool.AsyncRpcPool;
 import com.fr.swift.netty.rpc.pool.SyncRpcPool;
-import com.fr.swift.rpc.bean.RpcResponse;
+import com.fr.swift.basic.SwiftResponse;
 
 import java.util.UUID;
 
@@ -96,7 +96,7 @@ public class RPCInvoker<T> implements Invoker<T> {
         try {
             if (sync) {
                 handler = getAvailableSyncHandler(serviceAddress);
-                RpcResponse response = (RpcResponse) handler.send(request);
+                SwiftResponse response = (SwiftResponse) handler.send(request);
                 SyncRpcPool.getInstance().returnObject(serviceAddress, handler);
                 if (response == null) {
                     throw new RuntimeException("response is null");

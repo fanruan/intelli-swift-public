@@ -6,8 +6,8 @@ import com.fr.swift.log.SwiftLogger;
 import com.fr.swift.log.SwiftLoggers;
 import com.fr.swift.netty.bean.InternalRpcRequest;
 import com.fr.swift.netty.rpc.exception.ServiceInvalidException;
-import com.fr.swift.rpc.bean.RpcRequest;
-import com.fr.swift.rpc.bean.RpcResponse;
+import com.fr.swift.basic.Request;
+import com.fr.swift.basic.SwiftResponse;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -23,7 +23,7 @@ import java.util.Map;
  * @description
  * @since Advanced FineBI 5.0
  */
-public class RpcServerHandler extends SimpleChannelInboundHandler<RpcRequest> {
+public class RpcServerHandler extends SimpleChannelInboundHandler<Request> {
 
     private static final SwiftLogger LOGGER = SwiftLoggers.getLogger(RpcServerHandler.class);
 
@@ -31,9 +31,9 @@ public class RpcServerHandler extends SimpleChannelInboundHandler<RpcRequest> {
     }
 
     @Override
-    public void channelRead0(final ChannelHandlerContext ctx, final RpcRequest request) {
+    public void channelRead0(final ChannelHandlerContext ctx, final Request request) {
         LOGGER.debug("Receive request " + request.getRequestId());
-        RpcResponse response = new RpcResponse();
+        SwiftResponse response = new SwiftResponse();
         response.setRequestId(request.getRequestId());
         try {
             Object result = handle(request);
@@ -50,7 +50,7 @@ public class RpcServerHandler extends SimpleChannelInboundHandler<RpcRequest> {
         });
     }
 
-    private Object handle(RpcRequest request) throws Exception {
+    private Object handle(Request request) throws Exception {
         String serviceName = request.getInterfaceName();
         switch (request.requestType()) {
             case INTERNAL:
@@ -65,7 +65,7 @@ public class RpcServerHandler extends SimpleChannelInboundHandler<RpcRequest> {
         }
     }
 
-    private Object handle(RpcRequest request, Object serviceBean, boolean checkApiEnable) throws Exception {
+    private Object handle(Request request, Object serviceBean, boolean checkApiEnable) throws Exception {
         if (serviceBean == null) {
             throw new ServiceInvalidException(request.getInterfaceName() + " is invalid on remote machine!");
         }

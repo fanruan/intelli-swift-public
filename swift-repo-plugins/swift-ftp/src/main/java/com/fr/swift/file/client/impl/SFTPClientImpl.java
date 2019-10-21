@@ -1,7 +1,7 @@
 package com.fr.swift.file.client.impl;
 
 import com.fr.swift.file.client.SwiftFTPClient;
-import com.fr.swift.repository.config.FtpRepositoryConfig;
+import com.fr.swift.repository.config.FtpConnectorConfig;
 import com.fr.swift.repository.utils.SwiftRepositoryUtils;
 import com.fr.swift.util.Strings;
 import com.jcraft.jsch.Channel;
@@ -38,7 +38,7 @@ public class SFTPClientImpl implements SwiftFTPClient {
     private String privateKey;
     private String passPhrase;
 
-    public SFTPClientImpl(FtpRepositoryConfig config) {
+    public SFTPClientImpl(FtpConnectorConfig config) {
         host = config.getHost();
         port = Integer.parseInt(config.getPort());
         username = config.getUsername();

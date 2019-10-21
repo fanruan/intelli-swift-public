@@ -28,13 +28,13 @@ public class MetaDataColumnListConverterTest {
     }
 
     @Test
-    public void toDatabaseColumn() {
+    public void toDatabaseColumn() throws IllegalAccessException, InstantiationException, ClassNotFoundException {
         String column = new MetaDataColumnListConverter().toDatabaseColumn(columnBeans);
         assertEquals(json, column);
     }
 
     @Test
-    public void toEntityAttribute() {
+    public void toEntityAttribute() throws IllegalAccessException, InstantiationException, ClassNotFoundException {
         List<MetaDataColumnBean> beans = new MetaDataColumnListConverter().toEntityAttribute(json);
         assertEquals(columnBeans.size(), beans.size());
         for (int i = 0; i < columnBeans.size(); i++) {
