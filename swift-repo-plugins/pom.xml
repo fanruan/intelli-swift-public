@@ -31,7 +31,22 @@
         </dependency>
         <dependency>
             <groupId>com.fr.intelligence</groupId>
-            <artifactId>swift-base-beans</artifactId>
+            <artifactId>swift-beans</artifactId>
+            <version>${swift.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fr.intelligence</groupId>
+            <artifactId>swift-io</artifactId>
+            <version>${swift.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fr.intelligence</groupId>
+            <artifactId>swift-repo-api</artifactId>
+            <version>${swift.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fineio</groupId>
+            <artifactId>fineio</artifactId>
         </dependency>
     </dependencies>
 

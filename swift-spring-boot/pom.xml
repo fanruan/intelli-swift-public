@@ -22,76 +22,6 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.fr.intelligence</groupId>
-            <artifactId>swift-server</artifactId>
-            <version>${swift.version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.fr.intelligence</groupId>
-            <artifactId>swift-analyse</artifactId>
-            <version>${swift.version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.fr.intelligence</groupId>
-            <artifactId>swift-history</artifactId>
-            <version>${swift.version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.fr.intelligence</groupId>
-            <artifactId>swift-indexing</artifactId>
-            <version>${swift.version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.fr.intelligence</groupId>
-            <artifactId>swift-realtime</artifactId>
-            <version>${swift.version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.fr.intelligence</groupId>
-            <artifactId>swift-cluster</artifactId>
-            <version>${swift.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fr.intelligence</groupId>
-            <artifactId>swift-jdbc-server</artifactId>
-            <version>${swift.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fr.intelligence</groupId>
-            <artifactId>swift-base-beans</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.45</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fr.intelligence</groupId>
-            <artifactId>swift-defragmentation</artifactId>
-            <version>${swift.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fr.intelligence</groupId>
-            <artifactId>swift-master</artifactId>
-            <version>${swift.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fr.intelligence</groupId>
-            <artifactId>swift-slave</artifactId>
-            <version>${swift.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fr.intelligence</groupId>
-            <artifactId>swift-conf-public</artifactId>
-            <version>${swift.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
@@ -102,18 +32,7 @@
         </dependency>
         <dependency>
             <groupId>com.fr.intelligence</groupId>
-            <artifactId>swift-common-public</artifactId>
-            <version>${swift.version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.fr.intelligence</groupId>
-            <artifactId>swift-redis</artifactId>
-            <version>${swift.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.fr.intelligence</groupId>
-            <artifactId>swift-ftp</artifactId>
+            <artifactId>swift-api-server</artifactId>
             <version>${swift.version}</version>
         </dependency>
         <dependency>
@@ -123,12 +42,52 @@
         </dependency>
         <dependency>
             <groupId>com.fr.intelligence</groupId>
-            <artifactId>swift-base-boot</artifactId>
+            <artifactId>swift-repo</artifactId>
             <version>${swift.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fr.intelligence</groupId>
-            <artifactId>swift-oss</artifactId>
+            <artifactId>swift-service-api</artifactId>
+            <version>${swift.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fr.intelligence</groupId>
+            <artifactId>swift-proxy</artifactId>
+            <version>${swift.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fr.intelligence</groupId>
+            <artifactId>swift-analyse-api</artifactId>
+            <version>${swift.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fr.intelligence</groupId>
+            <artifactId>swift-data-manipulate-api</artifactId>
+            <version>${swift.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fr.intelligence</groupId>
+            <artifactId>swift-service</artifactId>
+            <version>${swift.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fr.intelligence</groupId>
+            <artifactId>swift-master</artifactId>
+            <version>${swift.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fr.intelligence</groupId>
+            <artifactId>swift-common-public</artifactId>
+            <version>${swift.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fineio</groupId>
+            <artifactId>fineio</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fr.intelligence</groupId>
+            <artifactId>swift-boot</artifactId>
             <version>${swift.version}</version>
         </dependency>
     </dependencies>

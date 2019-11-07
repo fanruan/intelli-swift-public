@@ -13,17 +13,8 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.fr.intelligence</groupId>
-            <artifactId>swift-base-repository</artifactId>
-            <version>${swift.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-pool2</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fr.intelligence</groupId>
-            <artifactId>swift-base-beans</artifactId>
         </dependency>
     </dependencies>
 </project>
