@@ -6,7 +6,6 @@ import com.fr.swift.boot.register.BootRegister;
 import com.fr.swift.bytebuddy.DynamicClassLoader;
 import com.fr.swift.cluster.listener.NodeStartedListener;
 import com.fr.swift.config.PublicConfig;
-import com.fr.swift.cube.queue.ProviderTaskManager;
 import com.fr.swift.event.ClusterEvent;
 import com.fr.swift.event.ClusterEventType;
 import com.fr.swift.event.ClusterListenerHandler;
@@ -39,7 +38,6 @@ public class SwiftEngineStart {
 
             ClusterListenerHandler.addInitialListener(NodeStartedListener.INSTANCE);
             FineIO.setLogger(new FineIoLogger());
-            ProviderTaskManager.start();
             SwiftCommandParser.parseCommand(args);
             BootRegister.registerProxy();
             BootRegister.registerExecutorTask();
