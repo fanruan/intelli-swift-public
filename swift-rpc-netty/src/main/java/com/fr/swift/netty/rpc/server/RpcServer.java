@@ -81,7 +81,7 @@ public class RpcServer {
                     serviceRegistry.register(interfaceName, serviceAddress);
                 }
             }
-            LOGGER.info("RPC srver started on ip:" + ip + ", port :" + port);
+            LOGGER.info("RPC server started on ip:" + ip + ", port :" + port);
             future.channel().closeFuture().sync();
         } finally {
             workerGroup.shutdownGracefully();
