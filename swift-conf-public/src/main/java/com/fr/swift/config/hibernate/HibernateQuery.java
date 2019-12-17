@@ -65,6 +65,10 @@ public class HibernateQuery<T> implements ConfigQuery<T> {
                     list.add(builder.equal(path, where.getValue()));
                     count.add(builder.equal(countPath, where.getValue()));
                     break;
+                case NEQ:
+                    list.add(builder.notEqual(path, where.getValue()));
+                    count.add(builder.notEqual(countPath, where.getValue()));
+                    break;
                 case GT:
                     list.add(builder.gt(path, (Number) where.getValue()));
                     count.add(builder.gt(countPath, (Number) where.getValue()));

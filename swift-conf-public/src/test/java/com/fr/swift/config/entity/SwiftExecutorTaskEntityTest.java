@@ -60,8 +60,8 @@ public class SwiftExecutorTaskEntityTest {
         Assert.assertEquals(entity.getTaskId(), "taskId");
         Assert.assertEquals(entity.getSourceKey(), "test");
         Assert.assertEquals(entity.getCreateTime(), time);
-        Assert.assertEquals(entity.getExecutorTaskType().name(), SwiftTaskType.TRANSFER.name());
-        Assert.assertEquals(entity.getExecutorTaskType(), SwiftTaskType.TRANSFER);
+        Assert.assertEquals(entity.getTaskType().name(), SwiftTaskType.TRANSFER.name());
+        Assert.assertEquals(entity.getTaskType(), SwiftTaskType.TRANSFER);
         Assert.assertEquals(entity.getLockType(), LockType.TABLE);
         Assert.assertEquals(entity.getLockKey(), "lock");
         Assert.assertEquals(entity.getDbStatusType(), DBStatusType.ACTIVE);
@@ -74,17 +74,17 @@ public class SwiftExecutorTaskEntityTest {
     public void testConvert() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         ExecutorTypeContainer.getInstance().registerClass(SwiftTaskType.TRANSFER, TestExecutorTask.class);
         SwiftExecutorTaskEntity entity = new SwiftExecutorTaskEntity(executorTask);
-        Class<? extends ExecutorTask> clazz = ExecutorTypeContainer.getInstance().getClassByType(entity.getExecutorTaskType().name());
+        Class<? extends ExecutorTask> clazz = ExecutorTypeContainer.getInstance().getClassByType(entity.getTaskType().name());
 
         Constructor constructor = clazz.getDeclaredConstructor(SourceKey.class, boolean.class, ExecutorTaskType.class, LockType.class,
                 String.class, DBStatusType.class, String.class, long.class, String.class);
 
-        ExecutorTask executorTask = (ExecutorTask) constructor.newInstance(new SourceKey(entity.getSourceKey()), true, entity.getExecutorTaskType(), entity.getLockType(),
+        ExecutorTask executorTask = (ExecutorTask) constructor.newInstance(new SourceKey(entity.getSourceKey()), true, entity.getTaskType(), entity.getLockType(),
                 entity.getLockKey(), entity.getDbStatusType(), entity.getTaskId(), entity.getCreateTime(), entity.getTaskContent());
         Assert.assertEquals(executorTask.getTaskId(), "taskId");
         Assert.assertEquals(executorTask.getSourceKey(), new SourceKey("test"));
         Assert.assertTrue(executorTask.isPersistent());
-        Assert.assertEquals(entity.getExecutorTaskType().name(), SwiftTaskType.TRANSFER.name());
+        Assert.assertEquals(entity.getTaskType().name(), SwiftTaskType.TRANSFER.name());
         Assert.assertEquals(executorTask.getExecutorTaskType(), SwiftTaskType.TRANSFER);
         Assert.assertEquals(executorTask.getLockType(), LockType.TABLE);
         Assert.assertEquals(executorTask.getLockKey(), "lock");
