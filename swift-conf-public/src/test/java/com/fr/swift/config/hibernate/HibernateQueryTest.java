@@ -1,6 +1,7 @@
 package com.fr.swift.config.hibernate;
 
 import com.fr.swift.config.oper.ConfigWhere;
+import com.fr.swift.config.oper.impl.ConfigAggregationImpl;
 import com.fr.swift.config.oper.impl.ConfigWhereImpl;
 import com.fr.swift.config.oper.impl.OrderImpl;
 import org.easymock.EasyMock;
@@ -20,9 +21,11 @@ import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Selection;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 import static junit.framework.TestCase.assertFalse;
 
@@ -43,6 +46,7 @@ public class HibernateQueryTest {
         // Generate by Mock Plugin
         Query mockQuery = PowerMock.createMock(Query.class);
         EasyMock.expect(mockQuery.getResultList()).andReturn(Arrays.asList(new Object())).anyTimes();
+        EasyMock.expect(mockQuery.getSingleResult()).andReturn(null).anyTimes();
         EasyMock.expect(mockSession.createQuery(EasyMock.anyObject(CriteriaQuery.class))).andReturn(mockQuery).anyTimes();
         // Generate by Mock Plugin
         CriteriaBuilder mockCriteriaBuilder = PowerMock.createMock(CriteriaBuilder.class);
@@ -52,6 +56,7 @@ public class HibernateQueryTest {
         Root mockRoot = PowerMock.createMock(Root.class);
         EasyMock.expect(mockRoot.get(EasyMock.notNull(String.class))).andReturn(mockRoot).anyTimes();
         EasyMock.expect(mockCriteriaQuery.from(EasyMock.eq(Object.class))).andReturn(mockRoot).anyTimes();
+        EasyMock.expect(mockCriteriaQuery.select(EasyMock.notNull(Selection.class))).andReturn(mockCriteriaQuery).anyTimes();
         EasyMock.expect(mockCriteriaQuery.where(EasyMock.notNull(Predicate.class), EasyMock.notNull(Predicate.class), EasyMock.notNull(Predicate.class))).andReturn(mockCriteriaQuery).anyTimes();
         EasyMock.expect(mockCriteriaQuery.orderBy(EasyMock.notNull(List.class))).andReturn(mockCriteriaQuery).anyTimes();
         EasyMock.expect(mockCriteriaBuilder.createQuery(EasyMock.eq(Object.class))).andReturn(mockCriteriaQuery).anyTimes();
@@ -68,6 +73,9 @@ public class HibernateQueryTest {
         // Generate by Mock Plugin
         Expression mockExpression = PowerMock.createMock(Expression.class);
         EasyMock.expect(mockExpression.in(EasyMock.anyObject(Collection.class))).andReturn(mockPredicate).anyTimes();
+        // Generate by Mock Plugin
+        EasyMock.expect(mockCriteriaBuilder.max(EasyMock.notNull(Expression.class))).andReturn(mockExpression).anyTimes();
+        EasyMock.expect(mockCriteriaBuilder.min(EasyMock.notNull(Expression.class))).andReturn(mockExpression).anyTimes();
         // Generate by Mock Plugin
         PowerMock.mockStatic(In.class);
         In mockIn = PowerMock.createMock(In.class);
@@ -87,11 +95,24 @@ public class HibernateQueryTest {
     }
 
     @Test
+    public void executeAggQuery() {
+        assertFalse(!Objects.equals(query.executeAggQuery(), null));
+        PowerMock.verifyAll();
+    }
+
+    @Test
     public void where() {
         query.where(ConfigWhereImpl.eq("columnA", "hello"),
                 ConfigWhereImpl.in("columnC.name", Arrays.asList("mike", "amy")),
                 ConfigWhereImpl.like("columnB", "value", ConfigWhere.MatchMode.ANY));
         assertFalse(query.executeQuery().isEmpty());
+        PowerMock.verifyAll();
+    }
+
+    @Test
+    public void select() {
+        query.select(ConfigAggregationImpl.max("columnA"));
+        assertFalse(!Objects.equals(query.executeAggQuery(), null));
         PowerMock.verifyAll();
     }
 
