@@ -1,5 +1,6 @@
 package com.fr.swift.config.hibernate;
 
+import com.fr.swift.config.oper.ConfigAggregation;
 import com.fr.swift.config.oper.ConfigQuery;
 import com.fr.swift.config.oper.ConfigWhere;
 import com.fr.swift.config.oper.Expression;
@@ -44,6 +45,12 @@ public class HibernateQuery<T> implements ConfigQuery<T> {
     }
 
     @Override
+    public Number executeAggQuery() {
+        return (Number) session.createQuery(criteriaQuery).getSingleResult();
+    }
+
+
+    @Override
     public void where(ConfigWhere... wheres) {
         List<Predicate> list = new ArrayList<Predicate>();
         List<Predicate> count = new ArrayList<Predicate>();
@@ -79,6 +86,19 @@ public class HibernateQuery<T> implements ConfigQuery<T> {
         if (!list.isEmpty()) {
             criteriaQuery.where(list.toArray(new Predicate[0]));
             countQuery.where(count.toArray(new Predicate[0]));
+        }
+    }
+
+    @Override
+    public void select(ConfigAggregation aggregation) {
+        Path path = getPath(root, aggregation);
+        switch (aggregation.type()) {
+            case MAX:
+                criteriaQuery.select(builder.max(path));
+                break;
+            case MIN:
+                criteriaQuery.select(builder.min(path));
+            default:
         }
     }
 
