@@ -1,9 +1,10 @@
-package com.fr.swift.log;
+package com.fr.swift.boot.log;
 
+import com.fr.swift.log.SwiftLogger;
+import com.fr.swift.log.SwiftLoggerFactory;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.DailyRollingFileAppender;
 import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 
