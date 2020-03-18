@@ -6,6 +6,7 @@ import com.fr.swift.boot.log.SwiftLog4jLoggers;
 import com.fr.swift.boot.register.BootRegister;
 import com.fr.swift.log.FineIoLogger;
 import com.fr.swift.log.SwiftLoggers;
+import com.fr.swift.service.ServiceContext;
 
 /**
  * This class created on 2018/6/12
@@ -27,10 +28,10 @@ public class SwiftEngineStart {
             FineIO.setLogger(new FineIoLogger());
             SwiftCommandParser.parseCommand(args);
             BootRegister.registerProxy();
-            BootRegister.registerExecutorTask();
-//            PublicConfig.load();
 
             BootRegister.registerListener();
+
+            SwiftContext.get().getBean(ServiceContext.class).start();
 
             SwiftLoggers.getLogger().info("Swift engine start successful");
         } catch (Throwable e) {
