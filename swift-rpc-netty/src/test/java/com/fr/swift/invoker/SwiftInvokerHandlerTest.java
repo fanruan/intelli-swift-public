@@ -114,7 +114,7 @@ public class SwiftInvokerHandlerTest extends TestCase {
 }
 
 interface ISwiftInvokerHandlerTest {
-    @InvokeMethod(value = ProcessHandler.class, target = Target.NONE)
+    @InvokeMethod(value = ProcessHandler.class, target = Target.ALL)
     String print(String id, long time);
 }
 
