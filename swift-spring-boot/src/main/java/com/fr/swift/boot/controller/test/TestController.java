@@ -212,7 +212,6 @@ public class TestController {
         Table table = com.fr.swift.db.impl.SwiftDatabase.getInstance().getTable(new SourceKey("test_yiguan"));
         SwiftImportResultSet resultSet = new SingleStreamImportResultSet(table.getMetadata(),
                 path, new TabLineParser(false, new FileLineParser.LineParserAdaptor() {
-            @Override
             public Row adapt(Row row) {
                 // [10003409308807394455, 1528410985, browseGoods, 浏览商品, {"name":"watch","city":"长沙","brand":"Apple","price":2608.283}, 20180608]
                 List data = new ArrayList();
@@ -244,7 +243,7 @@ public class TestController {
         }));
         HistoryHashSourceAlloter alloter = new HistoryHashSourceAlloter(
                 new SourceKey("test_yiguan"),
-                new HashAllotRule(0, 10));
+                new HashAllotRule(Collections.singletonList(0), 10));
         HistoryBlockImporter importer = new HistoryBlockImporter(table, alloter);
         importer.importData(new ProgressResultSet(new LimitedResultSet(resultSet, 1000000), "test_yiguan"));
 //        SwiftSegmentService service = SwiftContext.get().getBean("segmentServiceProvider", SwiftSegmentService.class);
