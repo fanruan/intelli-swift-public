@@ -243,7 +243,7 @@ public class TestController {
         }));
         HistoryHashSourceAlloter alloter = new HistoryHashSourceAlloter(
                 new SourceKey("test_yiguan"),
-                new HashAllotRule(Collections.singletonList(0), 10));
+                new HashAllotRule(new int[]{0}, 10));
         HistoryBlockImporter importer = new HistoryBlockImporter(table, alloter);
         importer.importData(new ProgressResultSet(new LimitedResultSet(resultSet, 1000000), "test_yiguan"));
 //        SwiftSegmentService service = SwiftContext.get().getBean("segmentServiceProvider", SwiftSegmentService.class);
