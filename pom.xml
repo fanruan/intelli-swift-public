@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.fr.intelligence</groupId>
         <artifactId>fine-swift</artifactId>
-        <version>2019.1</version>
+        <version>2020.3</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -16,14 +16,8 @@
     </properties>
 
     <modules>
-        <module>swift-redis</module>
         <module>swift-rpc-netty</module>
         <module>swift-spring-boot</module>
-<!--        <module>swift-zookeeper</module>-->
-        <module>swift-conf-public</module>
-        <module>swift-repo-public</module>
-        <module>swift-common-public</module>
-        <module>swift-repo-plugins</module>
     </modules>
 
     <dependencyManagement>
