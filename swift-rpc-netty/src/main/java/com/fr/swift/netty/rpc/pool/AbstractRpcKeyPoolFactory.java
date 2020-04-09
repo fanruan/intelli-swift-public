@@ -27,7 +27,7 @@ import org.apache.commons.pool2.PooledObject;
  */
 public abstract class AbstractRpcKeyPoolFactory<T extends AbstractRpcClientHandler> extends BaseKeyedPooledObjectFactory<String, T> {
 
-    private SwiftProperty swiftProperty = SwiftProperty.getProperty();
+    private SwiftProperty swiftProperty = SwiftProperty.get();
 
 
     protected ChannelFuture bindBootstrap(final AbstractRpcClientHandler clientHandler) throws InterruptedException {

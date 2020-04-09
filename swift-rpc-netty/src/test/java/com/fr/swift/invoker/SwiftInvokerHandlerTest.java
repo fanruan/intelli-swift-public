@@ -43,7 +43,7 @@ public class SwiftInvokerHandlerTest extends TestCase {
         //mock swiftProperty
         PowerMock.mockStatic(SwiftProperty.class);
         SwiftProperty swiftProperty = PowerMock.createMock(SwiftProperty.class);
-        EasyMock.expect(SwiftProperty.getProperty()).andReturn(swiftProperty).anyTimes();
+        EasyMock.expect(SwiftProperty.get()).andReturn(swiftProperty).anyTimes();
         PowerMock.replay(SwiftProperty.class);
 
         //mock ProxyServiceRegistry
@@ -73,8 +73,8 @@ public class SwiftInvokerHandlerTest extends TestCase {
      * actual:LocalInvoker.class.getName()
      */
     public void testRemoteInvokerWithLocalUrl() {
-        EasyMock.expect(SwiftProperty.getProperty().getClusterId()).andReturn("master").anyTimes();
-        EasyMock.replay(SwiftProperty.getProperty());
+        EasyMock.expect(SwiftProperty.get().getMachineId()).andReturn("master").anyTimes();
+        EasyMock.replay(SwiftProperty.get());
 
         InvokerCreator invokerCreator = new RPCInvokerCreator();
         try {
@@ -96,8 +96,8 @@ public class SwiftInvokerHandlerTest extends TestCase {
      * actual:RPCInvoker.class.getName()
      */
     public void testRemoteInvokerWithRemoteUrl() {
-        EasyMock.expect(SwiftProperty.getProperty().getClusterId()).andReturn("slave").anyTimes();
-        EasyMock.replay(SwiftProperty.getProperty());
+        EasyMock.expect(SwiftProperty.get().getMachineId()).andReturn("slave").anyTimes();
+        EasyMock.replay(SwiftProperty.get());
 
         InvokerCreator invokerCreator = new RPCInvokerCreator();
         try {
