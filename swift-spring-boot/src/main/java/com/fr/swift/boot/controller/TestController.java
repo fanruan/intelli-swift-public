@@ -3,10 +3,7 @@ package com.fr.swift.boot.controller;
 import com.fr.swift.SwiftContext;
 import com.fr.swift.config.entity.MetaDataColumnEntity;
 import com.fr.swift.config.entity.SwiftMetaDataEntity;
-import com.fr.swift.config.entity.SwiftSegmentBucket;
-import com.fr.swift.config.entity.SwiftSegmentBucketElement;
 import com.fr.swift.config.service.SwiftMetaDataService;
-import com.fr.swift.config.service.SwiftSegmentBucketService;
 import com.fr.swift.db.SwiftDatabase;
 import com.fr.swift.log.SwiftLoggers;
 import com.fr.swift.source.SourceKey;
@@ -46,23 +43,5 @@ public class TestController {
         metaDataService.deleteMeta(new SourceKey("test"));
         SwiftLoggers.getLogger().info("table test exists : {}", metaDataService.existsMeta(new SourceKey("test")));
         SwiftLoggers.getLogger().info("metadata size : {}", metaDataService.getAllMetas().size());
-    }
-
-    @ResponseBody
-    @RequestMapping(value = "/test/bucket", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
-    public void testBucket() {
-        SwiftSegmentBucketService bucketService = SwiftContext.get().getBean(SwiftSegmentBucketService.class);
-        SwiftSegmentBucket bucket = bucketService.getBucketByTable(new SourceKey("test"));
-        SwiftLoggers.getLogger().info("bucket index map size : {}", bucket.getBucketIndexMap());
-        SwiftLoggers.getLogger().info("bucket map size : {}", bucket.getBucketMap());
-        bucketService.save(new SwiftSegmentBucketElement("test", 1, "test@FINEIO@0"));
-        bucketService.save(new SwiftSegmentBucketElement("test", 1, "test@FINEIO@1"));
-        bucket = bucketService.getBucketByTable(new SourceKey("test"));
-        SwiftLoggers.getLogger().info("bucket index map size : {}", bucket.getBucketIndexMap());
-        SwiftLoggers.getLogger().info("bucket map size : {}", bucket.getBucketMap());
-        bucketService.delete(new SwiftSegmentBucketElement("test", 1, "test@FINEIO@0"));
-        bucketService.delete(new SwiftSegmentBucketElement("test", 1, "test@FINEIO@1"));
-        SwiftLoggers.getLogger().info("bucket index map size : {}", bucket.getBucketIndexMap());
-        SwiftLoggers.getLogger().info("bucket map size : {}", bucket.getBucketMap());
     }
 }
