@@ -47,12 +47,12 @@ class SwiftCommandParser {
         }
 
         if (commandMap.containsKey(SwiftCommand.START_SWIFT_SERVICE)) {
-            SwiftProperty swiftProperty = SwiftProperty.getProperty();
+            SwiftProperty swiftProperty = SwiftProperty.get();
             Set<String> serviceSet = commandMap.get(SwiftCommand.START_SWIFT_SERVICE);
             swiftProperty.setSwiftServiceNames(serviceSet);
         }
         if (commandMap.containsKey(SwiftCommand.START_SERVER_SERVICE)) {
-            SwiftProperty swiftProperty = SwiftProperty.getProperty();
+            SwiftProperty swiftProperty = SwiftProperty.get();
             Set<String> serviceSet = commandMap.get(SwiftCommand.START_SERVER_SERVICE);
             swiftProperty.setServerServiceNames(serviceSet);
         }

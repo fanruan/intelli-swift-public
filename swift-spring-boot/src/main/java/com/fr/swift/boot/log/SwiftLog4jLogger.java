@@ -1,5 +1,6 @@
-package com.fr.swift.log;
+package com.fr.swift.boot.log;
 
+import com.fr.swift.log.SwiftLogger;
 import com.fr.swift.log.impl.BaseSwiftLogger;
 import com.fr.swift.structure.Pair;
 import com.fr.swift.util.Optional;
