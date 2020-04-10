@@ -28,10 +28,9 @@ public class SwiftEngineStart {
             FineIO.setLogger(new FineIoLogger());
             SwiftCommandParser.parseCommand(args);
             BootRegister.registerProxy();
-
+            SwiftContext.get().getBean(ServiceContext.class).start();
             BootRegister.registerListener();
 
-            SwiftContext.get().getBean(ServiceContext.class).start();
 
             SwiftLoggers.getLogger().info("Swift engine start successful");
         } catch (Throwable e) {
