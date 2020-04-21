@@ -1,5 +1,8 @@
 package com.fr.swift.boot.dispatcher;
 
+import com.fr.swift.boot.token.TokenCache;
+import com.fr.swift.boot.token.TokenCacheImpl;
+import com.fr.swift.util.Strings;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.http.HttpMethod;
 import org.springframework.util.StringUtils;
@@ -11,6 +14,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * This class created on 2019/4/2
@@ -24,8 +29,36 @@ public class SwiftControllerDispatcher extends DispatcherServlet {
 
     private static final long serialVersionUID = -1357968706769750240L;
 
+    private static Set<String> TRANSPARENT_URLS;
+
+    private TokenCache tokenCache = new TokenCacheImpl();
+
+    static {
+        TRANSPARENT_URLS = new HashSet<String>();
+    }
+
+    public static void registerTransparentUrls(Set<String> urls) {
+        TRANSPARENT_URLS.addAll(urls);
+    }
+
     @Override
     protected void doDispatch(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        if (isNeedToken(request.getPathInfo())) {
+            String token = request.getHeader("token");
+            if (Strings.isEmpty(token)) {
+                response.setHeader("errorCode", "Empty token!");
+                response.setStatus(500);
+                return;
+            }
+            // TODO: 2020/4/21 处理userId
+            try {
+                String userId = tokenCache.getUserIdByToken(token);
+            } catch (Exception e) {
+                response.setHeader("errorCode", e.getMessage());
+                response.setStatus(500);
+                return;
+            }
+        }
         String origin = request.getHeader("Origin");
         String accessControlRequestHeaders = request.getHeader("Access-Control-Request-Headers");
         response.setHeader("access-control-allow-credentials", String.valueOf(true));
@@ -34,10 +67,19 @@ public class SwiftControllerDispatcher extends DispatcherServlet {
         response.setHeader("connection", "keep-alive");
         response.setHeader("server", "swift");
         response.setHeader("vary", "Origin,Access-Control-Request-Headers");
-        response.setHeader("via", "feature 1.1 swift");
+        response.setHeader("via", "release 1.0 swift");
         response.setHeader("x-powered-by", "Express");
         response.setStatus(HttpServletResponse.SC_OK);
         super.doDispatch(request, response);
+    }
+
+    private boolean isNeedToken(String url) {
+        for (String transparentUrl : TRANSPARENT_URLS) {
+            if (transparentUrl.equals(url)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
