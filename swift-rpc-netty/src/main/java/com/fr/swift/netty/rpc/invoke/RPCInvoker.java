@@ -1,5 +1,6 @@
 package com.fr.swift.netty.rpc.invoke;
 
+import com.fr.swift.basic.SwiftResponse;
 import com.fr.swift.basic.URL;
 import com.fr.swift.basics.Invocation;
 import com.fr.swift.basics.Invoker;
@@ -12,8 +13,9 @@ import com.fr.swift.netty.rpc.client.async.AsyncRpcClientHandler;
 import com.fr.swift.netty.rpc.client.sync.SyncRpcClientHandler;
 import com.fr.swift.netty.rpc.pool.AsyncRpcPool;
 import com.fr.swift.netty.rpc.pool.SyncRpcPool;
-import com.fr.swift.basic.SwiftResponse;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -80,8 +82,18 @@ public class RPCInvoker<T> implements Invoker<T> {
         this.sync = sync;
     }
 
+    private static Map<String, String> clusterMap = new HashMap<>();
+
+    // TODO: 2020/4/23  
+    static {
+        clusterMap.put("CLOUD_1", "127.0.0.1:7000");
+        clusterMap.put("CLOUD_2", "127.0.0.1:7001");
+        clusterMap.put("CLOUD_3", "127.0.0.1:7002");
+    }
+
     protected Object doInvoke(T proxy, String methodName, Class<?>[] parameterTypes, Object[] arguments) throws Throwable {
-        String serviceAddress = url.getDestination().getId();
+        String id = url.getDestination().getId();
+        String serviceAddress = clusterMap.get(id);
         InternalRpcRequest request = new InternalRpcRequest();
         request.setRequestId(UUID.randomUUID().toString());
         request.setInterfaceName(type.getName());
