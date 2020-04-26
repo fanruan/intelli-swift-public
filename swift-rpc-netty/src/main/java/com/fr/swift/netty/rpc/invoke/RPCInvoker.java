@@ -84,7 +84,7 @@ public class RPCInvoker<T> implements Invoker<T> {
 
     private static Map<String, String> clusterMap = new HashMap<>();
 
-    // TODO: 2020/4/23  
+    // TODO: 2020/4/23
     static {
         clusterMap.put("CLOUD_1", "127.0.0.1:7000");
         clusterMap.put("CLOUD_2", "127.0.0.1:7001");
