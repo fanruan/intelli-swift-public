@@ -7,6 +7,9 @@ import com.fr.swift.basics.Invoker;
 import com.fr.swift.basics.Result;
 import com.fr.swift.basics.RpcFuture;
 import com.fr.swift.basics.base.SwiftResult;
+import com.fr.swift.cluster.base.node.ClusterNode;
+import com.fr.swift.cluster.base.node.ClusterNodeContainer;
+import com.fr.swift.cluster.base.selector.ClusterNodeSelector;
 import com.fr.swift.netty.bean.InternalRpcRequest;
 import com.fr.swift.netty.rpc.client.AbstractRpcClientHandler;
 import com.fr.swift.netty.rpc.client.async.AsyncRpcClientHandler;
@@ -14,8 +17,6 @@ import com.fr.swift.netty.rpc.client.sync.SyncRpcClientHandler;
 import com.fr.swift.netty.rpc.pool.AsyncRpcPool;
 import com.fr.swift.netty.rpc.pool.SyncRpcPool;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -82,18 +83,12 @@ public class RPCInvoker<T> implements Invoker<T> {
         this.sync = sync;
     }
 
-    private static Map<String, String> clusterMap = new HashMap<>();
-
-    // TODO: 2020/4/23
-    static {
-        clusterMap.put("CLOUD_1", "127.0.0.1:7000");
-        clusterMap.put("CLOUD_2", "127.0.0.1:7001");
-        clusterMap.put("CLOUD_3", "127.0.0.1:7002");
-    }
+    private static ClusterNodeContainer nodeContainer = ClusterNodeSelector.getInstance().getContainer();
 
     protected Object doInvoke(T proxy, String methodName, Class<?>[] parameterTypes, Object[] arguments) throws Throwable {
         String id = url.getDestination().getId();
-        String serviceAddress = clusterMap.get(id);
+        ClusterNode curNode = nodeContainer.getOnlineNodes().get(id);
+        String serviceAddress = curNode.getAddress();
         InternalRpcRequest request = new InternalRpcRequest();
         request.setRequestId(UUID.randomUUID().toString());
         request.setInterfaceName(type.getName());

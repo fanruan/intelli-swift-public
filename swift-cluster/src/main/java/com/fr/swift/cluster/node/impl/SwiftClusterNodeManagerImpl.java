@@ -2,9 +2,9 @@ package com.fr.swift.cluster.node.impl;
 
 import com.fr.swift.cluster.base.node.ClusterNode;
 import com.fr.swift.cluster.base.node.ClusterNodeManager;
+import com.fr.swift.cluster.base.node.SwiftClusterNodeImpl;
 import com.fr.swift.log.SwiftLoggers;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -14,12 +14,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Kuifang.Liu
  */
 public class SwiftClusterNodeManagerImpl implements ClusterNodeManager {
-
-    private static SwiftClusterNodeManagerImpl INSTANCE = new SwiftClusterNodeManagerImpl();
-
-    public static SwiftClusterNodeManagerImpl getInstance() {
-        return INSTANCE;
-    }
 
     private Map<String, ClusterNode> onlineNodes = new ConcurrentHashMap<>();
     private Map<String, ClusterNode> historyNodes = new ConcurrentHashMap<>();
@@ -54,30 +48,37 @@ public class SwiftClusterNodeManagerImpl implements ClusterNodeManager {
         }
     }
 
+    @Override
     public Map<String, ClusterNode> getOnlineNodes() {
         return onlineNodes;
     }
 
+    @Override
     public Map<String, ClusterNode> getHistoryNodes() {
         return historyNodes;
     }
 
+    @Override
     public Map<String, ClusterNode> getOfflineNodes() {
         return offlineNodes;
     }
 
+    @Override
     public void setMasterNode(String masterNodeId, String masterNodeAddress) {
         this.masterNode = new SwiftClusterNodeImpl(masterNodeId, masterNodeAddress);
     }
 
+    @Override
     public ClusterNode getMasterNode() {
         return masterNode;
     }
 
+    @Override
     public void setCurrentNode(String currentNodeId, String currentNodeAddress) {
         this.currentNode = new SwiftClusterNodeImpl(currentNodeId, currentNodeAddress);
     }
 
+    @Override
     public ClusterNode getCurrentNode() {
         return currentNode;
     }
