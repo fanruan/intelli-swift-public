@@ -3,7 +3,7 @@ package com.fr.swift.cluster.zookeeper;
 import com.fr.swift.annotation.ClusterRegistry;
 import com.fr.swift.beans.annotation.SwiftBean;
 import com.fr.swift.cluster.base.event.ClusterEvent;
-import com.fr.swift.cluster.base.handler.ClusterListenerHandler;
+import com.fr.swift.cluster.base.handler.ClusterListenerHandler.ClusterEventData;
 import com.fr.swift.cluster.base.node.ClusterNode;
 import com.fr.swift.cluster.base.service.ClusterBootService;
 import com.fr.swift.cluster.base.service.ClusterRegistryService;
@@ -81,7 +81,7 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
             //没有抛出异常，则当前节点就是master节点
             currentNode.setMaster(true);
             // 触发初始化master service事件
-            SwiftEventDispatcher.asyncFire(ClusterEvent.JOIN, new ClusterListenerHandler.ClusterEventData(currentNode.getId()));
+            SwiftEventDispatcher.asyncFire(ClusterEvent.JOIN, new ClusterEventData(currentNode.getId()));
             SwiftClusterNodeManagerImpl.getInstance().setMasterNode(currentNode.getId(), currentNode.getAddress());
             LOGGER.info("{} succeed to be master!", currentNode.getId());
         } catch (ZkNodeExistsException e) {
@@ -136,7 +136,7 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
     public void unRegisterNode(ClusterNode node) {
         try {
             if (node.isMaster()) {
-                SwiftEventDispatcher.asyncFire(ClusterEvent.LEFT, new ClusterListenerHandler.ClusterEventData(node.getId()));
+                SwiftEventDispatcher.asyncFire(ClusterEvent.LEFT, new ClusterEventData(node.getId()));
             }
             zkClient.delete(ONLINE_NODE_LIST_PATH + "/" + node.getId());
             LOGGER.info(node.getId() + " succeed to leave zookeeper server!");

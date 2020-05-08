@@ -6,6 +6,7 @@ import com.fr.swift.log.SwiftLoggers;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class created on 2020/4/17
@@ -20,9 +21,9 @@ public class SwiftClusterNodeManagerImpl implements ClusterNodeManager {
         return INSTANCE;
     }
 
-    private Map<String, ClusterNode> onlineNodes = new HashMap<String, ClusterNode>();
-    private Map<String, ClusterNode> historyNodes = new HashMap<String, ClusterNode>();
-    private Map<String, ClusterNode> offlineNodes = new HashMap<String, ClusterNode>();
+    private Map<String, ClusterNode> onlineNodes = new ConcurrentHashMap<>();
+    private Map<String, ClusterNode> historyNodes = new ConcurrentHashMap<>();
+    private Map<String, ClusterNode> offlineNodes = new ConcurrentHashMap<>();
     private ClusterNode currentNode;
     private ClusterNode masterNode;
 

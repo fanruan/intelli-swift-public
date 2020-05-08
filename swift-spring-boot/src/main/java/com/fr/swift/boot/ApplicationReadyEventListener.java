@@ -17,6 +17,6 @@ public class ApplicationReadyEventListener implements ApplicationListener<Applic
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
         SwiftLoggers.getLogger().info("Spring boot application is ready!");
-        ServicePriorityInitiator.initByPrioriry();
+        ServicePriorityInitiator.getInstance().initByPriority(null);
     }
 }
