@@ -5,9 +5,10 @@ import com.fr.swift.beans.annotation.SwiftBean;
 import com.fr.swift.cluster.base.event.ClusterEvent;
 import com.fr.swift.cluster.base.handler.ClusterListenerHandler.ClusterEventData;
 import com.fr.swift.cluster.base.node.ClusterNode;
+import com.fr.swift.cluster.base.node.ClusterNodeManager;
+import com.fr.swift.cluster.base.selector.ClusterNodeSelector;
 import com.fr.swift.cluster.base.service.ClusterBootService;
 import com.fr.swift.cluster.base.service.ClusterRegistryService;
-import com.fr.swift.cluster.node.impl.SwiftClusterNodeManagerImpl;
 import com.fr.swift.cluster.zookeeper.property.ZookeeperProperty;
 import com.fr.swift.event.SwiftEventDispatcher;
 import com.fr.swift.log.SwiftLogger;
@@ -35,8 +36,10 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
 
     private SwiftZkClient zkClient;
     private ZookeeperProperty zkProperty = ZookeeperProperty.get();
+    private ClusterNodeManager clusterNodeManager;
 
     public void init() {
+        clusterNodeManager = ClusterNodeSelector.getInstance().getFactory();
         // 创建zkclient客户端，用于与zookeeper连接通信
         zkClient = new SwiftZkClient(zkProperty.getZookeeperAddress(), zkProperty.getZookeeperSessionTimeout(), zkProperty.getZookeeperConnectionTimeout());
 
@@ -60,29 +63,30 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
             for (String child : currentChildren) {
                 currentChildrenData.put(child, zkClient.readData(ONLINE_NODE_LIST_PATH + "/" + child));
             }
-            SwiftClusterNodeManagerImpl.getInstance().handleNodeChange(currentChildrenData);
+            clusterNodeManager.handleNodeChange(currentChildrenData);
         });
 
-        SwiftClusterNodeManagerImpl.getInstance().setCurrentNode(SwiftProperty.get().getMachineId(), SwiftProperty.get().getServerAddress());
-        registerNode(SwiftClusterNodeManagerImpl.getInstance().getCurrentNode());
+        clusterNodeManager.setCurrentNode(SwiftProperty.get().getMachineId(), SwiftProperty.get().getServerAddress());
+        registerNode(clusterNodeManager.getCurrentNode());
         competeMaster();
     }
 
     public void destroy() {
         zkClient.unsubscribeAll();
         zkClient.close();
+        clusterNodeManager = null;
     }
 
     public void competeMaster() {
         try {
-            ClusterNode currentNode = SwiftClusterNodeManagerImpl.getInstance().getCurrentNode();
+            ClusterNode currentNode = clusterNodeManager.getCurrentNode();
             LOGGER.info("{} start to compete master", currentNode.getId());
             zkClient.createEphemeral(MASTER_NODE_PATH, currentNode.getId() + "*" + currentNode.getAddress());
             //没有抛出异常，则当前节点就是master节点
             currentNode.setMaster(true);
             // 触发初始化master service事件
-            SwiftEventDispatcher.asyncFire(ClusterEvent.JOIN, new ClusterEventData(currentNode.getId()));
-            SwiftClusterNodeManagerImpl.getInstance().setMasterNode(currentNode.getId(), currentNode.getAddress());
+//            SwiftEventDispatcher.asyncFire(ClusterEvent.JOIN, new ClusterEventData(currentNode.getId()));
+            clusterNodeManager.setMasterNode(currentNode.getId(), currentNode.getAddress());
             LOGGER.info("{} succeed to be master!", currentNode.getId());
         } catch (ZkNodeExistsException e) {
             //如果节点已经存在，获得master节点
@@ -92,7 +96,7 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
                 competeMaster();
             } else {
                 String[] infos = masterNodeInfo.split("\\*");
-                SwiftClusterNodeManagerImpl.getInstance().setMasterNode(infos[0], infos[1]);
+                clusterNodeManager.setMasterNode(infos[0], infos[1]);
                 LOGGER.info("Master node is {}", infos[0]);
             }
         }
@@ -136,7 +140,7 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
     public void unRegisterNode(ClusterNode node) {
         try {
             if (node.isMaster()) {
-                SwiftEventDispatcher.asyncFire(ClusterEvent.LEFT, new ClusterEventData(node.getId()));
+//                SwiftEventDispatcher.asyncFire(ClusterEvent.LEFT, new ClusterEventData(node.getId()));
             }
             zkClient.delete(ONLINE_NODE_LIST_PATH + "/" + node.getId());
             LOGGER.info(node.getId() + " succeed to leave zookeeper server!");
