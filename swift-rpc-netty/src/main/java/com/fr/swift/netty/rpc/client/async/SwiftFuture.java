@@ -88,14 +88,11 @@ public class SwiftFuture extends AbstractRpcFuture<Response> {
 
     private void runCallback(final AsyncRpcCallback callback) {
         final Response res = this.response;
-        submit(new Runnable() {
-            @Override
-            public void run() {
-                if (!res.isError()) {
-                    callback.success(res.getResult());
-                } else {
-                    callback.fail(new RuntimeException("Response error", res.getException()));
-                }
+        submit(() -> {
+            if (!res.isError()) {
+                callback.success(res.getResult());
+            } else {
+                callback.fail(new RuntimeException("Response error", res.getException()));
             }
         });
     }

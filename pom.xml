@@ -18,6 +18,7 @@
     <modules>
         <module>swift-rpc-netty</module>
         <module>swift-spring-boot</module>
+        <module>swift-cluster</module>
     </modules>
 
     <dependencyManagement>
