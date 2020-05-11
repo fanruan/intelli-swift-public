@@ -3,7 +3,6 @@ package com.fr.swift.cluster.zookeeper;
 import com.fr.swift.annotation.ClusterRegistry;
 import com.fr.swift.beans.annotation.SwiftBean;
 import com.fr.swift.cluster.base.event.ClusterEvent;
-import com.fr.swift.cluster.base.handler.ClusterListenerHandler.ClusterEventData;
 import com.fr.swift.cluster.base.node.ClusterNode;
 import com.fr.swift.cluster.base.node.ClusterNodeManager;
 import com.fr.swift.cluster.base.selector.ClusterNodeSelector;
@@ -85,7 +84,7 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
             //没有抛出异常，则当前节点就是master节点
             currentNode.setMaster(true);
             // 触发初始化master service事件
-//            SwiftEventDispatcher.asyncFire(ClusterEvent.JOIN, new ClusterEventData(currentNode.getId()));
+            SwiftEventDispatcher.asyncFire(ClusterEvent.BECOME_MASTER, currentNode);
             clusterNodeManager.setMasterNode(currentNode.getId(), currentNode.getAddress());
             LOGGER.info("{} succeed to be master!", currentNode.getId());
         } catch (ZkNodeExistsException e) {
@@ -101,7 +100,6 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
             }
         }
     }
-
 
     private void registerHistory(ClusterNode node) {
         if (!zkClient.exists(HISTORY_NODE_LIST_PATH)) {
