@@ -46,6 +46,7 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
             zkClient.createPersistent(PARENT);
         }
 
+        acquireHistory();
         // 订阅/swift/master_node
         zkClient.subscribeDataChanges(MASTER_NODE_PATH, new IZkDataListener() {
             public void handleDataChange(String s, Object o) throws Exception {
@@ -59,9 +60,7 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
         // 订阅/swift/online_node_list，并处理节点变化
         zkClient.subscribeChildChanges(ONLINE_NODE_LIST_PATH, (parentPath, currentChildren) -> {
             Map<String, String> currentChildrenData = new HashMap<>();
-            for (String child : currentChildren) {
-                currentChildrenData.put(child, zkClient.readData(ONLINE_NODE_LIST_PATH + "/" + child));
-            }
+            currentChildren.forEach(child -> currentChildrenData.put(child, zkClient.readData(ONLINE_NODE_LIST_PATH + "/" + child)));
             clusterNodeManager.handleNodeChange(currentChildrenData);
         });
 
@@ -76,7 +75,7 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
         clusterNodeManager = null;
     }
 
-    public void competeMaster() {
+    public synchronized void competeMaster() {
         try {
             ClusterNode currentNode = clusterNodeManager.getCurrentNode();
             LOGGER.info("{} start to compete master", currentNode.getId());
@@ -98,6 +97,17 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
                 clusterNodeManager.setMasterNode(infos[0], infos[1]);
                 LOGGER.info("Master node is {}", infos[0]);
             }
+        }
+    }
+
+    private void acquireHistory() {
+        if (!zkClient.exists(HISTORY_NODE_LIST_PATH)) {
+            zkClient.createPersistent(HISTORY_NODE_LIST_PATH);
+            return;
+        }
+        for (String child : zkClient.getChildren(HISTORY_NODE_LIST_PATH)) {
+            String address = zkClient.readData(HISTORY_NODE_LIST_PATH + "/" + child);
+            clusterNodeManager.putHistoryNode(child, address);
         }
     }
 
