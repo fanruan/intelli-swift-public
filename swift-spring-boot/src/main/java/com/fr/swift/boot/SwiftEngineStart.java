@@ -28,6 +28,7 @@ public class SwiftEngineStart {
             SwiftContext.get().init();
             BootRegister.registerProxy();
 
+            BootRegister.triggerScheduleTask();
             FineIO.setLogger(new FineIoLogger());
             SwiftCommandParser.parseCommand(args);
             SwiftLoggers.getLogger().info("Swift engine start successful");
