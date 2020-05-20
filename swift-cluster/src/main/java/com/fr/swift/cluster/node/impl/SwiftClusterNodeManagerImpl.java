@@ -5,8 +5,8 @@ import com.fr.swift.cluster.base.node.ClusterNodeManager;
 import com.fr.swift.cluster.base.node.SwiftClusterNodeImpl;
 import com.fr.swift.log.SwiftLoggers;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class created on 2020/4/17
@@ -15,51 +15,54 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class SwiftClusterNodeManagerImpl implements ClusterNodeManager {
 
-    private Map<String, ClusterNode> onlineNodes = new ConcurrentHashMap<>();
-    private Map<String, ClusterNode> historyNodes = new ConcurrentHashMap<>();
-    private Map<String, ClusterNode> offlineNodes = new ConcurrentHashMap<>();
+    private Map<String, ClusterNode> onlineNodes = new HashMap<>();
+    private Map<String, ClusterNode> historyNodes = new HashMap<>();
+    private Map<String, ClusterNode> offlineNodes = new HashMap<>();
     private ClusterNode currentNode;
     private ClusterNode masterNode;
 
-    public void handleNodeChange(Map<String, String> nodes) {
-        if (nodes.size() < onlineNodes.size()) {
-            for (String clusterNode : onlineNodes.keySet()) {
-                if (!nodes.containsKey(clusterNode)) {
-                    ClusterNode leaveNode = onlineNodes.get(clusterNode);
-                    onlineNodes.remove(clusterNode);
-                    SwiftLoggers.getLogger().info(clusterNode + " disconnect from zookeeper server!");
-                    offlineNodes.put(clusterNode, leaveNode);
+    /**
+     * 遍历所有historyNode
+     * A、id在nodes中
+     * --1、id在onlineNodes中，保持在线
+     * --2、id不在onlineNode中，新上线
+     * B、id不在nodes中
+     * --1、id在onlineNodes中，新下线
+     * --2、id不在onlineNodes中，保持下线
+     *
+     * @param nodes
+     */
+    public synchronized void handleNodeChange(Map<String, String> nodes) {
+        nodes.forEach((id, address) -> historyNodes.computeIfAbsent(id, k -> new SwiftClusterNodeImpl(k, address)));
+        historyNodes.forEach((id, node) -> {
+            if (nodes.containsKey(id)) {
+                if (!onlineNodes.containsKey(id)) {
+                    onlineNodes.put(id, node);
+                    offlineNodes.remove(id);
+                    SwiftLoggers.getLogger().info(node + " connect to zookeeper server!");
+                }
+            } else {
+                if (onlineNodes.containsKey(id)) {
+                    onlineNodes.remove(id);
+                    offlineNodes.put(id, node);
+                    SwiftLoggers.getLogger().info(node + " disconnect from zookeeper server!");
                 }
             }
-        } else {
-            for (String nodeId : nodes.keySet()) {
-                ClusterNode clusterNode = new SwiftClusterNodeImpl(nodeId, nodes.get(nodeId));
-                if (!onlineNodes.containsKey(nodeId)) {
-                    onlineNodes.put(nodeId, clusterNode);
-                    SwiftLoggers.getLogger().info(nodeId + " connect to zookeeper server!");
-                    if (!historyNodes.containsKey(nodeId)) {
-                        historyNodes.put(nodeId, clusterNode);
-                    }
-                    if (offlineNodes.containsKey(nodeId)) {
-                        offlineNodes.remove(nodeId);
-                    }
-                }
-            }
-        }
+        });
     }
 
     @Override
-    public Map<String, ClusterNode> getOnlineNodes() {
+    public synchronized Map<String, ClusterNode> getOnlineNodes() {
         return onlineNodes;
     }
 
     @Override
-    public Map<String, ClusterNode> getHistoryNodes() {
+    public synchronized Map<String, ClusterNode> getHistoryNodes() {
         return historyNodes;
     }
 
     @Override
-    public Map<String, ClusterNode> getOfflineNodes() {
+    public synchronized Map<String, ClusterNode> getOfflineNodes() {
         return offlineNodes;
     }
 
@@ -76,6 +79,12 @@ public class SwiftClusterNodeManagerImpl implements ClusterNodeManager {
     @Override
     public void setCurrentNode(String currentNodeId, String currentNodeAddress) {
         this.currentNode = new SwiftClusterNodeImpl(currentNodeId, currentNodeAddress);
+    }
+
+    @Override
+    public void putHistoryNode(String historyNodeId, String historyNodeAddress) {
+        this.historyNodes.put(historyNodeId, new SwiftClusterNodeImpl(historyNodeId, historyNodeAddress));
+        this.offlineNodes.put(historyNodeId, new SwiftClusterNodeImpl(historyNodeId, historyNodeAddress));
     }
 
     @Override
