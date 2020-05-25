@@ -42,12 +42,7 @@ public class RpcServerHandler extends SimpleChannelInboundHandler<Request> {
             LOGGER.error("handle result failure", e);
             response.setException(e);
         }
-        ctx.writeAndFlush(response).addListener(new ChannelFutureListener() {
-            @Override
-            public void operationComplete(ChannelFuture channelFuture) {
-                LOGGER.debug("Send response for request " + request.getRequestId());
-            }
-        });
+        ctx.writeAndFlush(response).addListener((ChannelFutureListener) channelFuture -> LOGGER.debug("Send response for request " + request.getRequestId()));
     }
 
     private Object handle(Request request) throws Exception {
