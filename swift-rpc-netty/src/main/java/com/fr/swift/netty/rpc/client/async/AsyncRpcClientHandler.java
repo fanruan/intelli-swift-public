@@ -54,12 +54,9 @@ public class AsyncRpcClientHandler extends AbstractRpcClientHandler<RpcFuture> {
         RpcFuture rpcFuture = new SwiftFuture(request);
         pendingRPC.put(request.getRequestId(), rpcFuture);
         final CountDownLatch latch = new CountDownLatch(1);
-        channel.writeAndFlush(request).sync().addListener(new ChannelFutureListener() {
-            @Override
-            public void operationComplete(ChannelFuture future) {
-                LOGGER.info("Send request : " + request.getRequestId());
-                latch.countDown();
-            }
+        channel.writeAndFlush(request).sync().addListener((ChannelFutureListener) future -> {
+            LOGGER.info("Send request : " + request.getRequestId());
+            latch.countDown();
         });
         return rpcFuture;
     }

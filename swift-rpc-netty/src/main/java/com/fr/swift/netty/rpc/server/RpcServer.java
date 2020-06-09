@@ -47,7 +47,7 @@ public class RpcServer {
     private Map<String, Object> externalMap = new HashMap<String, Object>();
 
     public RpcServer() {
-        swiftProperty = SwiftProperty.getProperty();
+        swiftProperty = SwiftProperty.get();
         this.serviceAddress = swiftProperty.getServerAddress();
     }
 
