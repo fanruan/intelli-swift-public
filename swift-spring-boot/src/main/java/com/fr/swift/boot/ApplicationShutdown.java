@@ -1,6 +1,7 @@
 package com.fr.swift.boot;
 
 import com.fr.swift.boot.trigger.ServicePriorityInitiator;
+import com.fr.swift.log.SwiftLoggers;
 import com.fr.swift.trigger.TriggerEvent;
 import org.apache.catalina.connector.Connector;
 import org.springframework.boot.web.embedded.tomcat.TomcatConnectorCustomizer;
@@ -38,9 +39,8 @@ public class ApplicationShutdown implements TomcatConnectorCustomizer, Applicati
                     threadPoolExecutor.shutdownNow();
                 }
                 ServicePriorityInitiator.getInstance().triggerByPriority(TriggerEvent.DESTROY);
-
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                SwiftLoggers.getLogger().error(e);
             }
         }
     }
