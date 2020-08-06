@@ -33,7 +33,10 @@ public class SwiftClusterNodeManagerImpl implements ClusterNodeManager {
      * @param nodes
      */
     public synchronized void handleNodeChange(Map<String, String> nodes) {
-        nodes.forEach((id, address) -> historyNodes.computeIfAbsent(id, k -> new SwiftClusterNodeImpl(k, address)));
+        nodes.forEach((id, address) -> {
+            String[] split = address.split(";");
+            historyNodes.computeIfAbsent(id, k -> new SwiftClusterNodeImpl(k, split[0], Boolean.parseBoolean(split[1])));
+        });
         historyNodes.forEach((id, node) -> {
             if (nodes.containsKey(id)) {
                 if (!onlineNodes.containsKey(id)) {
@@ -68,7 +71,7 @@ public class SwiftClusterNodeManagerImpl implements ClusterNodeManager {
 
     @Override
     public void setMasterNode(String masterNodeId, String masterNodeAddress) {
-        this.masterNode = new SwiftClusterNodeImpl(masterNodeId, masterNodeAddress);
+        this.masterNode = new SwiftClusterNodeImpl(masterNodeId, masterNodeAddress, false);
     }
 
     @Override
@@ -77,14 +80,14 @@ public class SwiftClusterNodeManagerImpl implements ClusterNodeManager {
     }
 
     @Override
-    public void setCurrentNode(String currentNodeId, String currentNodeAddress) {
-        this.currentNode = new SwiftClusterNodeImpl(currentNodeId, currentNodeAddress);
+    public void setCurrentNode(String currentNodeId, String currentNodeAddress, boolean isBackupNode) {
+        this.currentNode = new SwiftClusterNodeImpl(currentNodeId, currentNodeAddress, isBackupNode);
     }
 
     @Override
-    public void putHistoryNode(String historyNodeId, String historyNodeAddress) {
-        this.historyNodes.put(historyNodeId, new SwiftClusterNodeImpl(historyNodeId, historyNodeAddress));
-        this.offlineNodes.put(historyNodeId, new SwiftClusterNodeImpl(historyNodeId, historyNodeAddress));
+    public void putHistoryNode(String historyNodeId, String historyNodeAddress, boolean isBackupNode) {
+        this.historyNodes.put(historyNodeId, new SwiftClusterNodeImpl(historyNodeId, historyNodeAddress, isBackupNode));
+        this.offlineNodes.put(historyNodeId, new SwiftClusterNodeImpl(historyNodeId, historyNodeAddress, isBackupNode));
     }
 
     @Override

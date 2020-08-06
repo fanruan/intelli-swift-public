@@ -64,7 +64,7 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
             clusterNodeManager.handleNodeChange(currentChildrenData);
         });
 
-        clusterNodeManager.setCurrentNode(SwiftProperty.get().getMachineId(), SwiftProperty.get().getServerAddress());
+        clusterNodeManager.setCurrentNode(SwiftProperty.get().getMachineId(), SwiftProperty.get().getServerAddress(), SwiftProperty.get().isBackupNode());
         registerNode(clusterNodeManager.getCurrentNode());
         competeMaster();
     }
@@ -78,14 +78,16 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
     public synchronized void competeMaster() {
         try {
             ClusterNode currentNode = clusterNodeManager.getCurrentNode();
-            LOGGER.info("{} start to compete master", currentNode.getId());
-            zkClient.createEphemeral(MASTER_NODE_PATH, currentNode.getId() + "*" + currentNode.getAddress());
-            //没有抛出异常，则当前节点就是master节点
-            currentNode.setMaster(true);
-            // 触发初始化master service事件
-            SwiftEventDispatcher.asyncFire(ClusterEvent.BECOME_MASTER, currentNode);
-            clusterNodeManager.setMasterNode(currentNode.getId(), currentNode.getAddress());
-            LOGGER.info("{} succeed to be master!", currentNode.getId());
+            if (!currentNode.isBackupNode()) {
+                LOGGER.info("{} start to compete master", currentNode.getId());
+                zkClient.createEphemeral(MASTER_NODE_PATH, currentNode.getId() + "*" + currentNode.getAddress());
+                //没有抛出异常，则当前节点就是master节点
+                currentNode.setMaster(true);
+                // 触发初始化master service事件
+                SwiftEventDispatcher.asyncFire(ClusterEvent.BECOME_MASTER, currentNode);
+                clusterNodeManager.setMasterNode(currentNode.getId(), currentNode.getAddress());
+                LOGGER.info("{} succeed to be master!", currentNode.getId());
+            }
         } catch (ZkNodeExistsException e) {
             //如果节点已经存在，获得master节点
             String masterNodeInfo = zkClient.readData(MASTER_NODE_PATH);
@@ -107,7 +109,8 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
         }
         for (String child : zkClient.getChildren(HISTORY_NODE_LIST_PATH)) {
             String address = zkClient.readData(HISTORY_NODE_LIST_PATH + "/" + child);
-            clusterNodeManager.putHistoryNode(child, address);
+            String[] split = address.split(";");
+            clusterNodeManager.putHistoryNode(child, split[0], Boolean.parseBoolean(split[1]));
         }
     }
 
@@ -118,7 +121,7 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
 
         String nodeHistoryPath = HISTORY_NODE_LIST_PATH + "/" + node.getId();
         if (!zkClient.exists(nodeHistoryPath)) {
-            zkClient.createPersistent(nodeHistoryPath, node.getAddress());
+            zkClient.createPersistent(nodeHistoryPath, node.getAddress() + ";" + node.isBackupNode());
         }
     }
 
@@ -129,7 +132,7 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
 
         String nodeOnlinePath = ONLINE_NODE_LIST_PATH + "/" + node.getId();
         if (!zkClient.exists(nodeOnlinePath)) {
-            zkClient.createEphemeral(nodeOnlinePath, node.getAddress());
+            zkClient.createEphemeral(nodeOnlinePath, node.getAddress() + ";" + node.isBackupNode());
         }
     }
 
