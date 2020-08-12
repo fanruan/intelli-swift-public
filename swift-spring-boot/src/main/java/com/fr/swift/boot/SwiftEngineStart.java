@@ -24,6 +24,7 @@ public class SwiftEngineStart {
 
             BootRegister.registerExecutorTask();
             BootRegister.registerListener();
+            BootRegister.registerScheduleTask();
 
             SwiftContext.get().init();
             BootRegister.registerProxy();

@@ -32,6 +32,8 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
     private final String HISTORY_NODE_LIST_PATH = PARENT + "/history_node_list";
     private final String ONLINE_NODE_LIST_PATH = PARENT + "/online_node_list";
     private static final SwiftLogger LOGGER = SwiftLoggers.getLogger();
+    private static final String SEPARATOR = "/";
+    private static final String SEMICOLON = ";";
 
     private SwiftZkClient zkClient;
     private ZookeeperProperty zkProperty = ZookeeperProperty.get();
@@ -60,11 +62,11 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
         // 订阅/swift/online_node_list，并处理节点变化
         zkClient.subscribeChildChanges(ONLINE_NODE_LIST_PATH, (parentPath, currentChildren) -> {
             Map<String, String> currentChildrenData = new HashMap<>();
-            currentChildren.forEach(child -> currentChildrenData.put(child, zkClient.readData(ONLINE_NODE_LIST_PATH + "/" + child)));
+            currentChildren.forEach(child -> currentChildrenData.put(child, zkClient.readData(ONLINE_NODE_LIST_PATH + SEPARATOR + child)));
             clusterNodeManager.handleNodeChange(currentChildrenData);
         });
 
-        clusterNodeManager.setCurrentNode(SwiftProperty.get().getMachineId(), SwiftProperty.get().getServerAddress());
+        clusterNodeManager.setCurrentNode(SwiftProperty.get().getMachineId(), SwiftProperty.get().getServerAddress(), SwiftProperty.get().isBackupNode());
         registerNode(clusterNodeManager.getCurrentNode());
         competeMaster();
     }
@@ -78,14 +80,16 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
     public synchronized void competeMaster() {
         try {
             ClusterNode currentNode = clusterNodeManager.getCurrentNode();
-            LOGGER.info("{} start to compete master", currentNode.getId());
-            zkClient.createEphemeral(MASTER_NODE_PATH, currentNode.getId() + "*" + currentNode.getAddress());
-            //没有抛出异常，则当前节点就是master节点
-            currentNode.setMaster(true);
-            // 触发初始化master service事件
-            SwiftEventDispatcher.asyncFire(ClusterEvent.BECOME_MASTER, currentNode);
-            clusterNodeManager.setMasterNode(currentNode.getId(), currentNode.getAddress());
-            LOGGER.info("{} succeed to be master!", currentNode.getId());
+            if (!currentNode.isBackupNode()) {
+                LOGGER.info("{} start to compete master", currentNode.getId());
+                zkClient.createEphemeral(MASTER_NODE_PATH, currentNode.getId() + "*" + currentNode.getAddress());
+                //没有抛出异常，则当前节点就是master节点
+                currentNode.setMaster(true);
+                // 触发初始化master service事件
+                SwiftEventDispatcher.asyncFire(ClusterEvent.BECOME_MASTER, currentNode);
+                clusterNodeManager.setMasterNode(currentNode.getId(), currentNode.getAddress());
+                LOGGER.info("{} succeed to be master!", currentNode.getId());
+            }
         } catch (ZkNodeExistsException e) {
             //如果节点已经存在，获得master节点
             String masterNodeInfo = zkClient.readData(MASTER_NODE_PATH);
@@ -106,8 +110,9 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
             return;
         }
         for (String child : zkClient.getChildren(HISTORY_NODE_LIST_PATH)) {
-            String address = zkClient.readData(HISTORY_NODE_LIST_PATH + "/" + child);
-            clusterNodeManager.putHistoryNode(child, address);
+            String address = zkClient.readData(HISTORY_NODE_LIST_PATH + SEPARATOR + child);
+            String[] split = address.split(SEMICOLON);
+            clusterNodeManager.putHistoryNode(child, split[0], Boolean.parseBoolean(split[1]));
         }
     }
 
@@ -116,9 +121,9 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
             zkClient.createPersistent(HISTORY_NODE_LIST_PATH);
         }
 
-        String nodeHistoryPath = HISTORY_NODE_LIST_PATH + "/" + node.getId();
+        String nodeHistoryPath = HISTORY_NODE_LIST_PATH + SEPARATOR + node.getId();
         if (!zkClient.exists(nodeHistoryPath)) {
-            zkClient.createPersistent(nodeHistoryPath, node.getAddress());
+            zkClient.createPersistent(nodeHistoryPath, node.getAddress() + SEMICOLON + node.isBackupNode());
         }
     }
 
@@ -127,9 +132,9 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
             zkClient.createPersistent(ONLINE_NODE_LIST_PATH);
         }
 
-        String nodeOnlinePath = ONLINE_NODE_LIST_PATH + "/" + node.getId();
+        String nodeOnlinePath = ONLINE_NODE_LIST_PATH + SEPARATOR + node.getId();
         if (!zkClient.exists(nodeOnlinePath)) {
-            zkClient.createEphemeral(nodeOnlinePath, node.getAddress());
+            zkClient.createEphemeral(nodeOnlinePath, node.getAddress() + SEMICOLON + node.isBackupNode());
         }
     }
 
@@ -150,7 +155,7 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
             if (node.isMaster()) {
 //                SwiftEventDispatcher.asyncFire(ClusterEvent.LEFT, new ClusterEventData(node.getId()));
             }
-            zkClient.delete(ONLINE_NODE_LIST_PATH + "/" + node.getId());
+            zkClient.delete(ONLINE_NODE_LIST_PATH + SEPARATOR + node.getId());
             LOGGER.info(node.getId() + " succeed to leave zookeeper server!");
         } catch (Exception e) {
             LOGGER.error(node.getId() + " failed to leave zookeeper server!");
