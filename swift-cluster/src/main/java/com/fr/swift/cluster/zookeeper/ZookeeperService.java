@@ -2,22 +2,27 @@ package com.fr.swift.cluster.zookeeper;
 
 import com.fr.swift.annotation.ClusterRegistry;
 import com.fr.swift.beans.annotation.SwiftBean;
-import com.fr.swift.cluster.base.event.ClusterEvent;
+import com.fr.swift.cluster.base.initiator.MasterServiceInitiator;
 import com.fr.swift.cluster.base.node.ClusterNode;
 import com.fr.swift.cluster.base.node.ClusterNodeManager;
 import com.fr.swift.cluster.base.selector.ClusterNodeSelector;
 import com.fr.swift.cluster.base.service.ClusterBootService;
 import com.fr.swift.cluster.base.service.ClusterRegistryService;
 import com.fr.swift.cluster.zookeeper.property.ZookeeperProperty;
-import com.fr.swift.event.SwiftEventDispatcher;
 import com.fr.swift.log.SwiftLogger;
 import com.fr.swift.log.SwiftLoggers;
 import com.fr.swift.property.SwiftProperty;
+import com.fr.swift.trigger.TriggerEvent;
 import org.I0Itec.zkclient.IZkDataListener;
+import org.I0Itec.zkclient.IZkStateListener;
 import org.I0Itec.zkclient.exception.ZkNodeExistsException;
+import org.apache.zookeeper.Watcher;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.apache.zookeeper.Watcher.Event.KeeperState.Disconnected;
+import static org.apache.zookeeper.Watcher.Event.KeeperState.SyncConnected;
 
 /**
  * This class created on 2020/4/10
@@ -45,7 +50,6 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
         if (!zkClient.exists(PARENT)) {
             zkClient.createPersistent(PARENT);
         }
-
         acquireHistory();
         // 订阅/swift/master_node
         zkClient.subscribeDataChanges(MASTER_NODE_PATH, new IZkDataListener() {
@@ -53,7 +57,33 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
             }
 
             public void handleDataDeleted(String s) throws Exception {
-                competeMaster();
+                if (competeMaster()) {
+                    MasterServiceInitiator.getInstance().triggerByPriority(TriggerEvent.INIT);
+                }
+            }
+        });
+
+        // 监听zookeeper连接状态
+        zkClient.subscribeStateChanges(new IZkStateListener() {
+            @Override
+            public void handleStateChanged(Watcher.Event.KeeperState keeperState) throws Exception {
+                SwiftLoggers.getLogger().warn("Current zookeeper keeperState :{}", keeperState);
+                if (keeperState == Disconnected) {
+                    MasterServiceInitiator.getInstance().triggerByPriority(TriggerEvent.DESTROY);
+                } else if (keeperState == SyncConnected) {
+                    SwiftLoggers.getLogger().warn("Current node sync connect to zookeeper server");
+                    registerNode(clusterNodeManager.getCurrentNode());
+                }
+            }
+
+            @Override
+            public void handleNewSession() throws Exception {
+                SwiftLoggers.getLogger().warn("Current node reconnect to zookeeper server");
+            }
+
+            @Override
+            public void handleSessionEstablishmentError(Throwable throwable) throws Exception {
+                SwiftLoggers.getLogger().error(throwable);
             }
         });
 
@@ -75,7 +105,7 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
         clusterNodeManager = null;
     }
 
-    public synchronized void competeMaster() {
+    public synchronized boolean competeMaster() {
         try {
             ClusterNode currentNode = clusterNodeManager.getCurrentNode();
             LOGGER.info("{} start to compete master", currentNode.getId());
@@ -83,19 +113,21 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
             //没有抛出异常，则当前节点就是master节点
             currentNode.setMaster(true);
             // 触发初始化master service事件
-            SwiftEventDispatcher.asyncFire(ClusterEvent.BECOME_MASTER, currentNode);
+//            SwiftEventDispatcher.asyncFire(ClusterEvent.BECOME_MASTER, currentNode);
             clusterNodeManager.setMasterNode(currentNode.getId(), currentNode.getAddress());
             LOGGER.info("{} succeed to be master!", currentNode.getId());
+            return true;
         } catch (ZkNodeExistsException e) {
             //如果节点已经存在，获得master节点
             String masterNodeInfo = zkClient.readData(MASTER_NODE_PATH);
             //如果在读取的时候masterNode为空，则重新去抢master节点
             if (masterNodeInfo == null) {
-                competeMaster();
+                return competeMaster();
             } else {
                 String[] infos = masterNodeInfo.split("\\*");
                 clusterNodeManager.setMasterNode(infos[0], infos[1]);
                 LOGGER.info("Master node is {}", infos[0]);
+                return false;
             }
         }
     }
