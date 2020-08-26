@@ -9,6 +9,7 @@ import com.fr.swift.cluster.base.selector.ClusterNodeSelector;
 import com.fr.swift.cluster.base.service.ClusterBootService;
 import com.fr.swift.cluster.base.service.ClusterRegistryService;
 import com.fr.swift.cluster.zookeeper.property.ZookeeperProperty;
+import com.fr.swift.executor.TaskProducer;
 import com.fr.swift.log.SwiftLogger;
 import com.fr.swift.log.SwiftLoggers;
 import com.fr.swift.property.SwiftProperty;
@@ -73,6 +74,8 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
                 } else if (keeperState == SyncConnected) {
                     SwiftLoggers.getLogger().warn("Current node sync connect to zookeeper server");
                     registerNode(clusterNodeManager.getCurrentNode());
+                    //同步delete任务
+                    TaskProducer.retriggerDeleteTasks();
                 }
             }
 
