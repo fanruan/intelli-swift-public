@@ -124,6 +124,7 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
                 LOGGER.info("{} succeed to be master!", currentNode.getId());
                 return true;
             }
+            return false;
         } catch (ZkNodeExistsException e) {
             //如果节点已经存在，获得master节点
             String masterNodeInfo = zkClient.readData(MASTER_NODE_PATH);
