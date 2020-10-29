@@ -77,6 +77,7 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
                 if (keeperState == Disconnected) {
                     if (ClusterNodeSelector.getInstance().getContainer().getCurrentNode().isMaster()) {
                         MasterServiceInitiator.getInstance().triggerByPriority(TriggerEvent.DESTROY);
+                        ClusterNodeSelector.getInstance().getContainer().getCurrentNode().setMaster(false);
                     } else {
                         SlaveServiceInitiator.getInstance().triggerByPriority(TriggerEvent.DESTROY);
                     }
@@ -85,9 +86,7 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
                     registerNode(clusterNodeManager.getCurrentNode());
                     //同步delete任务
                     TaskProducer.retriggerDeleteTasks();
-                    if (!ClusterNodeSelector.getInstance().getContainer().getCurrentNode().isMaster()) {
-                        SlaveServiceInitiator.getInstance().triggerByPriority(TriggerEvent.INIT);
-                    }
+                    competeAndInit();
                 }
             }
 
@@ -136,8 +135,8 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
 
     @Override
     public synchronized boolean competeMaster() {
+        ClusterNode currentNode = clusterNodeManager.getCurrentNode();
         try {
-            ClusterNode currentNode = clusterNodeManager.getCurrentNode();
             LOGGER.info("{} start to compete master", currentNode.getId());
             zkClient.createEphemeral(MASTER_NODE_PATH, currentNode.getId() + "*" + currentNode.getAddress());
             //没有抛出异常，则当前节点就是master节点
@@ -157,6 +156,12 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
                 String[] infos = masterNodeInfo.split("\\*");
                 clusterNodeManager.setMasterNode(infos[0], infos[1]);
                 LOGGER.info("Master node is {}", infos[0]);
+                ClusterNode masterNode = clusterNodeManager.getMasterNode();
+                if (currentNode.getId().equals(masterNode.getId())) {
+                    currentNode.setMaster(true);
+                } else {
+                    currentNode.setMaster(false);
+                }
                 return false;
             }
         }
