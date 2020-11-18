@@ -164,6 +164,7 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
                 ClusterNode masterNode = clusterNodeManager.getMasterNode();
                 if (currentNode.getId().equals(masterNode.getId())) {
                     currentNode.setMaster(true);
+                    return true;
                 } else {
                     currentNode.setMaster(false);
                 }
