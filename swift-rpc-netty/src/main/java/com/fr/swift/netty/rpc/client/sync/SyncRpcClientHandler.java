@@ -40,12 +40,7 @@ public class SyncRpcClientHandler extends AbstractRpcClientHandler<Response> {
 
     public Response send(final Request request) throws Exception {
         countDownLatch = new CountDownLatch(1);
-        channel.writeAndFlush(request).sync().addListener(new ChannelFutureListener() {
-            @Override
-            public void operationComplete(ChannelFuture channelFuture) {
-                LOGGER.debug("Send request : " + request.getRequestId());
-            }
-        });
+        channel.writeAndFlush(request).sync().addListener((ChannelFutureListener) channelFuture -> LOGGER.debug("Send request : " + request.getRequestId()));
         countDownLatch.await();
         return response;
     }
