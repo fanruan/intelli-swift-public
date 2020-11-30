@@ -28,7 +28,7 @@ import java.util.concurrent.CountDownLatch;
 public class AsyncRpcClientHandler extends AbstractRpcClientHandler<RpcFuture> {
     public static final String POOL_KEY = "AsyncRpcClientHandler";
     private static final SwiftLogger LOGGER = SwiftLoggers.getLogger(AsyncRpcClientHandler.class);
-    private Map<String, RpcFuture> pendingRPC = new ConcurrentHashMap<String, RpcFuture>();
+    private Map<String, RpcFuture> pendingRPC = new ConcurrentHashMap<>();
 
     public AsyncRpcClientHandler(String address) {
         super(address);
