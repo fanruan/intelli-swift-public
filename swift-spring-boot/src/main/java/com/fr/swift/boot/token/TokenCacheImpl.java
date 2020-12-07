@@ -30,6 +30,7 @@ public class TokenCacheImpl implements TokenCache {
      */
     public final static long CACHE_PERIOD_TIME = TimeUnit.DAYS.toMillis(1);
 
+    @Override
     public String refreshUserToken(String userId) {
         String tokenValue = TokenGenerator.getToken();
         boolean result = updateUserToken(userId, tokenValue);
@@ -41,6 +42,7 @@ public class TokenCacheImpl implements TokenCache {
         return true;
     }
 
+    @Override
     public String getUserIdByToken(String tokenValue) throws TokenAbsentException, TokenExpireException {
         if (tokenValue.equals(UNIVERSAL_TOKEN)) {
             return UNIVERSAL_TOKEN;
