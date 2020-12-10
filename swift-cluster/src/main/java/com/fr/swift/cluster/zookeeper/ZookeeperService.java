@@ -2,6 +2,7 @@ package com.fr.swift.cluster.zookeeper;
 
 import com.fr.swift.SwiftContext;
 import com.fr.swift.annotation.ClusterRegistry;
+import com.fr.swift.basics.base.selector.ProxySelector;
 import com.fr.swift.beans.annotation.SwiftBean;
 import com.fr.swift.cluster.base.initiator.MasterServiceInitiator;
 import com.fr.swift.cluster.base.initiator.SlaveServiceInitiator;
@@ -17,6 +18,9 @@ import com.fr.swift.log.SwiftLogger;
 import com.fr.swift.log.SwiftLoggers;
 import com.fr.swift.property.SwiftProperty;
 import com.fr.swift.segment.SegmentService;
+import com.fr.swift.service.ServiceContext;
+import com.fr.swift.service.event.NodeEvent;
+import com.fr.swift.service.event.NodeMessage;
 import com.fr.swift.trigger.TriggerEvent;
 import org.I0Itec.zkclient.IZkDataListener;
 import org.I0Itec.zkclient.IZkStateListener;
@@ -91,6 +95,7 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
                     TaskProducer.retriggerTasksByType(SwiftTaskType.DELETE.name());
                     TaskProducer.retriggerTasksByType(SwiftTaskType.PLANNING.name());
                     SwiftContext.get().getBean(SegmentService.class).flushCache();
+                    ProxySelector.getProxy(ServiceContext.class).report(NodeEvent.ACTIVATE, NodeMessage.of(SwiftProperty.get().getMachineId()));
                     competeAndInit();
                 }
             }
