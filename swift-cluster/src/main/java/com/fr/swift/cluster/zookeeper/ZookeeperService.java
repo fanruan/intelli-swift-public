@@ -1,6 +1,8 @@
 package com.fr.swift.cluster.zookeeper;
 
+import com.fr.swift.SwiftContext;
 import com.fr.swift.annotation.ClusterRegistry;
+import com.fr.swift.basics.base.selector.ProxySelector;
 import com.fr.swift.beans.annotation.SwiftBean;
 import com.fr.swift.cluster.base.initiator.MasterServiceInitiator;
 import com.fr.swift.cluster.base.initiator.SlaveServiceInitiator;
@@ -11,9 +13,14 @@ import com.fr.swift.cluster.base.service.ClusterBootService;
 import com.fr.swift.cluster.base.service.ClusterRegistryService;
 import com.fr.swift.cluster.zookeeper.property.ZookeeperProperty;
 import com.fr.swift.executor.TaskProducer;
+import com.fr.swift.executor.type.SwiftTaskType;
 import com.fr.swift.log.SwiftLogger;
 import com.fr.swift.log.SwiftLoggers;
 import com.fr.swift.property.SwiftProperty;
+import com.fr.swift.segment.SegmentService;
+import com.fr.swift.service.ServiceContext;
+import com.fr.swift.service.event.NodeEvent;
+import com.fr.swift.service.event.NodeMessage;
 import com.fr.swift.trigger.TriggerEvent;
 import org.I0Itec.zkclient.IZkDataListener;
 import org.I0Itec.zkclient.IZkStateListener;
@@ -84,8 +91,11 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
                 } else if (keeperState == SyncConnected) {
                     SwiftLoggers.getLogger().warn("Current node sync connect to zookeeper server");
                     registerNode(clusterNodeManager.getCurrentNode());
-                    //同步delete任务
-                    TaskProducer.retriggerDeleteTasks();
+                    //同步delete任务 planning任务 (不会失败？)
+                    TaskProducer.retriggerTasksByType(SwiftTaskType.DELETE.name());
+                    TaskProducer.retriggerTasksByType(SwiftTaskType.PLANNING.name());
+                    SwiftContext.get().getBean(SegmentService.class).flushCache();
+                    ProxySelector.getProxy(ServiceContext.class).report(NodeEvent.ACTIVATE, NodeMessage.of(SwiftProperty.get().getMachineId()));
                     competeAndInit();
                 }
             }
@@ -159,6 +169,7 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
                 ClusterNode masterNode = clusterNodeManager.getMasterNode();
                 if (currentNode.getId().equals(masterNode.getId())) {
                     currentNode.setMaster(true);
+                    return true;
                 } else {
                     currentNode.setMaster(false);
                 }
