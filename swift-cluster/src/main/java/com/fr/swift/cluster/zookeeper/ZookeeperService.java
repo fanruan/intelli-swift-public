@@ -4,6 +4,7 @@ import com.fr.swift.SwiftContext;
 import com.fr.swift.annotation.ClusterRegistry;
 import com.fr.swift.beans.annotation.SwiftBean;
 import com.fr.swift.cluster.base.initiator.MasterServiceInitiator;
+import com.fr.swift.cluster.base.initiator.SlaveAfterServiceInitiator;
 import com.fr.swift.cluster.base.initiator.SlaveServiceInitiator;
 import com.fr.swift.cluster.base.node.ClusterNode;
 import com.fr.swift.cluster.base.node.ClusterNodeManager;
@@ -24,6 +25,7 @@ import org.I0Itec.zkclient.exception.ZkNodeExistsException;
 import org.apache.zookeeper.Watcher;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -83,6 +85,7 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
                         ClusterNodeSelector.getInstance().getContainer().getCurrentNode().setMaster(false);
                     } else {
                         SlaveServiceInitiator.getInstance().triggerByPriority(TriggerEvent.DESTROY);
+                        SlaveAfterServiceInitiator.getInstance().triggerByPriority(TriggerEvent.DESTROY);
                     }
                 } else if (keeperState == SyncConnected) {
                     SwiftLoggers.getLogger().warn("Current node sync connect to zookeeper server");
@@ -129,12 +132,16 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
     @Override
     public void competeAndInit() {
         if (competeMaster()) {
+            updateOnlineNodes();
             if (started.get()) {
                 SlaveServiceInitiator.getInstance().triggerByPriority(TriggerEvent.DESTROY);
+                SlaveAfterServiceInitiator.getInstance().triggerByPriority(TriggerEvent.DESTROY);
             }
             MasterServiceInitiator.getInstance().triggerByPriority(TriggerEvent.INIT);
         } else {
+            updateOnlineNodes();
             SlaveServiceInitiator.getInstance().triggerByPriority(TriggerEvent.INIT);
+            SlaveAfterServiceInitiator.getInstance().triggerByPriority(TriggerEvent.INIT);
         }
     }
 
@@ -203,6 +210,15 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
         String nodeOnlinePath = ONLINE_NODE_LIST_PATH + "/" + node.getId();
         if (!zkClient.exists(nodeOnlinePath)) {
             zkClient.createEphemeral(nodeOnlinePath, node.getAddress());
+        }
+    }
+
+    private void updateOnlineNodes() {
+        if (zkClient.exists(ONLINE_NODE_LIST_PATH)) {
+            Map<String, String> currentChildrenData = new HashMap<>();
+            List<String> children = zkClient.getChildren(ONLINE_NODE_LIST_PATH);
+            children.forEach(child -> currentChildrenData.put(child, zkClient.readData(ONLINE_NODE_LIST_PATH + "/" + child)));
+            clusterNodeManager.handleNodeChange(currentChildrenData);
         }
     }
 
