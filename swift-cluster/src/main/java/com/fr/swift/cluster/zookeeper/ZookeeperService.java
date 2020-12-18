@@ -173,7 +173,6 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
             if (zkClient.exists(ONLINE_NODE_LIST_PATH)) {
                 updateOnlineNodes(zkClient.getChildren(ONLINE_NODE_LIST_PATH));
             }
-
         }
     }
 
