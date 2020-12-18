@@ -109,9 +109,7 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
 
         // 订阅/swift/online_node_list，并处理节点变化
         zkClient.subscribeChildChanges(ONLINE_NODE_LIST_PATH, (parentPath, currentChildren) -> {
-            Map<String, String> currentChildrenData = new HashMap<>();
-            currentChildren.forEach(child -> currentChildrenData.put(child, zkClient.readData(ONLINE_NODE_LIST_PATH + "/" + child)));
-            clusterNodeManager.handleNodeChange(currentChildrenData);
+            updateOnlineNodes(currentChildren);
         });
 
         clusterNodeManager.setCurrentNode(SwiftProperty.get().getMachineId(), SwiftProperty.get().getServerAddress());
@@ -172,7 +170,10 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
                 return false;
             }
         } finally {
-            updateOnlineNodes();
+            if (zkClient.exists(ONLINE_NODE_LIST_PATH)) {
+                updateOnlineNodes(zkClient.getChildren(ONLINE_NODE_LIST_PATH));
+            }
+
         }
     }
 
@@ -209,13 +210,10 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
         }
     }
 
-    private void updateOnlineNodes() {
-        if (zkClient.exists(ONLINE_NODE_LIST_PATH)) {
-            Map<String, String> currentChildrenData = new HashMap<>();
-            List<String> children = zkClient.getChildren(ONLINE_NODE_LIST_PATH);
-            children.forEach(child -> currentChildrenData.put(child, zkClient.readData(ONLINE_NODE_LIST_PATH + "/" + child)));
-            clusterNodeManager.handleNodeChange(currentChildrenData);
-        }
+    private void updateOnlineNodes(List<String> children) {
+        Map<String, String> currentChildrenData = new HashMap<>();
+        children.forEach(child -> currentChildrenData.put(child, zkClient.readData(ONLINE_NODE_LIST_PATH + "/" + child)));
+        clusterNodeManager.handleNodeChange(currentChildrenData);
     }
 
     @Override
