@@ -4,7 +4,6 @@ import com.fr.swift.SwiftContext;
 import com.fr.swift.annotation.ClusterRegistry;
 import com.fr.swift.beans.annotation.SwiftBean;
 import com.fr.swift.cluster.base.initiator.MasterServiceInitiator;
-import com.fr.swift.cluster.base.initiator.SlaveAfterServiceInitiator;
 import com.fr.swift.cluster.base.initiator.SlaveServiceInitiator;
 import com.fr.swift.cluster.base.node.ClusterNode;
 import com.fr.swift.cluster.base.node.ClusterNodeManager;
@@ -85,7 +84,6 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
                         ClusterNodeSelector.getInstance().getContainer().getCurrentNode().setMaster(false);
                     } else {
                         SlaveServiceInitiator.getInstance().triggerByPriority(TriggerEvent.DESTROY);
-                        SlaveAfterServiceInitiator.getInstance().triggerByPriority(TriggerEvent.DESTROY);
                     }
                 } else if (keeperState == SyncConnected) {
                     SwiftLoggers.getLogger().warn("Current node sync connect to zookeeper server");
@@ -132,16 +130,12 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
     @Override
     public void competeAndInit() {
         if (competeMaster()) {
-            updateOnlineNodes();
             if (started.get()) {
                 SlaveServiceInitiator.getInstance().triggerByPriority(TriggerEvent.DESTROY);
-                SlaveAfterServiceInitiator.getInstance().triggerByPriority(TriggerEvent.DESTROY);
             }
             MasterServiceInitiator.getInstance().triggerByPriority(TriggerEvent.INIT);
         } else {
-            updateOnlineNodes();
             SlaveServiceInitiator.getInstance().triggerByPriority(TriggerEvent.INIT);
-            SlaveAfterServiceInitiator.getInstance().triggerByPriority(TriggerEvent.INIT);
         }
     }
 
@@ -177,6 +171,8 @@ public class ZookeeperService implements ClusterBootService, ClusterRegistryServ
                 }
                 return false;
             }
+        } finally {
+            updateOnlineNodes();
         }
     }
 
