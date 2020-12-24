@@ -32,8 +32,9 @@ public class SwiftClusterNodeManagerImpl implements ClusterNodeManager {
      *
      * @param nodes
      */
+    @Override
     public synchronized void handleNodeChange(Map<String, String> nodes) {
-        nodes.forEach((id, address) -> historyNodes.computeIfAbsent(id, k -> new SwiftClusterNodeImpl(k, address)));
+        nodes.forEach((id, address) -> historyNodes.computeIfAbsent(id, k -> SwiftClusterNodeImpl.ofSlave(k, address)));
         historyNodes.forEach((id, node) -> {
             if (nodes.containsKey(id)) {
                 if (!onlineNodes.containsKey(id)) {
@@ -68,7 +69,7 @@ public class SwiftClusterNodeManagerImpl implements ClusterNodeManager {
 
     @Override
     public void setMasterNode(String masterNodeId, String masterNodeAddress) {
-        this.masterNode = new SwiftClusterNodeImpl(masterNodeId, masterNodeAddress);
+        this.masterNode = historyNodes.getOrDefault(masterNodeId, SwiftClusterNodeImpl.ofMaster(masterNodeId, masterNodeAddress));
     }
 
     @Override
@@ -78,13 +79,14 @@ public class SwiftClusterNodeManagerImpl implements ClusterNodeManager {
 
     @Override
     public void setCurrentNode(String currentNodeId, String currentNodeAddress) {
-        this.currentNode = new SwiftClusterNodeImpl(currentNodeId, currentNodeAddress);
+        this.currentNode = historyNodes.getOrDefault(currentNodeId, SwiftClusterNodeImpl.ofSlave(currentNodeId, currentNodeAddress));
     }
 
     @Override
     public void putHistoryNode(String historyNodeId, String historyNodeAddress) {
-        this.historyNodes.put(historyNodeId, new SwiftClusterNodeImpl(historyNodeId, historyNodeAddress));
-        this.offlineNodes.put(historyNodeId, new SwiftClusterNodeImpl(historyNodeId, historyNodeAddress));
+        ClusterNode node = SwiftClusterNodeImpl.ofSlave(historyNodeId, historyNodeAddress);
+        this.historyNodes.put(historyNodeId, node);
+        this.offlineNodes.put(historyNodeId, node);
     }
 
     @Override
