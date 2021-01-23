@@ -2,9 +2,11 @@ package com.fr.swift.netty.rpc.client.sync;
 
 import com.fr.swift.basic.Request;
 import com.fr.swift.basic.Response;
+import com.fr.swift.basic.SwiftResponse;
 import com.fr.swift.log.SwiftLogger;
 import com.fr.swift.log.SwiftLoggers;
 import com.fr.swift.netty.rpc.client.AbstractRpcClientHandler;
+import com.fr.swift.netty.rpc.exception.OverWaitException;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -46,12 +48,18 @@ public class SyncRpcClientHandler extends AbstractRpcClientHandler<Response> {
 
     @Override
     public Response send(final Request request) throws Exception {
-        SyncRpcMessageEntity syncRpcMessageEntity = new SyncRpcMessageEntity(request, new CountDownLatch(1));
-        channel.writeAndFlush(request).sync().addListener((ChannelFutureListener) channelFuture -> LOGGER.info("Send request : " + request.getRequestId()));
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        SyncRpcMessageEntity syncRpcMessageEntity = new SyncRpcMessageEntity(request, countDownLatch);
         SYNC_RPC_MESSAGE_ENTITY_MAP.put(request.getRequestId(), syncRpcMessageEntity);
-        syncRpcMessageEntity.getCountDownLatch().await(5, TimeUnit.MINUTES);
-        Response response = SYNC_RPC_MESSAGE_ENTITY_MAP.get(request.getRequestId()).getResponse();
+        channel.writeAndFlush(request).sync().addListener((ChannelFutureListener) channelFuture -> LOGGER.info("Send request : " + request.getRequestId()));
+        countDownLatch.await(5, TimeUnit.MINUTES);
         SYNC_RPC_MESSAGE_ENTITY_MAP.remove(request.getRequestId());
-        return response;
+        if (countDownLatch.getCount() > 0) {
+            SwiftResponse swiftResponse = new SwiftResponse();
+            swiftResponse.setException(new OverWaitException());
+            swiftResponse.setRequestId(request.getRequestId());
+            return swiftResponse;
+        }
+        return syncRpcMessageEntity.getResponse();
     }
 }
