@@ -18,6 +18,8 @@ public class RpcProperty {
 
     private Properties properties;
 
+    private static final long IDLE_OBJ_EXPIRE_TIME = TimeUnit.MINUTES.toMillis(30);
+
     /**
      * 数量控制参数
      */
@@ -54,16 +56,16 @@ public class RpcProperty {
             maxIdlePerKey = Integer.parseInt((String) properties.getOrDefault("maxIdlePerKey", "8"));
             maxTotalPerKey = Integer.parseInt((String) properties.getOrDefault("maxTotalPerKey", "8"));
             maxTotal = Integer.parseInt((String) properties.getOrDefault("maxTotal", "-1"));
-            minEvictableIdleTimeMillis = Long.parseLong((String) properties.getOrDefault("minEvictableIdleTimeMillis", String.valueOf(TimeUnit.MINUTES.toMillis(30))));
-            timeBetweenEvictionRunsMillis = Long.parseLong((String) properties.getOrDefault("timeBetweenEvictionRunsMillis", String.valueOf(TimeUnit.MINUTES.toMillis(30))));
+            minEvictableIdleTimeMillis = Long.parseLong((String) properties.getOrDefault("minEvictableIdleTimeMillis", IDLE_OBJ_EXPIRE_TIME));
+            timeBetweenEvictionRunsMillis = Long.parseLong((String) properties.getOrDefault("timeBetweenEvictionRunsMillis", IDLE_OBJ_EXPIRE_TIME));
         } catch (IOException e) {
             // GenericKeyedObjectPoolConfig default
             minIdlePerKey = 0;
             maxIdlePerKey = 8;
             maxTotalPerKey = 8;
             maxTotal = -1;
-            minEvictableIdleTimeMillis = TimeUnit.MINUTES.toMillis(30);  //1000L * 60L * 30L
-            timeBetweenEvictionRunsMillis = TimeUnit.MINUTES.toMillis(30);
+            minEvictableIdleTimeMillis = IDLE_OBJ_EXPIRE_TIME;  //1000L * 60L * 30L
+            timeBetweenEvictionRunsMillis = IDLE_OBJ_EXPIRE_TIME;
             Crasher.crash(e);
         }
     }
