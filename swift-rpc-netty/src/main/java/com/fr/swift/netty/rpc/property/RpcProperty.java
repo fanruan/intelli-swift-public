@@ -59,13 +59,6 @@ public class RpcProperty {
             minEvictableIdleTimeMillis = Long.parseLong((String) properties.getOrDefault("minEvictableIdleTimeMillis", IDLE_OBJ_EXPIRE_TIME));
             timeBetweenEvictionRunsMillis = Long.parseLong((String) properties.getOrDefault("timeBetweenEvictionRunsMillis", IDLE_OBJ_EXPIRE_TIME));
         } catch (IOException e) {
-            // GenericKeyedObjectPoolConfig default
-            minIdlePerKey = 0;
-            maxIdlePerKey = 8;
-            maxTotalPerKey = 8;
-            maxTotal = -1;
-            minEvictableIdleTimeMillis = IDLE_OBJ_EXPIRE_TIME;  //1000L * 60L * 30L
-            timeBetweenEvictionRunsMillis = IDLE_OBJ_EXPIRE_TIME;
             Crasher.crash(e);
         }
     }
