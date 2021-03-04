@@ -1,6 +1,8 @@
 package com.fr.swift.netty.rpc.pool;
 
+import com.fr.swift.log.SwiftLoggers;
 import com.fr.swift.netty.rpc.client.AbstractRpcClientHandler;
+import com.fr.swift.netty.rpc.property.RpcProperty;
 import org.apache.commons.pool2.KeyedObjectPool;
 import org.apache.commons.pool2.impl.GenericKeyedObjectPool;
 import org.apache.commons.pool2.impl.GenericKeyedObjectPoolConfig;
@@ -14,25 +16,34 @@ import org.apache.commons.pool2.impl.GenericKeyedObjectPoolConfig;
  */
 public abstract class AbstractRpcPool implements KeyedObjectPool<String, AbstractRpcClientHandler> {
 
-    private static final long IDLE_OBJ_EXPIRE_TIME = 20000L;
     protected GenericKeyedObjectPool keyedObjectPool;
 
     public AbstractRpcPool(AbstractRpcKeyPoolFactory rpcKeyPoolFactory) {
         GenericKeyedObjectPoolConfig config = new GenericKeyedObjectPoolConfig();
-        config.setTimeBetweenEvictionRunsMillis(IDLE_OBJ_EXPIRE_TIME);
-        config.setMinEvictableIdleTimeMillis(IDLE_OBJ_EXPIRE_TIME);
+        config.setTimeBetweenEvictionRunsMillis(RpcProperty.get().getTimeBetweenEvictionRunsMillis());
+        config.setMinEvictableIdleTimeMillis(RpcProperty.get().getMinEvictableIdleTimeMillis());
+        config.setMaxTotalPerKey(RpcProperty.get().getMaxTotalPerKey());
+        config.setMaxIdlePerKey(RpcProperty.get().getMaxIdlePerKey());
+        config.setMinIdlePerKey(RpcProperty.get().getMinIdlePerKey());
+        config.setMaxTotal(RpcProperty.get().getMaxTotal());
         keyedObjectPool = new GenericKeyedObjectPool(rpcKeyPoolFactory, config);
     }
 
     @Override
     public AbstractRpcClientHandler borrowObject(String key) throws Exception {
+        SwiftLoggers.getLogger().info("borrow rpc key[{}]", key);
         AbstractRpcClientHandler handler = (AbstractRpcClientHandler) keyedObjectPool.borrowObject(key);
+        SwiftLoggers.getLogger().info("current key pool size: max[{}],active[{}],idle[{}]"
+                , keyedObjectPool.getMaxTotalPerKey(), keyedObjectPool.getNumActive(), keyedObjectPool.getNumIdle());
         return handler;
     }
 
     @Override
     public void returnObject(String key, AbstractRpcClientHandler handler) {
+        SwiftLoggers.getLogger().info("return rpc key[{}]", key);
         keyedObjectPool.returnObject(key, handler);
+        SwiftLoggers.getLogger().info("current key pool size: max[{}],active[{}],idle[{}]"
+                , keyedObjectPool.getMaxTotalPerKey(), keyedObjectPool.getNumActive(), keyedObjectPool.getNumIdle());
     }
 
     @Override
