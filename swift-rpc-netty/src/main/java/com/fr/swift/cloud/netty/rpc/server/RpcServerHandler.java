@@ -84,7 +84,7 @@ public class RpcServerHandler extends SimpleChannelInboundHandler<Request> {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        LOGGER.error("server caught exception", cause);
+        LOGGER.error("Server caught Exception, Remote address[{}]. Channel id is [{}]. error [{}]", ctx.channel().remoteAddress(), ctx.channel().id(), cause);
         ctx.close();
     }
 }
