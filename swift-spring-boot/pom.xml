@@ -5,11 +5,11 @@
         <groupId>com.fr.intelligence</groupId>
         <artifactId>swift-public</artifactId>
         <version>2020.3</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>swift-spring-boot</artifactId>
-    <packaging>pom</packaging>
     <name>swift-spring-boot</name>
 
     <description>swift-spring-boot project for Spring Boot</description>
@@ -60,7 +60,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.45</version>
+            <version>8.0.15</version>
         </dependency>
         <dependency>
             <groupId>com.fr.intelligence</groupId>
