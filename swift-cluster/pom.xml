@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>com.fr.intelligence</groupId>
-        <artifactId>swift</artifactId>
+        <artifactId>swift-public</artifactId>
         <version>2020.3</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -26,10 +26,6 @@
             <artifactId>spring-context</artifactId>
             <version>5.1.5.RELEASE</version>
             <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.fr.intelligence</groupId>
-            <artifactId>swift-base-beans</artifactId>
         </dependency>
         <dependency>
             <groupId>com.fr.intelligence</groupId>
