@@ -5,7 +5,6 @@
         <groupId>com.fr.intelligence</groupId>
         <artifactId>swift-public</artifactId>
         <version>2020.3</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
