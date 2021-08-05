@@ -3,7 +3,6 @@ package com.fr.swift.cloud.netty.rpc.serialize;
 import com.fr.swift.cloud.netty.rpc.handler.HessianHandler;
 import com.fr.swift.cloud.netty.rpc.handler.JdkHandler;
 import com.fr.swift.cloud.netty.rpc.handler.KryoHandler;
-import com.fr.swift.cloud.netty.rpc.handler.ProtoStuffHandler;
 import com.fr.swift.cloud.rpc.compress.CompressMode;
 import com.fr.swift.cloud.rpc.handler.RpcMessageHandler;
 import com.fr.swift.cloud.rpc.serialize.SerializeProtocol;
@@ -25,7 +24,6 @@ public class SerializeFrame {
     static {
         HANDLER.putInstance(JdkHandler.class, new JdkHandler());
         HANDLER.putInstance(KryoHandler.class, new KryoHandler());
-        HANDLER.putInstance(ProtoStuffHandler.class, new ProtoStuffHandler());
         HANDLER.putInstance(HessianHandler.class, new HessianHandler());
     }
 
