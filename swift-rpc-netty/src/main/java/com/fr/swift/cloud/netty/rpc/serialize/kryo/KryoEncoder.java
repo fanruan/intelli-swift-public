@@ -15,20 +15,19 @@ import java.io.IOException;
  */
 public class KryoEncoder implements SerializationEncoder {
 
-    private static final Closer CLOSER = Closer.create();
-
     @Override
     public byte[] encode(Object msg) throws IOException {
+        Closer closer = Closer.create();
         try {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            CLOSER.register(byteArrayOutputStream);
+            closer.register(byteArrayOutputStream);
 
             Output output = new Output(byteArrayOutputStream);
             KryoFactory.getKryo().writeClassAndObject(output, msg);
             output.close();
             return byteArrayOutputStream.toByteArray();
         } finally {
-            CLOSER.close();
+            closer.close();
         }
     }
 }

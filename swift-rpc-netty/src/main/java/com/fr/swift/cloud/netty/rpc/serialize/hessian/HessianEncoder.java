@@ -15,13 +15,12 @@ import java.io.IOException;
  */
 public class HessianEncoder implements SerializationEncoder {
 
-    private static final Closer CLOSER = Closer.create();
-
     @Override
     public byte[] encode(Object msg) throws IOException {
+        Closer closer = Closer.create();
         try {
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-            CLOSER.register(byteArrayOutputStream);
+            closer.register(byteArrayOutputStream);
 
             Hessian2Output hessian2Output = new Hessian2Output(byteArrayOutputStream);
             hessian2Output.startMessage();
@@ -31,7 +30,7 @@ public class HessianEncoder implements SerializationEncoder {
 
             return byteArrayOutputStream.toByteArray();
         } finally {
-            CLOSER.close();
+            closer.close();
         }
     }
 }
