@@ -2,7 +2,10 @@ package com.fr.swift.cloud.netty.rpc.pool;
 
 import com.fr.swift.cloud.log.SwiftLoggers;
 import com.fr.swift.cloud.netty.rpc.client.AbstractRpcClientHandler;
+import com.fr.swift.cloud.netty.rpc.property.RpcProperty;
+import com.fr.swift.cloud.netty.rpc.serialize.SerializeFrame;
 import com.fr.swift.cloud.property.SwiftProperty;
+import com.fr.swift.cloud.rpc.compress.CompressMode;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -12,9 +15,6 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.serialization.ClassResolvers;
-import io.netty.handler.codec.serialization.ObjectDecoder;
-import io.netty.handler.codec.serialization.ObjectEncoder;
 import org.apache.commons.pool2.BaseKeyedPooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
 
@@ -28,10 +28,11 @@ import org.apache.commons.pool2.PooledObject;
 public abstract class AbstractRpcKeyPoolFactory<T extends AbstractRpcClientHandler> extends BaseKeyedPooledObjectFactory<String, T> {
 
     private SwiftProperty swiftProperty = SwiftProperty.get();
-
+    private final RpcProperty rpcProperty = RpcProperty.get();
 
     protected ChannelFuture bindBootstrap(final AbstractRpcClientHandler clientHandler) throws InterruptedException {
         EventLoopGroup group = new NioEventLoopGroup(1);
+
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(group);
         bootstrap.channel(NioSocketChannel.class);
@@ -39,10 +40,10 @@ public abstract class AbstractRpcKeyPoolFactory<T extends AbstractRpcClientHandl
             @Override
             public void initChannel(SocketChannel channel) {
                 ChannelPipeline pipeline = channel.pipeline();
-                pipeline.addLast(
-                        new ObjectDecoder(swiftProperty.getRpcMaxObjectSize(), ClassResolvers.cacheDisabled(this
-                                .getClass().getClassLoader())));
-                pipeline.addLast(new ObjectEncoder());
+
+                CompressMode compressMode = rpcProperty.getCompressMode();
+                compressMode.setMaxObjectSize(swiftProperty.getRpcMaxObjectSize());
+                SerializeFrame.select(rpcProperty.getSerializeProtocol(), compressMode, pipeline); // 处理 压缩 序列化
                 pipeline.addLast(clientHandler);
             }
         });
