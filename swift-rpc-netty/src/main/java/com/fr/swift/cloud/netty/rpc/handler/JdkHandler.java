@@ -18,9 +18,8 @@ public class JdkHandler implements RpcMessageHandler {
 
     @Override
     public void handle(CompressMode compressMode, ChannelPipeline pipeline) {
-        //H.J TODO: 2021/7/30 ClassResolver 原本客户端是 cacheDisabled 服务端是 weakCachingConcurrentResolver 的原因？
         pipeline.addLast(new ObjectDecoder(SwiftProperty.get().getRpcMaxObjectSize(),
-                ClassResolvers.cacheDisabled(this.getClass().getClassLoader())));
+                ClassResolvers.weakCachingConcurrentResolver(this.getClass().getClassLoader())));
         pipeline.addLast(new ObjectEncoder());
     }
 }
