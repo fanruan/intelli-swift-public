@@ -1,7 +1,10 @@
 package com.fr.swift.cloud.netty.rpc.property;
 
 import com.fr.swift.cloud.config.ConfigInputUtil;
+import com.fr.swift.cloud.rpc.compress.CompressMode;
+import com.fr.swift.cloud.rpc.serialize.SerializeProtocol;
 import com.fr.swift.cloud.util.Crasher;
+import com.fr.swift.cloud.util.Strings;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,6 +41,10 @@ public class RpcProperty {
      */
     private long timeBetweenEvictionRunsMillis; // 空闲链接检测线程检测的周期
 
+    private SerializeProtocol serializeProtocol;
+
+    private CompressMode compressMode;
+
     private RpcProperty() {
         initProperties();
     }
@@ -58,6 +65,8 @@ public class RpcProperty {
             maxTotal = Integer.parseInt((String) properties.getOrDefault("maxTotal", "-1"));
             minEvictableIdleTimeMillis = Long.parseLong((String) properties.getOrDefault("minEvictableIdleTimeMillis", IDLE_OBJ_EXPIRE_TIME));
             timeBetweenEvictionRunsMillis = Long.parseLong((String) properties.getOrDefault("timeBetweenEvictionRunsMillis", IDLE_OBJ_EXPIRE_TIME));
+            serializeProtocol = SerializeProtocol.getEnum((String) properties.getOrDefault("serialize.protocol", "jdk"));
+            compressMode = CompressMode.getEnum((String) properties.getOrDefault("compress.algorithm", Strings.EMPTY));
         } catch (IOException e) {
             Crasher.crash(e);
         }
@@ -85,5 +94,13 @@ public class RpcProperty {
 
     public long getTimeBetweenEvictionRunsMillis() {
         return timeBetweenEvictionRunsMillis;
+    }
+
+    public SerializeProtocol getSerializeProtocol() {
+        return serializeProtocol;
+    }
+
+    public CompressMode getCompressMode() {
+        return compressMode;
     }
 }
