@@ -1,7 +1,7 @@
 package com.fr.swift.cloud.netty.rpc.serialize.kryo;
 
-import com.esotericsoftware.kryo.Kryo;
-import org.objenesis.strategy.StdInstantiatorStrategy;
+import com.fr.third.esotericsoftware.kryo.Kryo;
+import com.fr.third.org.objenesis.strategy.StdInstantiatorStrategy;
 
 /**
  * @author Heng.J
@@ -21,7 +21,9 @@ public class KryoFactory {
         Kryo kryo = new Kryo();
         kryo.setReferences(false);
         kryo.setRegistrationRequired(false);
-        kryo.setInstantiatorStrategy(new StdInstantiatorStrategy());
+
+        // 首先使用默认无参构造策略DefaultInstantiatorStrategy，若创建对象失败则采用StdInstantiatorStrategy
+        kryo.setInstantiatorStrategy(new Kryo.DefaultInstantiatorStrategy(new StdInstantiatorStrategy()));
 //        kryo.setWarnUnregisteredClasses(true);
         return kryo;
     }

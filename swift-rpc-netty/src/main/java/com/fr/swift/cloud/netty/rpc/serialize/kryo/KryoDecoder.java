@@ -1,7 +1,7 @@
 package com.fr.swift.cloud.netty.rpc.serialize.kryo;
 
-import com.esotericsoftware.kryo.io.Input;
 import com.fr.swift.cloud.rpc.serialize.SerializationDecoder;
+import com.fr.third.esotericsoftware.kryo.io.Input;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
