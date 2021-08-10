@@ -17,7 +17,7 @@ public class AsyncRpcKeyPoolFactory extends AbstractRpcKeyPoolFactory<AsyncRpcCl
     @Override
     public AsyncRpcClientHandler create(String address) throws Exception {
         final AsyncRpcClientHandler clientHandler = new AsyncRpcClientHandler(address);
-        ChannelFuture future = bindBootstrap(clientHandler);
+        ChannelFuture future = bindBootstrap(clientHandler, "rpc-client-async");
         return clientHandler;
     }
 

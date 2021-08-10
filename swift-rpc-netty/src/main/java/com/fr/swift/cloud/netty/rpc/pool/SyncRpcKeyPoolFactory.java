@@ -21,7 +21,7 @@ public class SyncRpcKeyPoolFactory extends AbstractRpcKeyPoolFactory<SyncRpcClie
     @Override
     public SyncRpcClientHandler create(String address) throws Exception {
         final SyncRpcClientHandler clientHandler = new SyncRpcClientHandler(address);
-        ChannelFuture future = bindBootstrap(clientHandler);
+        ChannelFuture future = bindBootstrap(clientHandler, "rpc-client-sync");
         return clientHandler;
     }
 
