@@ -15,6 +15,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.util.concurrent.DefaultThreadFactory;
 import org.apache.commons.pool2.BaseKeyedPooledObjectFactory;
 import org.apache.commons.pool2.PooledObject;
 
@@ -30,8 +31,8 @@ public abstract class AbstractRpcKeyPoolFactory<T extends AbstractRpcClientHandl
     private SwiftProperty swiftProperty = SwiftProperty.get();
     private final RpcProperty rpcProperty = RpcProperty.get();
 
-    protected ChannelFuture bindBootstrap(final AbstractRpcClientHandler clientHandler) throws InterruptedException {
-        EventLoopGroup group = new NioEventLoopGroup(1);
+    protected ChannelFuture bindBootstrap(final AbstractRpcClientHandler clientHandler, final String threadName) throws InterruptedException {
+        EventLoopGroup group = new NioEventLoopGroup(1, new DefaultThreadFactory(threadName));
 
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(group);

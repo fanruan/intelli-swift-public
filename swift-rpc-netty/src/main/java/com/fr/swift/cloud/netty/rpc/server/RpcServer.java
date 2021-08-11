@@ -18,6 +18,9 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.util.NettyRuntime;
+import io.netty.util.concurrent.DefaultThreadFactory;
+import io.netty.util.internal.SystemPropertyUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,6 +43,13 @@ public class RpcServer {
     private final SwiftProperty swiftProperty;
     private final RpcProperty rpcProperty;
 
+    private static final int DEFAULT_EVENT_LOOP_THREADS;
+
+    static {
+        DEFAULT_EVENT_LOOP_THREADS = Math.max(1, SystemPropertyUtil.getInt(
+                "io.netty.eventLoopThreads", NettyRuntime.availableProcessors() * 2));
+    }
+
     /**
      * key:服务名
      * value:服务对象
@@ -54,8 +64,8 @@ public class RpcServer {
     }
 
     public void start() throws Exception {
-        EventLoopGroup bossGroup = new NioEventLoopGroup();
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
+        EventLoopGroup bossGroup = new NioEventLoopGroup(DEFAULT_EVENT_LOOP_THREADS, new DefaultThreadFactory("rpc-server-boss"));
+        EventLoopGroup workerGroup = new NioEventLoopGroup(DEFAULT_EVENT_LOOP_THREADS, new DefaultThreadFactory("rpc-server-worker"));
         try {
             ServerBootstrap bootstrap = new ServerBootstrap();
             bootstrap.group(bossGroup, workerGroup);
