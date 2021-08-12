@@ -3,8 +3,11 @@ package com.fr.swift.cloud.netty.rpc.server;
 import com.fr.swift.cloud.beans.annotation.SwiftBean;
 import com.fr.swift.cloud.log.SwiftLogger;
 import com.fr.swift.cloud.log.SwiftLoggers;
+import com.fr.swift.cloud.netty.rpc.property.RpcProperty;
 import com.fr.swift.cloud.netty.rpc.registry.ServiceRegistry;
+import com.fr.swift.cloud.netty.rpc.serialize.SerializeFrame;
 import com.fr.swift.cloud.property.SwiftProperty;
+import com.fr.swift.cloud.rpc.compress.CompressMode;
 import com.fr.swift.cloud.util.Strings;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -15,9 +18,9 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.serialization.ClassResolvers;
-import io.netty.handler.codec.serialization.ObjectDecoder;
-import io.netty.handler.codec.serialization.ObjectEncoder;
+import io.netty.util.NettyRuntime;
+import io.netty.util.concurrent.DefaultThreadFactory;
+import io.netty.util.internal.SystemPropertyUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,7 +40,15 @@ public class RpcServer {
 
     private ServiceRegistry serviceRegistry;
 
-    private SwiftProperty swiftProperty;
+    private final SwiftProperty swiftProperty;
+    private final RpcProperty rpcProperty;
+
+    private static final int DEFAULT_EVENT_LOOP_THREADS;
+
+    static {
+        DEFAULT_EVENT_LOOP_THREADS = Math.max(1, SystemPropertyUtil.getInt(
+                "io.netty.eventLoopThreads", NettyRuntime.availableProcessors() * 2));
+    }
 
     /**
      * key:服务名
@@ -48,12 +59,13 @@ public class RpcServer {
 
     public RpcServer() {
         swiftProperty = SwiftProperty.get();
+        rpcProperty = RpcProperty.get();
         this.serviceAddress = swiftProperty.getServerAddress();
     }
 
     public void start() throws Exception {
-        EventLoopGroup bossGroup = new NioEventLoopGroup();
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
+        EventLoopGroup bossGroup = new NioEventLoopGroup(DEFAULT_EVENT_LOOP_THREADS, new DefaultThreadFactory("rpc-server-boss"));
+        EventLoopGroup workerGroup = new NioEventLoopGroup(DEFAULT_EVENT_LOOP_THREADS, new DefaultThreadFactory("rpc-server-worker"));
         try {
             ServerBootstrap bootstrap = new ServerBootstrap();
             bootstrap.group(bossGroup, workerGroup);
@@ -62,11 +74,10 @@ public class RpcServer {
                 @Override
                 public void initChannel(SocketChannel channel) {
                     ChannelPipeline pipeline = channel.pipeline();
-                    pipeline.addLast(
-                            new ObjectDecoder(swiftProperty.getRpcMaxObjectSize(), ClassResolvers
-                                    .weakCachingConcurrentResolver(this.getClass()
-                                            .getClassLoader())));
-                    pipeline.addLast(new ObjectEncoder());
+
+                    CompressMode compressMode = rpcProperty.getCompressMode();
+                    compressMode.setMaxObjectSize(swiftProperty.getRpcMaxObjectSize());
+                    SerializeFrame.select(rpcProperty.getSerializeProtocol(), compressMode, pipeline); // 处理 压缩 序列化
                     pipeline.addLast(new RpcServerHandler(handlerMap, externalMap)); // 处理 RPC 请求
                 }
             });
